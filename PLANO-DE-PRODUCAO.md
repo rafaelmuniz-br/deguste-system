@@ -195,7 +195,11 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 4.7 Agente Node.js: autentica na API, escuta pedidos novos (Realtime ou polling), formata recibo ESC/POS (`node-thermal-printer`) `👤 Rafael` `⏳ depende: 4.6`
 - [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal) `👤 Bruno + Lucas`
 - [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
+  - ✔ Lado do banco pronto e testado (21 testes): entrada automática ao pagar, reserva de 90 s, confirmação obrigatória, tentativas com espera crescente, esgota em 5 e vira `falhou`, alerta em `impressoes_com_problema`. Ver `docs/impressao.md`.
+  - Falta: o agente que consome essa fila (4.7) e o aviso na tela da cozinha (4.4).
 - [ ] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
+  - ✔ Função `reimprimir_pedido` (só admin) pronta e testada; a reimpressão vem marcada no recibo.
+  - Falta: o botão no painel da cozinha (4.1).
 - [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar `👤 Rafael`
 - [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção" `👤 Rafael + Lucas`
 - [ ] 4.13 Teste em condições reais: queda de internet, impressora sem papel/desligada, PC reiniciado `👤 Lucas + Rafael`
