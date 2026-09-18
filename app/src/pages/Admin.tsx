@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import PortaoAdmin from '../components/PortaoAdmin.tsx'
 import { criarCatalogoAdminSupabase, type ApiCatalogoAdmin } from '../data/catalogoAdminApi.ts'
+import { criarRelatoriosSupabase, type ApiRelatorios } from '../data/relatoriosApi.ts'
 import { criarFotosAdminSupabase, type ApiFotosAdmin } from '../data/fotosAdminApi.ts'
 import { criarOpcoesAdminSupabase, type ApiOpcoesAdmin } from '../data/opcoesAdminApi.ts'
 import { criarLojaAdminSupabase, type ApiLojaAdmin } from '../data/lojaAdminApi.ts'
@@ -12,6 +13,7 @@ import { useAuth } from '../state/useAuth.ts'
 import Categorias from './admin/Categorias.tsx'
 import Loja from './admin/Loja.tsx'
 import OpcoesProduto from './admin/OpcoesProduto.tsx'
+import Relatorios from './admin/Relatorios.tsx'
 import Produtos from './admin/Produtos.tsx'
 import '../cardapio.css'
 import '../admin.css'
@@ -29,6 +31,10 @@ function Inicio() {
         <li>
           <Link to="/admin/produtos">Produtos</Link>{' '}
           <span className="dica">(inclui as opções do “monte o seu” e marcar esgotado)</span>
+        </li>
+        <li>
+          <Link to="/admin/relatorios">Relatórios de vendas</Link>{' '}
+          <span className="dica">(dia, canal, horário de pico, mais vendidos)</span>
         </li>
         <li>
           <Link to="/admin/loja">Configurações da loja</Link>{' '}
@@ -56,12 +62,14 @@ function Painel({
   apiLoja,
   apiOpcoes,
   apiFotos,
+  apiRelatorios,
 }: {
   email: string
   api: ApiCatalogoAdmin | null
   apiLoja: ApiLojaAdmin | null
   apiOpcoes: ApiOpcoesAdmin | null
   apiFotos: ApiFotosAdmin | null
+  apiRelatorios: ApiRelatorios | null
 }) {
   const { sair } = useAuth()
   return (
@@ -81,6 +89,7 @@ function Painel({
         </NavLink>
         <NavLink to="/admin/categorias">Categorias</NavLink>
         <NavLink to="/admin/produtos">Produtos</NavLink>
+        <NavLink to="/admin/relatorios">Relatórios</NavLink>
         <NavLink to="/admin/loja">Loja</NavLink>
         <NavLink to="/cozinha">Cozinha</NavLink>
       </nav>
@@ -93,6 +102,7 @@ function Painel({
         {apiOpcoes && (
           <Route path="produtos/:id/opcoes" element={<OpcoesProduto api={apiOpcoes} />} />
         )}
+        {apiRelatorios && <Route path="relatorios" element={<Relatorios api={apiRelatorios} />} />}
         {apiLoja && <Route path="loja" element={<Loja api={apiLoja} />} />}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
@@ -106,6 +116,7 @@ export default function Admin({
   apiLoja,
   apiOpcoes,
   apiFotos,
+  apiRelatorios,
 }: {
   cliente?: SupabaseClient | null
   /** Injetáveis para teste; em produção usam o Supabase. */
@@ -113,6 +124,7 @@ export default function Admin({
   apiLoja?: ApiLojaAdmin
   apiOpcoes?: ApiOpcoesAdmin
   apiFotos?: ApiFotosAdmin
+  apiRelatorios?: ApiRelatorios
 }) {
   const apiFinal = useMemo(
     () => api ?? (supabase ? criarCatalogoAdminSupabase(supabase) : null),
@@ -130,6 +142,10 @@ export default function Admin({
     () => apiFotos ?? (supabase ? criarFotosAdminSupabase(supabase) : null),
     [apiFotos],
   )
+  const apiRelatoriosFinal = useMemo(
+    () => apiRelatorios ?? (supabase ? criarRelatoriosSupabase(supabase) : null),
+    [apiRelatorios],
+  )
   return (
     <AuthProvider cliente={cliente}>
       <PortaoAdmin titulo="Painel admin">
@@ -140,6 +156,7 @@ export default function Admin({
             apiLoja={apiLojaFinal}
             apiOpcoes={apiOpcoesFinal}
             apiFotos={apiFotosFinal}
+            apiRelatorios={apiRelatoriosFinal}
           />
         )}
       </PortaoAdmin>
