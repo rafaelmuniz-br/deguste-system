@@ -65,8 +65,11 @@ export default function LojaLayout() {
           },
         }
       : carga.cardapio
-    const api = carga.ehExemplo ? criarApiSimulada(cardapio) : criarApiHttp()
-    return { cardapio, ehExemplo: carga.ehExemplo, api }
+    // A API simulada só existe em desenvolvimento (import.meta.env.DEV é false no build de produção).
+    const apiSimulada =
+      import.meta.env.DEV && (carga.ehExemplo || import.meta.env.VITE_USAR_API_SIMULADA === 'true')
+    const api = apiSimulada ? criarApiSimulada(cardapio) : criarApiHttp()
+    return { cardapio, ehExemplo: carga.ehExemplo, apiSimulada, api }
   }, [carga, forcar])
 
   if (carga.status === 'carregando') {
