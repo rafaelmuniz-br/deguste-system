@@ -1,21 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import PortaoAdmin from '../components/PortaoAdmin.tsx'
 import AuthProvider from '../state/AuthProvider.tsx'
 import { useAuth } from '../state/useAuth.ts'
-import Login from './admin/Login.tsx'
 import '../cardapio.css'
 import '../admin.css'
-
-/** O painel não deve aparecer em buscadores. */
-function useNaoIndexar() {
-  useEffect(() => {
-    const meta = document.createElement('meta')
-    meta.name = 'robots'
-    meta.content = 'noindex, nofollow'
-    document.head.appendChild(meta)
-    return () => meta.remove()
-  }, [])
-}
 
 const SECOES = [
   { nome: 'Categorias', tarefa: '1.8' },
@@ -38,6 +27,9 @@ function Painel({ email }: { email: string }) {
           Sair
         </button>
       </header>
+      <p>
+        <Link to="/cozinha">Ir para o painel da cozinha →</Link>
+      </p>
       <h2>Em construção</h2>
       <ul className="admin-secoes">
         {SECOES.map((s) => (
@@ -50,61 +42,10 @@ function Painel({ email }: { email: string }) {
   )
 }
 
-function Porteiro() {
-  const { estado, sair } = useAuth()
-  useNaoIndexar()
-
-  switch (estado.tipo) {
-    case 'carregando':
-      return (
-        <main className="admin-login">
-          <p role="status">Verificando acesso…</p>
-        </main>
-      )
-    case 'sem_banco':
-      return (
-        <main className="admin-login">
-          <h1>Painel admin</h1>
-          <p role="alert" className="erros">
-            O sistema não está conectado ao banco. Confira o arquivo <code>.env.local</code>.
-          </p>
-        </main>
-      )
-    case 'deslogado':
-      return <Login />
-    case 'sem_permissao':
-      return (
-        <main className="admin-login">
-          <h1>Sem acesso</h1>
-          <p role="alert" className="erros">
-            A conta {estado.email} não tem permissão para usar o painel. Peça a um administrador
-            para liberar o seu acesso.
-          </p>
-          <button type="button" className="btn-secundario" onClick={() => void sair()}>
-            Sair
-          </button>
-        </main>
-      )
-    case 'erro':
-      return (
-        <main className="admin-login">
-          <p role="alert" className="erros">
-            {estado.mensagem}
-          </p>
-          <button type="button" className="btn-secundario" onClick={() => window.location.reload()}>
-            Tentar de novo
-          </button>
-        </main>
-      )
-    case 'admin':
-      return <Painel email={estado.email} />
-  }
-}
-
 export default function Admin({ cliente }: { cliente?: SupabaseClient | null }) {
   return (
     <AuthProvider cliente={cliente}>
-      <Porteiro />
+      <PortaoAdmin titulo="Painel admin">{({ email }) => <Painel email={email} />}</PortaoAdmin>
     </AuthProvider>
   )
 }

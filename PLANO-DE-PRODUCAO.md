@@ -183,10 +183,15 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Painel da cozinha / gestão de pedidos:**
 
-- [ ] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado) `👤 Rafael`
-- [ ] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
+- [x] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado) `👤 Rafael`
+  - ✔ Tela `/cozinha` (só admin): 3 colunas, cartão com itens, escolhas do combo, observações em destaque, cliente, endereço, tempo de espera e cor de atraso (70%/100% de 30 min); botão principal avança **uma etapa por vez**; mudança protegida contra conflito (se outra pessoa já mexeu, avisa e atualiza). Ver `docs/cozinha.md`.
+- [x] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
+  - ✔ Três bipes ao chegar pedido novo, repetindo a cada 20 s enquanto houver pedido novo sem atendimento; botão "Ativar som" (o navegador só libera áudio após um toque) que lembra a escolha; layout de tablet. Falta só testar num tablet real (4.13).
 - [ ] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
-- [ ] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
+  - ✔ Aceitar, recusar e cancelar com motivo obrigatório (gravado no pedido) prontos e testados.
+  - Falta: **marcar produto esgotado rápido** (depende do CRUD de produtos, 1.8).
+- [x] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
+  - ✔ Indicador no topo (vira faixa vermelha quando cai), a biblioteca reconecta sozinha e a tela ainda consulta o banco a cada 15 s e ao voltar para a aba; se a consulta falha, mantém os pedidos e avisa que podem estar desatualizados.
 - [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
 
 **Agente de impressão (`printer-agent/`):**
@@ -197,12 +202,12 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Falta: **testar em impressora real** (modelo: P2) e ligar no `deguste-dev` (conta do agente + migration da fila, 1.14).
 - [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal) `👤 Bruno + Lucas`
   - ✔ Proposta de layout implementada (`printer-agent/src/recibo.js`) e um exemplo em `docs/impressao.md`. Falta o **Bruno aprovar** (ou pedir ajustes).
-- [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
+- [x] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
   - ✔ Lado do banco pronto e testado (21 testes): entrada automática ao pagar, reserva de 90 s, confirmação obrigatória, tentativas com espera crescente, esgota em 5 e vira `falhou`, alerta em `impressoes_com_problema`. Ver `docs/impressao.md`.
-  - Falta: o agente que consome essa fila (4.7) e o aviso na tela da cozinha (4.4).
-- [ ] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
+  - ✔ Agente que consome a fila (4.7) e faixa de alerta na tela da cozinha ("N pedidos não saíram impressos", com botão Reimprimir) prontos. A validação com impressora real fica na 4.13.
+- [x] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
   - ✔ Função `reimprimir_pedido` (só admin) pronta e testada; a reimpressão vem marcada no recibo.
-  - Falta: o botão no painel da cozinha (4.1).
+  - ✔ Botão "Reimprimir" em cada cartão do painel da cozinha.
 - [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar `👤 Rafael`
   - ✔ `printer-agent/iniciar-agente.bat` religa o agente se ele fechar ou travar; passo a passo para iniciar com o Windows no `printer-agent/README.md`. Falta testar no PC da cozinha.
 - [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção" `👤 Rafael + Lucas`
@@ -252,6 +257,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 
 - [ ] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
+  - ✔ Botão "Rota no mapa" (Google Maps) nos pedidos de entrega da cozinha. Falta: Waze e "copiar/enviar por WhatsApp".
 - [ ] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
 - [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes `👤 Rafael`
 - [ ] 6.4 **Mensagens automáticas de status por WhatsApp** — depende da decisão da seção 8 (custo!) `👤 Rafael`
