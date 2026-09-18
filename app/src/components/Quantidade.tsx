@@ -5,12 +5,14 @@ export default function Quantidade({
   onChange,
   nome,
   minimo = 1,
+  maximo = QUANTIDADE_MAXIMA,
 }: {
   valor: number
   onChange: (novo: number) => void
   /** Nome do item, para leitores de tela ("Diminuir quantidade de Jackfino"). */
   nome: string
   minimo?: number
+  maximo?: number
 }) {
   return (
     <div className="quantidade" role="group" aria-label={`Quantidade de ${nome}`}>
@@ -28,7 +30,7 @@ export default function Quantidade({
         type="button"
         className="btn-icone"
         aria-label={`Aumentar quantidade de ${nome}`}
-        disabled={valor >= QUANTIDADE_MAXIMA}
+        disabled={valor >= maximo}
         onClick={() => onChange(valor + 1)}
       >
         +

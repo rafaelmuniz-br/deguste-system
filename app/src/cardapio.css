@@ -214,6 +214,16 @@ section h2 {
   margin-top: auto;
   font-weight: 700;
 }
+.preco-original {
+  margin-right: 6px;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: line-through;
+}
+.tag-desconto {
+  background: var(--ok-fundo);
+  color: var(--ok-texto);
+}
 .esgotado {
   color: var(--fechado-texto);
   background: var(--fechado-fundo);
@@ -413,6 +423,12 @@ section h2 {
 .opcao-preco {
   color: var(--muted);
   font-size: 0.9rem;
+}
+.opcao-contador {
+  cursor: default;
+}
+.opcao-contador .quantidade {
+  margin-left: auto;
 }
 .campo {
   display: block;

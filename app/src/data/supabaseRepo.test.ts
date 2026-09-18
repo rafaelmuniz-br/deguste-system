@@ -19,6 +19,7 @@ function dados(over: Partial<DadosDoBanco> = {}): DadosDoBanco {
         nome: 'Smash Exemplo',
         descricao: null,
         preco_centavos: 2199,
+        preco_original_centavos: 2799,
         foto_path: null,
         eh_combo: false,
         disponivel: true,
@@ -57,6 +58,7 @@ function dados(over: Partial<DadosDoBanco> = {}): DadosDoBanco {
         nome: 'Combo Exemplo',
         descricao: 'Escolha um hambúrguer',
         preco_centavos: 3999,
+        preco_original_centavos: null,
         foto_path: null,
         eh_combo: true,
         disponivel: true,
@@ -106,12 +108,19 @@ describe('montarCardapio', () => {
     expect(smash).toMatchObject({
       categoriaId: CAT_SMASH,
       precoCentavos: 2199,
+      precoOriginalCentavos: 2799,
       ehCombo: false,
       descricao: undefined,
       fotoUrl: undefined,
     })
     expect(c.categorias[0]).toMatchObject({ nome: 'Ofertas', descricao: 'Combos' })
     expect(c.categorias[1].descricao).toBeUndefined()
+  })
+
+  it('preço original nulo (sem desconto) vira undefined', () => {
+    const c = montarCardapio(dados())
+    const combo = c.produtos.find((p) => p.id === 'p-combo')
+    expect(combo?.precoOriginalCentavos).toBeUndefined()
   })
 
   it('ordena categorias, produtos, grupos e opções pela coluna ordem', () => {

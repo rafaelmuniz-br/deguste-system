@@ -225,15 +225,12 @@ describe('calcularPedido: o que o servidor recusa', () => {
     expect(await codigos(e)).toEqual(['ESCOLHAS_INSUFICIENTES', 'ESCOLHAS_INSUFICIENTES'])
   })
 
-  it('opção que não existe, opção esgotada, repetida ou em excesso', async () => {
+  it('opção que não existe, opção esgotada ou em excesso', async () => {
     const g = 'smash-jackfino-adicionais'
     const item = (ids: string[]) =>
       entrada({ itens: [{ produtoId: 'smash-jackfino', quantidade: 1, escolhas: { [g]: ids } }] })
     expect(await codigos(item(['fantasma']))).toEqual(['ESCOLHA_INVALIDA'])
     expect(await codigos(item(['smash-jackfino-picles']))).toEqual(['OPCAO_INDISPONIVEL'])
-    expect(await codigos(item(['smash-jackfino-bacon', 'smash-jackfino-bacon']))).toEqual([
-      'ESCOLHA_INVALIDA',
-    ])
     expect(
       await codigos(
         item([
@@ -244,6 +241,34 @@ describe('calcularPedido: o que o servidor recusa', () => {
         ]),
       ),
     ).toEqual(['ESCOLHAS_DEMAIS'])
+  })
+
+  it('permite repetir a mesma opção (decisão 2.11): soma a quantidade no componente', async () => {
+    const g = 'smash-jackfino-adicionais'
+    const r = await calcularPedido(
+      entrada({
+        itens: [
+          {
+            produtoId: 'smash-jackfino',
+            quantidade: 1,
+            escolhas: { [g]: ['smash-jackfino-bacon', 'smash-jackfino-bacon'] },
+          },
+        ],
+      }),
+      contexto(),
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.pedido.itens[0].precoUnitarioCentavos).toBe(2199 + 400 * 2)
+    expect(r.pedido.itens[0].componentes).toEqual([
+      {
+        produtoId: undefined,
+        grupoNome: 'Adicionais',
+        opcaoNome: 'Bacon extra',
+        quantidade: 2,
+        precoAdicionalCentavos: 400,
+      },
+    ])
   })
 
   it('grupo que não pertence ao produto', async () => {

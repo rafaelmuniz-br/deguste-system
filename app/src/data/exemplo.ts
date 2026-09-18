@@ -31,12 +31,19 @@ const grupoAdicionais = (id: string): GrupoOpcao => ({
   ],
 })
 
-const smash = (id: string, nome: string, precoCentavos: number, descricao: string): Produto => ({
+const smash = (
+  id: string,
+  nome: string,
+  precoCentavos: number,
+  descricao: string,
+  precoOriginalCentavos?: number,
+): Produto => ({
   id,
   categoriaId: CAT.smash,
   nome,
   descricao,
   precoCentavos,
+  precoOriginalCentavos,
   ehCombo: false,
   disponivel: true,
   grupos: [grupoAdicionais(id)],
@@ -136,7 +143,13 @@ const produtos: Produto[] = [
   },
 
   // --- Smashs 90g ---
-  smash('smash-jackfino', 'Jackfino', 2199, 'Smash 90g Black Angus, queijo e molho da casa.'),
+  smash(
+    'smash-jackfino',
+    'Jackfino',
+    2199,
+    'Smash 90g Black Angus, queijo e molho da casa.',
+    2799, // igual ao desconto real do site hoje (tarefa 2.12)
+  ),
   smash('smash-laurinha', 'Laurinha', 2299, 'Smash 90g Black Angus, queijo prato e cebola.'),
   smash('smash-bolado', 'Bolado', 2499, 'Smash 90g Black Angus, bacon crocante e cheddar.'),
   smash(

@@ -109,3 +109,28 @@ describe('configuração da loja', () => {
     ).rejects.toThrow(/check/)
   })
 })
+
+describe('preço "de/por" (tarefa 2.12)', () => {
+  const categoria = '00000000-0000-4000-8000-000000000002'
+  const inserir = (nome: string, preco: number, original: string) =>
+    db.exec(`insert into public.produtos (categoria_id, nome, preco_centavos, preco_original_centavos)
+      values ('${categoria}', '${nome}', ${preco}, ${original})`)
+
+  it('aceita produto sem preço original e com preço original maior que o atual', async () => {
+    await inserir('Sem desconto', 2000, 'null')
+    await inserir('Com desconto', 2000, '2500')
+  })
+
+  it('recusa preço original igual ou menor que o atual (não seria desconto)', async () => {
+    await expect(inserir('Igual', 2000, '2000')).rejects.toThrow(/check/)
+    await expect(inserir('Menor', 2000, '1500')).rejects.toThrow(/check/)
+  })
+
+  it('o total do pedido nunca depende do preço original: ele não entra na conta do banco', async () => {
+    const { rows } = await db.query<{ column_name: string }>(
+      `select column_name from information_schema.columns
+       where table_schema = 'public' and table_name = 'pedidos' and column_name like '%original%'`,
+    )
+    expect(rows).toEqual([])
+  })
+})

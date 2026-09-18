@@ -64,9 +64,14 @@ export function resolverLinha(cardapio: Cardapio, linha: LinhaCarrinho): LinhaRe
   if (!produto) return null // produto saiu do cardápio desde que foi para a sacola
   const resumoEscolhas: string[] = []
   for (const grupo of produto.grupos) {
-    const nomes = (linha.escolhas[grupo.id] ?? [])
-      .map((id) => grupo.opcoes.find((o) => o.id === id)?.nome)
-      .filter((n): n is string => Boolean(n))
+    const ids = linha.escolhas[grupo.id] ?? []
+    const contagem = new Map<string, number>()
+    for (const id of ids) contagem.set(id, (contagem.get(id) ?? 0) + 1)
+    const nomes: string[] = []
+    for (const [id, vezes] of contagem) {
+      const nome = grupo.opcoes.find((o) => o.id === id)?.nome
+      if (nome) nomes.push(vezes > 1 ? `${vezes}x ${nome}` : nome)
+    }
     if (nomes.length > 0) resumoEscolhas.push(`${grupo.nome}: ${nomes.join(', ')}`)
   }
   const unitario = precoUnitario(produto, linha.escolhas)
