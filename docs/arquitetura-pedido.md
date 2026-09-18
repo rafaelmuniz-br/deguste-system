@@ -15,6 +15,34 @@ Navegador ──► Netlify Function (servidor) ──► Supabase (banco)
 4. **Status e pagamento vêm do banco.** O pedido nasce sempre `aguardando_pagamento` / `pendente` e no canal `proprio`, seja o que for que o payload diga.
 5. **Última barreira no banco:** a soma dos itens precisa ser igual ao subtotal, e o total precisa fechar (`check` da tabela).
 
+## A função do servidor (`/.netlify/functions/pedidos`)
+
+Código em `app/src/server/` (testado); o arquivo `app/netlify/functions/pedidos.ts` só liga as peças. `POST` com `{ "acao": "calcular" | "confirmar", "pedido": {...} }`.
+
+| Ação | O que faz | Resposta de sucesso |
+| --- | --- | --- |
+| `calcular` | Valida, recalcula preço e frete, **não grava** | `{ ok: true, pedido }` |
+| `confirmar` | Recalcula de novo e chama `criar_pedido` | `{ ok: true, pedido, numero, token }` |
+
+| Status | Quando |
+| --- | --- |
+| 200 | Sucesso |
+| 400 | Formato inválido (JSON quebrado, campo ausente, ação desconhecida) |
+| 413 | Corpo maior que 20 KB |
+| 422 | Regra de negócio (loja fechada, item esgotado, fora da área, pedido mínimo...) |
+| 429 | Muitas requisições do mesmo IP, ou muitos pedidos pendentes do mesmo telefone |
+| 503 / 500 | Servidor sem configuração ou falha ao gravar. A resposta nunca traz detalhe interno |
+
+**Variáveis de ambiente** (Netlify → Site settings → Environment variables; **nunca** no Git):
+
+| Variável | Para quê | Obrigatória |
+| --- | --- | --- |
+| `SUPABASE_URL` | URL do projeto Supabase | Sim |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chave **secreta** do servidor (executa `criar_pedido`) | Sim |
+| `ORS_API_KEY` | OpenRouteService, para frete por distância | Só se a regra de frete for por km/faixas |
+
+A regra de frete "por bairro" não precisa do `ORS_API_KEY`.
+
 ## Acompanhamento sem login
 
 Cada pedido tem um `token_acompanhamento` (UUID aleatório). O cliente acompanha em `/acompanhar/<token>` (tarefa 3.10), chamando `acompanhar_pedido(token)`, que devolve **só** número, tipo, status, pagamento, total e data. Telefone e endereço nunca saem por aí. O visitante continua sem acesso direto à tabela `pedidos`.
@@ -22,7 +50,7 @@ Cada pedido tem um `token_acompanhamento` (UUID aleatório). O cliente acompanha
 ## Anti-spam (3.11)
 
 - **No banco:** no máximo 3 pedidos aguardando pagamento por telefone em 15 minutos (erro `limite_pedidos_pendentes`).
-- **Na função do servidor:** limite por origem e tamanho máximo do corpo (PR seguinte).
+- **Na função do servidor:** 6 confirmações e 30 cálculos por minuto por IP (por instância, best-effort) e corpo de no máximo 20 KB.
 
 ## Erros que o banco devolve
 

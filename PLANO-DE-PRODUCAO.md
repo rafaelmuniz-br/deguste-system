@@ -57,6 +57,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.4 Projeto Vite + React + React Router + TypeScript `👤 Rafael`
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
+  - Ao criar o site, cadastrar em Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secreta: só no Netlify) e, se a regra de frete for por distância, `ORS_API_KEY`. Detalhes em `docs/arquitetura-pedido.md`.
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Lucas + Rafael`
   - Decisão: criados na **conta do Lucas**, porque o plano gratuito limita a 2 projetos por conta e a do Rafael já usa os 2.
   - `deguste-dev` ✅ criado (organização "Deguste Burguer", região São Paulo, plano Free). Todas as migrations de `supabase/migrations/` aplicadas, RLS ativo nas 13 tabelas, seed de exemplo carregado. Falta ainda: convidar o Rafael como Administrador na organização e criar o `deguste-prod` (perto do go-live, Fase 5).
@@ -142,27 +143,29 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
+  - ✔ Provedor de distância implementado (`app/src/server/distanciaOrs.ts`, OpenRouteService: geocodifica e calcula rota; chave no cabeçalho; qualquer falha recusa o pedido em vez de chutar frete). Testado com respostas simuladas.
+  - Falta: validar com a `ORS_API_KEY` real e o endereço da loja com coordenadas, e a regra definitiva (P4).
   - ✔ Pronto e testado (`app/src/domain/frete.ts`): três modelos de cobrança (por km, faixas de km, por bairro), raio máximo, recusa em vez de chutar preço.
   - Falta: serviço de geocodificação/rotas real (OpenRouteService) e a regra definitiva da loja (P4).
 - [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem `👤 Rafael`
-- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
-  - ✔ Pronto e testado (`app/src/domain/pedido.ts`, `pedidoBanco.ts`): leitura defensiva da entrada, preço/frete/total calculados no servidor, recusas (loja fechada, esgotado, opção inválida, mínimo, fora da área) e linhas prontas para o banco, validadas contra o schema real em `supabase/tests/contrato-pedido.test.ts`.
-  - ✔ Banco pronto e testado (`supabase/migrations/20260918160000_pedido_atomico.sql`): `criar_pedido` grava tudo numa transação, só a service role executa, status/pagamento/canal vêm do banco, e a soma dos itens precisa fechar o subtotal. Ver `docs/arquitetura-pedido.md`.
-  - Falta: a Netlify Function que lê o cardápio (só itens ativos), chama a lógica e o `criar_pedido`; depende de a migration estar aplicada no `deguste-dev` (1.14) e da `service_role` no Netlify (0.6).
+- [x] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
+  - ✔ Função pronta e testada (164 testes do app + 50 do banco): `app/src/server/pedidosHandler.ts` + `app/netlify/functions/pedidos.ts`. Empacotada com esbuild e chamada em Node (405 / 503 sem configuração / 400). Recalcula preço e frete, recusa loja fechada, esgotado e opção faltando, ignora preço vindo do navegador, grava pelo `criar_pedido` (atômico) e não vaza detalhe interno. Ver `docs/arquitetura-pedido.md`.
+  - A verificação de ponta a ponta contra o banco real é a tarefa 3.15.
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
 - [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
   - ✔ Pronto: tela de pedido registrado com a linha do tempo (entrega e retirada) e revisão do total antes de confirmar (`app/src/pages/Checkout.tsx`).
   - ✔ Banco: token de acompanhamento e `acompanhar_pedido(token)` (devolve só número, status e total; sem telefone nem endereço), testado.
   - Falta: a tela `/acompanhar/<token>` lendo o status real (PR seguinte); Pix com QR code e expiração (3.8/3.9).
-- [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
-  - ✔ No banco: máximo de 3 pedidos aguardando pagamento por telefone em 15 minutos (testado).
-  - Falta: limite por origem e limite de tamanho do corpo na função do servidor.
+- [x] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
+  - ✔ Banco: até 3 pedidos aguardando pagamento por telefone em 15 min. Função: 6 confirmações e 30 cálculos por minuto por IP e corpo de no máximo 20 KB. Testado.
+  - Limite: o do IP vale por instância da função (best-effort); o do telefone vale para todos, pois fica no banco.
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
 - [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
+- [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
 
