@@ -206,7 +206,7 @@ describe('acompanhar_pedido: acompanhamento sem login (3.10)', () => {
       db.query<Record<string, unknown>>(`select * from public.acompanhar_pedido($1)`, [token]))
     expect(status.rows).toHaveLength(1)
     expect(Object.keys(status.rows[0]).sort()).toEqual(
-      ['criado_em', 'numero', 'pagamento_status', 'status', 'tipo', 'total_centavos'])
+      ['criado_em', 'numero', 'pagamento_expira_em', 'pagamento_status', 'pix_copia_cola', 'status', 'tipo', 'total_centavos'])
     // nenhum dado pessoal vaza
     expect(JSON.stringify(status.rows[0])).not.toMatch(/Rua Secreta|71944440001|Maria/)
     expect(status.rows[0]).toMatchObject({ status: 'aguardando_pagamento', pagamento_status: 'pendente', tipo: 'entrega' })
