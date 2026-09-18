@@ -119,8 +119,12 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
+  - ✔ Pronto e testado (`app/src/domain/frete.ts`): três modelos de cobrança (por km, faixas de km, por bairro), raio máximo, recusa em vez de chutar preço.
+  - Falta: serviço de geocodificação/rotas real (OpenRouteService) e a regra definitiva da loja (P4).
 - [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem `👤 Rafael`
 - [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
+  - ✔ Pronto e testado (`app/src/domain/pedido.ts`, `pedidoBanco.ts`): leitura defensiva da entrada, preço/frete/total calculados no servidor, recusas (loja fechada, esgotado, opção inválida, mínimo, fora da área) e linhas prontas para o banco, validadas contra o schema real em `supabase/tests/contrato-pedido.test.ts`.
+  - Falta: a Netlify Function que lê o cardápio do Supabase (só itens ativos), chama essa lógica e grava (precisa do Supabase de dev, 0.7).
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
 - [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
