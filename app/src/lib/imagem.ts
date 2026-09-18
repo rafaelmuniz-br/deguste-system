@@ -1,4 +1,4 @@
-import { calcularTamanho } from '../domain/fotos.ts'
+import { calcularTamanho, LADO_MAXIMO_PX } from '../domain/fotos.ts'
 
 export type FotoProcessada = { blob: Blob; extensao: 'webp' | 'jpg'; tipo: string }
 
@@ -7,11 +7,14 @@ export type FotoProcessada = { blob: Blob; extensao: 'webp' | 'jpg'; tipo: strin
  * WebP). Uma foto de celular de 5 MB vira ~100 KB: cabe folgado no free tier do Supabase e carrega
  * rápido para o cliente. Usa canvas, então só roda no navegador (os testes injetam um processador falso).
  */
-export async function redimensionarFoto(arquivo: Blob): Promise<FotoProcessada> {
+export async function redimensionarFoto(
+  arquivo: Blob,
+  ladoMaximo: number = LADO_MAXIMO_PX,
+): Promise<FotoProcessada> {
   // `imageOrientation: 'from-image'` respeita a rotação gravada pelo celular (senão a foto sai deitada).
   const imagem = await createImageBitmap(arquivo, { imageOrientation: 'from-image' })
   try {
-    const { largura, altura } = calcularTamanho(imagem.width, imagem.height)
+    const { largura, altura } = calcularTamanho(imagem.width, imagem.height, ladoMaximo)
     const canvas = document.createElement('canvas')
     canvas.width = largura
     canvas.height = altura

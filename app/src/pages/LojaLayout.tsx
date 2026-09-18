@@ -82,7 +82,7 @@ export default function LojaLayout() {
 
   if (carga.status === 'carregando') {
     return (
-      <main className="pagina">
+      <main className="pagina pagina-carregando">
         <p role="status">Carregando cardápio…</p>
       </main>
     )

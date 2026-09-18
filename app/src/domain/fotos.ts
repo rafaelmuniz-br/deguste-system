@@ -7,6 +7,9 @@ export const BUCKET_FOTOS = 'fotos-produtos'
 /** A foto é reduzida no navegador antes do envio: o lado maior nunca passa disto (economiza o free tier). */
 export const LADO_MAXIMO_PX = 1000
 
+/** Miniatura usada nos cartões do cardápio (o cartão mostra a foto com 84 px; 320 px cobre telas 3x). */
+export const LADO_MINIATURA_PX = 320
+
 /** Tamanho máximo do arquivo ESCOLHIDO (celulares tiram fotos de vários MB; depois reduzimos). */
 export const LIMITE_ORIGINAL_BYTES = 15 * 1024 * 1024
 
@@ -39,6 +42,11 @@ export function calcularTamanho(
     largura: Math.max(1, Math.round(largura * fator)),
     altura: Math.max(1, Math.round(altura * fator)),
   }
+}
+
+/** Caminho da miniatura que acompanha a foto: "p1/123.webp" → "p1/123-mini.webp". */
+export function caminhoMiniatura(caminho: string): string {
+  return caminho.replace(/\.(webp|jpg)$/, '-mini.$1')
 }
 
 /**

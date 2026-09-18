@@ -646,3 +646,15 @@ fieldset > .campo {
 .linha-tempo li.feito {
   color: var(--ok-texto);
 }
+
+.carregando-pagina {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Enquanto o cardápio carrega, a página já ocupa a tela toda: o rodapé fica fora da vista e não "pula"
+   para baixo quando os produtos chegam (isso era o maior peso no Lighthouse: deslocamento de layout). */
+.pagina-carregando {
+  min-height: 110vh;
+}

@@ -141,7 +141,8 @@ describe('acessibilidade (axe-core)', () => {
 
   it('login do painel admin', async () => {
     abrir('/admin')
-    await screen.findByText(/não está conectado ao banco/)
+    // O painel é carregado sob demanda: a primeira importação (transformar o código) pode passar de 1 s.
+    await screen.findByText(/não está conectado ao banco/, {}, { timeout: 10_000 })
     expect(await violacoes()).toEqual([])
   })
 })

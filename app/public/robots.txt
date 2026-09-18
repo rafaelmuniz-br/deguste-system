@@ -1,0 +1,5 @@
+# O cardápio pode aparecer em buscadores; as áreas internas não.
+User-agent: *
+Disallow: /admin
+Disallow: /cozinha
+Disallow: /acompanhar/
