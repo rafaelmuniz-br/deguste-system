@@ -3,20 +3,19 @@ import { useMemo } from 'react'
 import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import PortaoAdmin from '../components/PortaoAdmin.tsx'
 import { criarCatalogoAdminSupabase, type ApiCatalogoAdmin } from '../data/catalogoAdminApi.ts'
+import { criarOpcoesAdminSupabase, type ApiOpcoesAdmin } from '../data/opcoesAdminApi.ts'
 import { criarLojaAdminSupabase, type ApiLojaAdmin } from '../data/lojaAdminApi.ts'
 import { supabase } from '../lib/supabase.ts'
 import AuthProvider from '../state/AuthProvider.tsx'
 import { useAuth } from '../state/useAuth.ts'
 import Categorias from './admin/Categorias.tsx'
 import Loja from './admin/Loja.tsx'
+import OpcoesProduto from './admin/OpcoesProduto.tsx'
 import Produtos from './admin/Produtos.tsx'
 import '../cardapio.css'
 import '../admin.css'
 
-const EM_CONSTRUCAO = [
-  { nome: 'Opções do "monte o seu"', tarefa: '1.10' },
-  { nome: 'Fotos', tarefa: '1.11' },
-]
+const EM_CONSTRUCAO = [{ nome: 'Fotos', tarefa: '1.11' }]
 
 function Inicio() {
   return (
@@ -28,7 +27,7 @@ function Inicio() {
         </li>
         <li>
           <Link to="/admin/produtos">Produtos</Link>{' '}
-          <span className="dica">(inclui marcar esgotado)</span>
+          <span className="dica">(inclui as opções do “monte o seu” e marcar esgotado)</span>
         </li>
         <li>
           <Link to="/admin/loja">Configurações da loja</Link>{' '}
@@ -54,10 +53,12 @@ function Painel({
   email,
   api,
   apiLoja,
+  apiOpcoes,
 }: {
   email: string
   api: ApiCatalogoAdmin | null
   apiLoja: ApiLojaAdmin | null
+  apiOpcoes: ApiOpcoesAdmin | null
 }) {
   const { sair } = useAuth()
   return (
@@ -84,6 +85,9 @@ function Painel({
         <Route index element={<Inicio />} />
         {api && <Route path="categorias" element={<Categorias api={api} />} />}
         {api && <Route path="produtos" element={<Produtos api={api} />} />}
+        {apiOpcoes && (
+          <Route path="produtos/:id/opcoes" element={<OpcoesProduto api={apiOpcoes} />} />
+        )}
         {apiLoja && <Route path="loja" element={<Loja api={apiLoja} />} />}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
@@ -95,11 +99,13 @@ export default function Admin({
   cliente,
   api,
   apiLoja,
+  apiOpcoes,
 }: {
   cliente?: SupabaseClient | null
   /** Injetáveis para teste; em produção usam o Supabase. */
   api?: ApiCatalogoAdmin
   apiLoja?: ApiLojaAdmin
+  apiOpcoes?: ApiOpcoesAdmin
 }) {
   const apiFinal = useMemo(
     () => api ?? (supabase ? criarCatalogoAdminSupabase(supabase) : null),
@@ -109,10 +115,16 @@ export default function Admin({
     () => apiLoja ?? (supabase ? criarLojaAdminSupabase(supabase) : null),
     [apiLoja],
   )
+  const apiOpcoesFinal = useMemo(
+    () => apiOpcoes ?? (supabase ? criarOpcoesAdminSupabase(supabase) : null),
+    [apiOpcoes],
+  )
   return (
     <AuthProvider cliente={cliente}>
       <PortaoAdmin titulo="Painel admin">
-        {({ email }) => <Painel email={email} api={apiFinal} apiLoja={apiLojaFinal} />}
+        {({ email }) => (
+          <Painel email={email} api={apiFinal} apiLoja={apiLojaFinal} apiOpcoes={apiOpcoesFinal} />
+        )}
       </PortaoAdmin>
     </AuthProvider>
   )
