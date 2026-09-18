@@ -68,14 +68,14 @@ export default function Modal({
         tabIndex={-1}
         onKeyDown={aoTeclar}
       >
-        <header className="modal-topo">
+        <div className="modal-topo">
           <h2 id={idTitulo}>{titulo}</h2>
           <button type="button" className="btn-icone" onClick={onFechar} aria-label="Fechar">
             ✕
           </button>
-        </header>
+        </div>
         <div className="modal-corpo">{children}</div>
-        {rodape && <footer className="modal-rodape">{rodape}</footer>}
+        {rodape && <div className="modal-rodape">{rodape}</div>}
       </div>
     </div>
   )

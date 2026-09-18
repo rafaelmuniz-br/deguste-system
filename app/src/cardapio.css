@@ -5,6 +5,8 @@
   --texto: #241c15;
   --muted: #6b5f53;
   --borda: #e6dfd5;
+  /* Borda de CAMPOS e botões: precisa de 3:1 contra o fundo (WCAG 1.4.11); --borda é só decorativa. */
+  --borda-campo: #857868;
   --acento: #b93a0a;
   --sobre-acento: #ffffff;
   --acento-suave: #fdeadd;
@@ -22,6 +24,7 @@
     --texto: #f1ebe2;
     --muted: #b0a394;
     --borda: #362d24;
+    --borda-campo: #857a6c;
     --acento: #fb923c;
     --sobre-acento: #1a1005;
     --acento-suave: #3a2415;
@@ -121,7 +124,7 @@ body {
   font: inherit;
   color: inherit;
   background: var(--superficie);
-  border: 1px solid var(--borda);
+  border: 1px solid var(--borda-campo);
   border-radius: 10px;
 }
 .categorias {
@@ -290,7 +293,7 @@ section h2 {
   font-size: 1.2rem;
   color: var(--texto);
   background: var(--superficie);
-  border: 1px solid var(--borda);
+  border: 1px solid var(--borda-campo);
   border-radius: 10px;
   cursor: pointer;
 }
@@ -444,7 +447,7 @@ section h2 {
   font-weight: 400;
   color: inherit;
   background: var(--superficie);
-  border: 1px solid var(--borda);
+  border: 1px solid var(--borda-campo);
   border-radius: 10px;
   resize: vertical;
 }
@@ -523,7 +526,7 @@ section h2 {
   font-weight: 400;
   color: inherit;
   background: var(--superficie);
-  border: 1px solid var(--borda);
+  border: 1px solid var(--borda-campo);
   border-radius: 10px;
 }
 .campo input[aria-invalid='true'] {
@@ -592,7 +595,7 @@ fieldset > .campo {
   text-align: center;
   text-decoration: none;
   background: var(--superficie);
-  border: 1px solid var(--borda);
+  border: 1px solid var(--borda-campo);
   border-radius: 12px;
   cursor: pointer;
 }
