@@ -92,8 +92,10 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 1.7 Login admin (Supabase Auth, e-mail + senha; 2 usuários: Bruno e Lucas) `👤 Rafael` `⏳ depende: 0.7`
   - ✔ Pronto e testado: página de login, porteiro do `/admin` (não logado / logado sem permissão / admin), sessão persistente, mensagens sem revelar quem tem conta, `noindex` (`app/src/pages/Admin.tsx`, `state/AuthProvider.tsx`). Conferido contra o Supabase real com credencial falsa.
   - Falta: criar os usuários e liberar em `admins`, e testar o login de verdade. Passo a passo em `docs/criar-admins.md`.
-- [ ] 1.8 CRUD de categorias (ordem, ativo/inativo) `👤 Lucas` `⏳ depende: 1.7`
-- [ ] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado) `👤 Rafael` `⏳ depende: 1.7`
+- [x] 1.8 CRUD de categorias (ordem, ativo/inativo) `👤 Lucas` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/categorias`: criar, editar, ativar/desativar, reordenar com setas ▲▼ e excluir (só categoria vazia, com confirmação). Feita por Rafael/Claude com testes; falta só o teste com o banco real quando os admins existirem (1.7). Ver `docs/admin-cadastro.md`.
+- [x] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado) `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/produtos`: criar/editar (preço digitado em reais → centavos, preço "de", combo, ativo), **marcar esgotado com um toque**, reordenar dentro da categoria, filtro por categoria. A **foto** é a 1.11.
 - [ ] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional) `👤 Rafael` `⏳ depende: 1.7`
 - [ ] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier) `👤 Rafael` `⏳ depende: 1.7`
 - [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
@@ -187,9 +189,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Tela `/cozinha` (só admin): 3 colunas, cartão com itens, escolhas do combo, observações em destaque, cliente, endereço, tempo de espera e cor de atraso (70%/100% de 30 min); botão principal avança **uma etapa por vez**; mudança protegida contra conflito (se outra pessoa já mexeu, avisa e atualiza). Ver `docs/cozinha.md`.
 - [x] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
   - ✔ Três bipes ao chegar pedido novo, repetindo a cada 20 s enquanto houver pedido novo sem atendimento; botão "Ativar som" (o navegador só libera áudio após um toque) que lembra a escolha; layout de tablet. Falta só testar num tablet real (4.13).
-- [ ] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
+- [x] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
   - ✔ Aceitar, recusar e cancelar com motivo obrigatório (gravado no pedido) prontos e testados.
-  - Falta: **marcar produto esgotado rápido** (depende do CRUD de produtos, 1.8).
+  - ✔ **Marcar esgotado rápido**: atalho "Marcar esgotado" no topo da cozinha leva à lista de produtos (1.9), com o botão de um toque.
 - [x] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
   - ✔ Indicador no topo (vira faixa vermelha quando cai), a biblioteca reconecta sozinha e a tela ainda consulta o banco a cada 15 s e ao voltar para a aba; se a consulta falha, mantém os pedidos e avisa que podem estar desatualizados.
 - [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
