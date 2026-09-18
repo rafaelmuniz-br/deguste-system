@@ -149,6 +149,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Falta: status reais em tempo real (Supabase Realtime), Pix com QR code e expiração (3.8/3.9).
 - [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
+  - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
+  - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
 - [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
 
@@ -316,6 +318,8 @@ Encontrados ao converter o planejamento em plano de produção:
 | P8 | Domínio próprio (~R$ 40/ano) ou subdomínio Netlify no início | Lucas | 2.10 |
 | P9 | Como tratar o saldo de cashback atual dos clientes na virada | Bruno + Lucas | 5.15, 6.6 |
 | P10 | Emissão de nota fiscal: conversar com o contador | Lucas | Fase 7 / fora de escopo |
+| P11 | Razão social, canal (e-mail/WhatsApp) e responsável (encarregado) para pedidos da LGPD, e prazo de retenção dos pedidos | Lucas | 3.12, 3.13 |
+| P12 | Regras de cancelamento e reembolso (prazos, cliente ausente), outras formas de pagamento e revisão jurídica dos textos | Bruno + Lucas | 3.12 |
 
 ## 9. Cronograma de referência
 
