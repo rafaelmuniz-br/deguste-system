@@ -98,6 +98,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
 - [x] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
   - **Feito no `deguste-dev`** (18/09/2026, Lucas). Repetir em `deguste-prod` quando esse projeto for criado (perto do go-live, Fase 5).
+- [ ] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
 
 **Saída:** Bruno cadastra "Smash Jackfino" com foto pelo admin.
 
@@ -146,13 +147,17 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem `👤 Rafael`
 - [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
   - ✔ Pronto e testado (`app/src/domain/pedido.ts`, `pedidoBanco.ts`): leitura defensiva da entrada, preço/frete/total calculados no servidor, recusas (loja fechada, esgotado, opção inválida, mínimo, fora da área) e linhas prontas para o banco, validadas contra o schema real em `supabase/tests/contrato-pedido.test.ts`.
-  - Falta: a Netlify Function que lê o cardápio do Supabase (só itens ativos), chama essa lógica e grava (precisa do Supabase de dev, 0.7).
+  - ✔ Banco pronto e testado (`supabase/migrations/20260918160000_pedido_atomico.sql`): `criar_pedido` grava tudo numa transação, só a service role executa, status/pagamento/canal vêm do banco, e a soma dos itens precisa fechar o subtotal. Ver `docs/arquitetura-pedido.md`.
+  - Falta: a Netlify Function que lê o cardápio (só itens ativos), chama a lógica e o `criar_pedido`; depende de a migration estar aplicada no `deguste-dev` (1.14) e da `service_role` no Netlify (0.6).
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
 - [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
   - ✔ Pronto: tela de pedido registrado com a linha do tempo (entrega e retirada) e revisão do total antes de confirmar (`app/src/pages/Checkout.tsx`).
-  - Falta: status reais em tempo real (Supabase Realtime), Pix com QR code e expiração (3.8/3.9).
+  - ✔ Banco: token de acompanhamento e `acompanhar_pedido(token)` (devolve só número, status e total; sem telefone nem endereço), testado.
+  - Falta: a tela `/acompanhar/<token>` lendo o status real (PR seguinte); Pix com QR code e expiração (3.8/3.9).
 - [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
+  - ✔ No banco: máximo de 3 pedidos aguardando pagamento por telefone em 15 minutos (testado).
+  - Falta: limite por origem e limite de tamanho do corpo na função do servidor.
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
