@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { formatarPreco } from '../domain/dinheiro.ts'
 import { useCarrinho } from '../state/useCarrinho.ts'
 import Modal from './Modal.tsx'
@@ -13,6 +14,7 @@ export default function SacolaModal({
   pedidoMinimoCentavos: number
 }) {
   const { linhas, subtotalCentavos, dispatch } = useCarrinho()
+  const navigate = useNavigate()
   const faltaParaMinimo = Math.max(0, pedidoMinimoCentavos - subtotalCentavos)
 
   return (
@@ -32,9 +34,13 @@ export default function SacolaModal({
                   ? `Faltam ${formatarPreco(faltaParaMinimo)} para o pedido mínimo.`
                   : 'Entrega ou retirada, endereço e pagamento no próximo passo.'}
             </p>
-            {/* Checkout entra na Fase 3 (pedido, frete e Pix). */}
-            <button type="button" className="btn-primario" disabled>
-              Finalizar pedido (em breve)
+            <button
+              type="button"
+              className="btn-primario"
+              disabled={!lojaAberta || faltaParaMinimo > 0}
+              onClick={() => navigate('/pedido')}
+            >
+              Finalizar pedido
             </button>
           </>
         ) : undefined

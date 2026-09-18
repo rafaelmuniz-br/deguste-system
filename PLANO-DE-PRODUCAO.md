@@ -116,7 +116,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 - [ ] 3.1 Decisão: gateway Pix — **Mercado Pago vs Pagar.me** (comparar taxa real, prazo de recebimento, qualidade do sandbox) `👤 Rafael + Lucas`
 - [ ] 3.2 Conta do gateway criada em nome do CNPJ do Deguste, credenciais de sandbox nas variáveis do Netlify `👤 Lucas + Rafael` `⏳ depende: 3.1`
-- [ ] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
+- [x] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
   - ✔ Pronto e testado (`app/src/domain/frete.ts`): três modelos de cobrança (por km, faixas de km, por bairro), raio máximo, recusa em vez de chutar preço.
@@ -128,6 +128,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
 - [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
+  - ✔ Pronto: tela de pedido registrado com a linha do tempo (entrega e retirada) e revisão do total antes de confirmar (`app/src/pages/Checkout.tsx`).
+  - Falta: status reais em tempo real (Supabase Realtime), Pix com QR code e expiração (3.8/3.9).
 - [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`

@@ -1,57 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import ProdutoCard from '../components/ProdutoCard.tsx'
 import ProdutoModal from '../components/ProdutoModal.tsx'
 import SacolaModal from '../components/SacolaModal.tsx'
-import { carregarCardapio } from '../data/repositorio.ts'
 import { combinaComBusca } from '../domain/busca.ts'
 import { formatarPreco } from '../domain/dinheiro.ts'
 import { descreverEstado } from '../domain/horario.ts'
-import type { Cardapio as CardapioDados, Produto } from '../domain/tipos.ts'
-import CarrinhoProvider from '../state/CarrinhoProvider.tsx'
+import type { Produto } from '../domain/tipos.ts'
 import { useCarrinho } from '../state/useCarrinho.ts'
 import { useEstadoLoja } from '../state/useEstadoLoja.ts'
-import '../cardapio.css'
-
-type Carga =
-  | { status: 'carregando' }
-  | { status: 'erro' }
-  | { status: 'ok'; cardapio: CardapioDados; ehExemplo: boolean }
+import { useLoja } from '../state/useLoja.ts'
 
 export default function Cardapio() {
-  const [carga, setCarga] = useState<Carga>({ status: 'carregando' })
-
-  useEffect(() => {
-    let cancelado = false
-    carregarCardapio()
-      .then((r) => !cancelado && setCarga({ status: 'ok', ...r }))
-      .catch(() => !cancelado && setCarga({ status: 'erro' }))
-    return () => {
-      cancelado = true
-    }
-  }, [])
-
-  if (carga.status === 'carregando') {
-    return (
-      <main className="pagina">
-        <p role="status">Carregando cardápio…</p>
-      </main>
-    )
-  }
-  if (carga.status === 'erro') {
-    return (
-      <main className="pagina">
-        <p role="alert">Não conseguimos carregar o cardápio agora. Tente novamente em instantes.</p>
-      </main>
-    )
-  }
-  return (
-    <CarrinhoProvider cardapio={carga.cardapio}>
-      <Conteudo cardapio={carga.cardapio} ehExemplo={carga.ehExemplo} />
-    </CarrinhoProvider>
-  )
-}
-
-function Conteudo({ cardapio, ehExemplo }: { cardapio: CardapioDados; ehExemplo: boolean }) {
+  const { cardapio, ehExemplo } = useLoja()
   const { loja } = cardapio
   const estado = useEstadoLoja(loja)
   const { quantidadeTotal, subtotalCentavos, dispatch } = useCarrinho()

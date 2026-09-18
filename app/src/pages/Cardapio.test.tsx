@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
-import Cardapio from './Cardapio.tsx'
+import App from '../App.tsx'
 
 const normal = (s: string | null) => (s ?? '').replace(/\s/g, ' ')
 
@@ -10,14 +10,17 @@ async function abrir(loja: 'aberta' | 'fechada' = 'aberta') {
   const user = userEvent.setup()
   const tela = render(
     <MemoryRouter initialEntries={[`/?loja=${loja}`]}>
-      <Cardapio />
+      <App />
     </MemoryRouter>,
   )
   await screen.findByRole('heading', { level: 1, name: 'Deguste Burguer' })
   return { user, tela, loja }
 }
 
-beforeEach(() => localStorage.clear())
+beforeEach(() => {
+  localStorage.clear()
+  sessionStorage.clear()
+})
 
 describe('Cardápio público', () => {
   it('lista as categorias e produtos, com esgotado bloqueado', async () => {
@@ -64,7 +67,7 @@ describe('Cardápio público', () => {
     await user.click(barra)
     const sacola = screen.getByRole('dialog', { name: 'Sua sacola' })
     expect(within(sacola).getByText('Adicionais: Bacon extra, Ovo')).toBeInTheDocument()
-    expect(within(sacola).getByRole('button', { name: /Finalizar pedido/ })).toBeDisabled()
+    expect(within(sacola).getByRole('button', { name: /Finalizar pedido/ })).toBeEnabled()
   })
 
   it('combo só libera o botão depois das escolhas obrigatórias', async () => {

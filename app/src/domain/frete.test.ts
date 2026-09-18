@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calcularFrete, distanciaLinhaRetaKm, normalizarBairro } from './frete.ts'
-import { normalizarTelefone } from './telefone.ts'
+import { formatarTelefone, normalizarTelefone } from './telefone.ts'
 import type { ZonaEntrega } from './tipos.ts'
 
 const porKm: ZonaEntrega = {
@@ -138,5 +138,13 @@ describe('normalizarTelefone', () => {
     expect(normalizarTelefone('(71) 89999-1234')).toBeNull()
     expect(normalizarTelefone('abc')).toBeNull()
     expect(normalizarTelefone('')).toBeNull()
+  })
+})
+
+describe('formatarTelefone', () => {
+  it('formata celular e fixo; devolve o original se não reconhecer', () => {
+    expect(formatarTelefone('71999991234')).toBe('(71) 99999-1234')
+    expect(formatarTelefone('7133334444')).toBe('(71) 3333-4444')
+    expect(formatarTelefone('123')).toBe('123')
   })
 })
