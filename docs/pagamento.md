@@ -1,6 +1,6 @@
 # Pagamento por Pix
 
-> Estado: **banco pronto e testado** (esta página). A ligação com o gateway e a tela do Pix vêm nas próximas etapas; o gateway ainda não foi escolhido (tarefa 3.1), então o desenho é **independente de gateway**.
+> Estado: **banco e servidor prontos e testados**; a **tela do Pix** e o teste no **sandbox real** ainda faltam. O gateway ainda não foi escolhido (tarefa 3.1), então o desenho é **independente de gateway**: existe um adaptador do Mercado Pago (candidato, escrito pela documentação e testado com respostas simuladas) e trocar por Pagar.me é escrever outro adaptador.
 
 ## Como o pagamento funciona
 
@@ -44,8 +44,45 @@ Quem decide se o pedido está pago é **o banco**, nunca o navegador nem o "avis
 2. **Prazo do Pix:** 30 minutos (ajustável na chamada da expiração).
 3. Quem faz o **estorno**: no painel do gateway, manualmente (o volume esperado é baixo). A tela de "pagamentos para revisar" no admin é uma melhoria futura.
 
+## Servidor (Netlify Functions)
+
+| Function | Quem chama | O que faz |
+| --- | --- | --- |
+| `gerar-pix` | O site (página do pedido), com o **token** do pedido | Cria a cobrança no gateway com o **valor do banco** (nunca o do navegador) e guarda o "copia e cola". Pedir de novo devolve a mesma cobrança (não cobra em dobro). |
+| `webhook-pix` | O gateway | Confere a **assinatura**; **consulta o gateway** para saber o que aconteceu de verdade; chama `confirmar_pagamento_pix`. Responde 200 para o que é repetição ou não interessa; **502** se algo falhou (o gateway tenta de novo, e o banco é idempotente). |
+| `expirar-pedidos` | Agendador do Netlify, a cada 5 min | Cancela pedidos que ninguém pagou a tempo. |
+
+Código: `app/src/server/pix/` (`gateway.ts` é o contrato; `mercadoPago.ts` é o adaptador; `pixHandlers.ts` são as duas funções; `dependenciasPix.ts` liga ao Supabase).
+
+### Variáveis de ambiente (Netlify → Site configuration → Environment variables)
+
+| Variável | Para quê | Secreta? |
+| --- | --- | --- |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Já usadas pela function de pedidos | **Sim** (a chave) |
+| `MP_ACCESS_TOKEN` | Token de acesso do Mercado Pago (use o de **teste** no sandbox) | **Sim** |
+| `MP_WEBHOOK_SECRET` | "Chave secreta" do webhook (Suas integrações → Webhooks) | **Sim** |
+| `SITE_URL` | Endereço público do site, ex.: `https://deguste.netlify.app` (o gateway chama `SITE_URL/.netlify/functions/webhook-pix`) | Não |
+| `PIX_EMAIL_PAGADOR` | E-mail da loja usado como "pagador" (a API exige um; não coletamos o e-mail do cliente) | Não |
+
+Nada disso vai para o Git nem para o navegador (nenhuma começa com `VITE_`). Faltou variável → a function responde 502 sem vazar detalhe.
+
+### Configurar o webhook no Mercado Pago (quando a conta existir, 3.2)
+
+1. Suas integrações → sua aplicação → **Webhooks** → URL de produção/teste: `SITE_URL/.netlify/functions/webhook-pix`, evento **Pagamentos**.
+2. Copiar a **chave secreta** gerada para `MP_WEBHOOK_SECRET`.
+3. Fazer um Pix de teste no sandbox e conferir no log do Netlify: `webhook-pix` deve responder `confirmado`.
+
+Pontos do adaptador marcados com `SANDBOX:` em `mercadoPago.ts` devem ser conferidos nessa primeira execução (formato de `point_of_interaction`, significado de `approved`).
+
+## Testes
+
+- `app/src/server/pix/*.test.ts` (adaptador com HTTP simulado e assinatura real HMAC; as duas functions; a ligação com o Supabase).
+- `supabase/tests/fluxo-pix.test.ts`: **de ponta a ponta com o banco de verdade** — pedido → Pix → pagamento → webhook; aviso repetido (até simultâneo); assinatura falsa; valor divergente; pagamento após expiração; pedido já pago.
+
 ## Ainda falta
 
-- Ligação com o gateway (criar cobrança e receber o webhook) e a tela do Pix no acompanhamento (3.8, 3.9).
-- Escolha do gateway e conta com CNPJ (3.1, 3.2) e teste no sandbox.
-- Aplicar a migration `20260918220000` no banco de dev (1.14).
+- **Tela do Pix** na página de acompanhamento (QR, copiar código, prazo, "já paguei").
+- Escolha do gateway e conta com CNPJ (3.1, 3.2) e **teste no sandbox real** (a parte que os testes simulados não provam).
+- Aplicar a migration `20260918220000` no banco de dev (1.14) e cadastrar as variáveis no Netlify (0.6).
+- Tela de "pagamentos para revisar" no admin (hoje é consulta no banco).
+
