@@ -52,6 +52,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.1 Criar repositório Git e enviar o link ao time `👤 Rafael`
 - [ ] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto `👤 Rafael`
   - Ao proteger, marcar também como **checks obrigatórios** os três jobs do CI: `app`, `banco` e `plano` (o `plano` garante que toda tarefa concluída seja marcada no plano, no mesmo PR).
+  - Passo a passo e configuração pronta para importar: `docs/proteger-main.md` (`docs/ruleset-main.json`). Só o administrador do repositório (Rafael) consegue aplicar.
 - [x] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos" `👤 Rafael`
 - [x] 0.4 Projeto Vite + React + React Router + TypeScript `👤 Rafael`
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
