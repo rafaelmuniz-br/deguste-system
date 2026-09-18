@@ -15,12 +15,14 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('mostra o painel da cozinha em /cozinha', () => {
+  it('mostra o painel da cozinha em /cozinha (carregado sob demanda)', async () => {
     render(
       <MemoryRouter initialEntries={['/cozinha']}>
         <App />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('heading', { name: 'Cozinha' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Cozinha' }, { timeout: 10_000 }),
+    ).toBeInTheDocument()
   })
 })

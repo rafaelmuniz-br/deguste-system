@@ -138,7 +138,7 @@ export default function Produtos({ api, fotos }: { api: ApiCatalogoAdmin; fotos?
                   {p.fotoPath && fotos && (
                     <img
                       className="admin-miniatura"
-                      src={fotos.urlPublica(p.fotoPath)}
+                      src={fotos.urlMiniatura(p.fotoPath)}
                       alt=""
                       loading="lazy"
                     />

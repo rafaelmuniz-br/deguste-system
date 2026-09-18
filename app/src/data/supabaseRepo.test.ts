@@ -106,9 +106,9 @@ describe('montarCardapio', () => {
     const d = dados()
     d.produtos[0].foto_path = 'p-smash/1700.webp'
     const c = montarCardapio(d, (caminho) => `https://x.supabase.co/fotos/${caminho}`)
-    expect(c.produtos.find((p) => p.id === 'p-smash')?.fotoUrl).toBe(
-      'https://x.supabase.co/fotos/p-smash/1700.webp',
-    )
+    const smash = c.produtos.find((p) => p.id === 'p-smash')
+    expect(smash?.fotoUrl).toBe('https://x.supabase.co/fotos/p-smash/1700.webp')
+    expect(smash?.fotoMiniaturaUrl).toBe('https://x.supabase.co/fotos/p-smash/1700-mini.webp')
     expect(c.produtos.filter((p) => p.id !== 'p-smash').every((p) => p.fotoUrl === undefined)).toBe(
       true,
     )

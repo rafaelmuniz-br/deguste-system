@@ -41,16 +41,31 @@ function montar(
 }
 
 describe('fotos: enviar', () => {
-  it('reduz, sobe no bucket, grava o caminho no produto e apaga a foto antiga', async () => {
+  it('gera foto (1000 px) e miniatura (320 px), sobe as duas, grava o caminho e apaga a foto antiga com a miniatura dela', async () => {
     const t = montar()
     const r = await t.api.enviar('p1', arquivo(), 'p1/antiga.webp')
     expect(r).toEqual({ ok: true })
-    expect(t.processar).toHaveBeenCalledTimes(1)
+    expect(t.processar.mock.calls.map((c) => c[1])).toEqual([1000, 320])
     expect(t.upload).toHaveBeenCalledWith('p1/1700000000000.webp', processado.blob, {
       contentType: 'image/webp',
     })
+    expect(t.upload).toHaveBeenCalledWith('p1/1700000000000-mini.webp', processado.blob, {
+      contentType: 'image/webp',
+    })
     expect(t.update).toHaveBeenCalledWith({ foto_path: 'p1/1700000000000.webp' })
-    expect(t.remove).toHaveBeenCalledWith(['p1/antiga.webp'])
+    expect(t.remove).toHaveBeenCalledWith(['p1/antiga.webp', 'p1/antiga-mini.webp'])
+  })
+
+  it('falha ao subir a miniatura: apaga a foto já enviada e não mexe no produto', async () => {
+    const t = montar()
+    t.upload
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: 'falhou' } })
+    const r = await t.api.enviar('p1', arquivo(), 'p1/antiga.webp')
+    expect(r.ok).toBe(false)
+    expect(t.update).not.toHaveBeenCalled()
+    expect(t.remove).toHaveBeenCalledTimes(1)
+    expect(t.remove).toHaveBeenCalledWith(['p1/1700000000000.webp', 'p1/1700000000000-mini.webp'])
   })
 
   it('primeira foto: não tenta apagar nada', async () => {
@@ -88,7 +103,7 @@ describe('fotos: enviar', () => {
     const r = await t.api.enviar('p1', arquivo(), 'p1/antiga.webp')
     expect(r).toEqual({ ok: false, mensagem: expect.stringContaining('Sem permissão') })
     expect(t.remove).toHaveBeenCalledTimes(1)
-    expect(t.remove).toHaveBeenCalledWith(['p1/1700000000000.webp'])
+    expect(t.remove).toHaveBeenCalledWith(['p1/1700000000000.webp', 'p1/1700000000000-mini.webp'])
   })
 })
 
@@ -97,13 +112,18 @@ describe('fotos: remover e url', () => {
     const t = montar()
     expect(await t.api.remover('p1', 'p1/a.webp')).toEqual({ ok: true })
     expect(t.update).toHaveBeenCalledWith({ foto_path: null })
-    expect(t.remove).toHaveBeenCalledWith(['p1/a.webp'])
+    expect(t.remove).toHaveBeenCalledWith(['p1/a.webp', 'p1/a-mini.webp'])
   })
 
   it('remover com erro no banco mantém o arquivo', async () => {
     const t = montar({ updateErro: { message: 'x' } })
     expect((await t.api.remover('p1', 'p1/a.webp')).ok).toBe(false)
     expect(t.remove).not.toHaveBeenCalled()
+  })
+
+  it('urlMiniatura aponta para o arquivo -mini', () => {
+    const t = montar()
+    expect(t.api.urlMiniatura('p1/a.webp')).toMatch(/fotos-produtos\/p1\/a-mini\.webp$/)
   })
 
   it('urlPublica devolve o endereço do bucket público', () => {

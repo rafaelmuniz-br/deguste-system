@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { BUCKET_FOTOS } from '../domain/fotos.ts'
+import { BUCKET_FOTOS, caminhoMiniatura } from '../domain/fotos.ts'
 import type { Cardapio, ConfigLoja, GrupoOpcao, Produto } from '../domain/tipos.ts'
 
 // Lê o cardápio do Supabase com a chave PÚBLICA (anon). Quem decide o que o público enxerga é o
@@ -103,6 +103,7 @@ export function montarCardapio(
       precoCentavos: p.preco_centavos,
       precoOriginalCentavos: p.preco_original_centavos ?? undefined,
       fotoUrl: (p.foto_path && urlFoto(p.foto_path)) || undefined,
+      fotoMiniaturaUrl: (p.foto_path && urlFoto(caminhoMiniatura(p.foto_path))) || undefined,
       ehCombo: p.eh_combo,
       disponivel: p.disponivel,
       grupos: [...(p.grupos_opcao ?? [])].sort(porOrdem).map((g): GrupoOpcao => ({

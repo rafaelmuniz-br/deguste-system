@@ -3,6 +3,7 @@ import {
   BUCKET_FOTOS,
   caminhoDaFoto,
   calcularTamanho,
+  caminhoMiniatura,
   LIMITE_ORIGINAL_BYTES,
   validarArquivoFoto,
 } from './fotos.ts'
@@ -54,6 +55,13 @@ describe('caminhoDaFoto', () => {
   it('pasta por produto e nome novo a cada envio', () => {
     expect(caminhoDaFoto('p1', new Date(1_700_000_000_000), 'webp')).toBe('p1/1700000000000.webp')
     expect(caminhoDaFoto('p1', new Date(1_700_000_000_001), 'jpg')).toBe('p1/1700000000001.jpg')
+  })
+})
+
+describe('caminhoMiniatura', () => {
+  it('acrescenta -mini antes da extensão', () => {
+    expect(caminhoMiniatura('p1/1700.webp')).toBe('p1/1700-mini.webp')
+    expect(caminhoMiniatura('p1/1700.jpg')).toBe('p1/1700-mini.jpg')
   })
 })
 

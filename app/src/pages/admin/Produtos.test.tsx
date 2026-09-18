@@ -203,6 +203,7 @@ describe('Admin: fotos do produto', () => {
       enviar: vi.fn(async () => resposta),
       remover: vi.fn(async () => resposta),
       urlPublica: (p: string) => `https://cdn.exemplo/${p}`,
+      urlMiniatura: (p: string) => `https://cdn.exemplo/${p.replace('.webp', '-mini.webp')}`,
     }
     return api as ApiFotosAdmin & typeof api
   }
@@ -222,7 +223,7 @@ describe('Admin: fotos do produto', () => {
     const lista = await screen.findByRole('region', { name: 'Hambúrgueres' })
     expect(lista.querySelector('img.admin-miniatura')).toHaveAttribute(
       'src',
-      'https://cdn.exemplo/p1/a.webp',
+      'https://cdn.exemplo/p1/a-mini.webp',
     )
 
     await user.click(screen.getByRole('button', { name: 'Editar Jackfino' }))
