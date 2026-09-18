@@ -166,7 +166,11 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
+  - ✔ Parte técnica e procedimento prontos e testados: `exportar_dados_cliente` (acesso/portabilidade) e `anonimizar_cliente` (eliminação, mantendo pedidos sem dado pessoal; recusa se houver pedido em andamento). Roteiro para a equipe em `docs/lgpd-direitos.md`.
+  - Falta: definir e publicar o **canal** para o cliente pedir (P11) e a revisão jurídica; aplicar a migration no dev (1.14).
 - [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
+  - ✔ Parcial: fluxo pedido → acompanhamento → cozinha de ponta a ponta com o handler real e o banco real (`supabase/tests/fluxo-completo.test.ts`), incluindo valores forjados, loja fechada, anti-spam e combo com escolha repetida somando vendas por produto real.
+  - Falta: a parte do pagamento (webhook duplicado, pagamento após expirar), que depende de 3.8 e 3.9.
 - [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.

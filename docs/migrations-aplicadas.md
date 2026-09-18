@@ -14,6 +14,7 @@ O repositório é a fonte da verdade (`supabase/migrations/`), mas **quem aplica
 | `20260918140000_preco_original_produto` | Preço "de/por" | ✅ | ⬜ |
 | `20260918150000_comentario_componentes_repeticoes` | Comentário de coluna | **⬜ pendente** | ⬜ |
 | `20260918160000_pedido_atomico` | `criar_pedido`, `acompanhar_pedido`, token e anti-spam | **⬜ pendente** | ⬜ |
+| `20260918170000_lgpd_direitos_do_titular` | `exportar_dados_cliente` e `anonimizar_cliente` | **⬜ pendente** | ⬜ |
 
 O `deguste-prod` ainda não existe (tarefa 0.7); quando existir, aplicar **todas** as migrations em ordem.
 
