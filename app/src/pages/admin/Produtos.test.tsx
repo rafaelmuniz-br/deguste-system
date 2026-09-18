@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { catalogoAdminFalso, categoria, produto } from '../../test/catalogoAdminFalso.ts'
 import Produtos from './Produtos.tsx'
@@ -28,7 +29,11 @@ const violacoes = async () =>
 describe('Admin: produtos', () => {
   it('lista os produtos agrupados por categoria, com preço em reais', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     const hamb = await screen.findByRole('region', { name: 'Hambúrgueres' })
     expect(within(hamb).getByText('Jackfino')).toBeInTheDocument()
     expect(within(hamb).getByText(/21,90/)).toBeInTheDocument()
@@ -39,7 +44,11 @@ describe('Admin: produtos', () => {
   it('filtra por categoria', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await screen.findByText('Jackfino')
     await user.selectOptions(screen.getByLabelText('Mostrar categoria'), 'Bebidas')
     expect(screen.queryByText('Jackfino')).not.toBeInTheDocument()
@@ -49,7 +58,11 @@ describe('Admin: produtos', () => {
   it('marcar esgotado rápido e desfazer, sem abrir formulário', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await user.click(await screen.findByRole('button', { name: 'Marcar esgotado: Jackfino' }))
 
     expect(api.alterarDisponibilidade).toHaveBeenCalledWith('p1', false)
@@ -65,7 +78,11 @@ describe('Admin: produtos', () => {
   it('cria produto convertendo o preço em reais para centavos', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await user.click(await screen.findByRole('button', { name: 'Novo produto' }))
 
     await user.selectOptions(screen.getByLabelText('Categoria'), 'Bebidas')
@@ -93,7 +110,11 @@ describe('Admin: produtos', () => {
   it('edição vem preenchida (preço em reais) e salva a mudança', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
 
     const preco = screen.getByLabelText('Preço (R$)')
@@ -113,7 +134,11 @@ describe('Admin: produtos', () => {
   it('preço inválido: lista o erro e não salva', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await user.click(await screen.findByRole('button', { name: 'Novo produto' }))
     await user.type(screen.getByLabelText('Nome'), 'Teste')
     await user.type(screen.getByLabelText('Preço (R$)'), 'abc')
@@ -125,28 +150,44 @@ describe('Admin: produtos', () => {
   it('reordena dentro da categoria', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await user.click(await screen.findByRole('button', { name: 'Subir Smash Duplo' }))
     expect(api.reordenarProdutos).toHaveBeenCalledWith(['p2', 'p1'])
     expect(await screen.findByRole('button', { name: 'Subir Jackfino' })).toBeEnabled()
   })
 
   it('sem categorias: pede para criar uma antes e bloqueia o botão', async () => {
-    render(<Produtos api={catalogoAdminFalso().api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={catalogoAdminFalso().api} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText(/Crie uma categoria antes/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Novo produto' })).toBeDisabled()
   })
 
   it('produto escondido do cardápio aparece marcado', async () => {
     const { api } = catalogoAdminFalso(cats(), [produto({ ativo: false })])
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText('Escondido do cardápio')).toBeInTheDocument()
   })
 
   it('acessibilidade (axe): lista e formulário', async () => {
     const { api } = catalogoAdminFalso(cats(), prods())
     const user = userEvent.setup()
-    render(<Produtos api={api} />)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
     await screen.findByText('Jackfino')
     expect(await violacoes()).toEqual([])
     await user.click(screen.getByRole('button', { name: 'Editar Jackfino' }))

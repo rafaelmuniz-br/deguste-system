@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Modal from '../../components/Modal.tsx'
 import type { ApiCatalogoAdmin } from '../../data/catalogoAdminApi.ts'
 import {
@@ -167,6 +168,13 @@ export default function Produtos({ api }: { api: ApiCatalogoAdmin }) {
                   >
                     ▼
                   </button>
+                  <Link
+                    className="btn-secundario"
+                    to={`/admin/produtos/${p.id}/opcoes`}
+                    aria-label={`Opções de ${p.nome}`}
+                  >
+                    Opções
+                  </Link>
                   <button
                     type="button"
                     className="btn-secundario"

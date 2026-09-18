@@ -17,6 +17,15 @@ Telas em **`/admin/categorias`** e **`/admin/produtos`** (só administradores). 
 - **Editar → desmarcar “Aparece no cardápio”**: esconde o produto (diferente de esgotado: some de vez).
 - **▲ ▼**: reordenam dentro da categoria.
 
+## Opções do produto ("monte o seu", adicionais, combos)
+
+No produto, o botão **Opções** abre os grupos dele:
+- **Grupo** = uma pergunta ao cliente ("Ponto da carne", "Adicionais", "Escolha seu hambúrguer"). Tem **mínimo** e **máximo** de escolhas: mínimo 1 = obrigatório; mínimo 0 = opcional.
+- **Opção** = uma resposta possível, com **valor adicional** opcional (ex.: Bacon + R$ 3,50).
+- **Combos**: em cada opção use **"Vende qual produto?"** para apontar para o produto real (ex.: a opção "Smash" aponta para o produto Smash). É isso que faz os relatórios contarem o hambúrguer certo, e o mesmo hambúrguer nos combos e avulso.
+- **Marcar esgotada**: um toque, para quando acabar um adicional.
+- **Excluir** grupo/opção não altera pedidos antigos (o nome e o preço escolhidos ficam copiados no pedido).
+
 ## Configurações da loja (`/admin/loja`)
 
 - **A loja está…**: *Seguir os horários* (normal), *Aberta agora* ou *Fechada agora*. Fechar na hora (acabou o estoque, imprevisto) é escolher “Fechada agora” e salvar; depois lembre de voltar para “Seguir os horários”.
@@ -35,6 +44,6 @@ Telas em **`/admin/categorias`** e **`/admin/produtos`** (só administradores). 
 
 ## Ainda falta
 
-- Foto do produto (1.11) e grupos de opção / “monte o seu” (1.10).
+- Foto do produto (1.11).
 - Aplicar a migration `20260918190000` no banco de dev (1.14) antes de usar `/admin/loja`.
 - Testar com o banco real: precisa de um usuário em `admins` (ver `docs/criar-admins.md`, tarefa 1.7).

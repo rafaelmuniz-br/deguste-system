@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { catalogoAdminFalso, categoria, produto } from '../test/catalogoAdminFalso.ts'
+import { grupo, opcao, opcoesAdminFalso } from '../test/opcoesAdminFalso.ts'
 import Admin from './Admin.tsx'
 
 // Supabase FALSO que emite os mesmos eventos do real: INITIAL_SESSION ao assinar, SIGNED_IN/SIGNED_OUT.
@@ -266,6 +267,26 @@ describe('Painel admin: navegação entre as seções', () => {
     abrirEm('/admin/categorias')
     expect(await screen.findByRole('heading', { name: 'Categorias' })).toBeInTheDocument()
     expect(await screen.findByText('Hambúrgueres')).toBeInTheDocument()
+  })
+
+  it('a lista de produtos leva às opções do produto (monte o seu)', async () => {
+    const { cliente } = criarClienteFalso(sessaoAdmin)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    const { api: apiOpcoes } = opcoesAdminFalso([grupo({ opcoes: [opcao({ nome: 'Ao ponto' })] })])
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/admin/produtos']}>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={<Admin cliente={cliente} api={api} apiOpcoes={apiOpcoes} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await user.click(await screen.findByRole('link', { name: 'Opções de Jackfino' }))
+    expect(await screen.findByText('Ao ponto')).toBeInTheDocument()
+    expect(apiOpcoes.carregar).toHaveBeenCalledWith('p1')
   })
 
   it('endereço que não existe volta ao início', async () => {
