@@ -106,7 +106,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** cardápio real completo, bom no celular, em produção numa URL de teste.
 
-- [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* `👤 Lucas + Bruno`
+- [x] 2.1 **Levantar o cardápio completo real** (descrições, preços, opções e combos) `👤 Lucas + Bruno`
+  - Feito em `docs/levantamento-cardapio.md`: todas as categorias (Ofertas com Desconto, Smashs, Burguers, Entradas e Sobremesas, Bebidas), grupos de opção do "monte o seu" e a estrutura completa dos 6 combos, conferidos direto no site + relatório oficial de produtos.
+  - **Fotos ficaram de fora por decisão do Lucas** (18/09/2026): não bloqueiam a 2.2 nem o resto da Fase 2 (o banco aceita `foto_path` nulo — chega com o upload, tarefa 1.11). Acompanhar em 2.13.
   - ✔ Levantamento entregue pelo Lucas (PR #1): itens, preços, descrições e opções conferidos com o relatório da Cardápio Web (`docs/levantamento-cardapio.md`).
   - Falta: fotos e `alt` (todas `?`); conferir por dentro 3 combos (Brownie+Bebida Grátis, 4 Smashs, Boladão); molho é "1" ou "1 a 2"?; Brownie de Chocolate saiu do cardápio ou volta?; perguntas para o Bruno (pedido mínimo, frete, raio, tempo, impressora, cashback, titular do CNPJ); tirar do texto o caminho pessoal `/home/lucas/...`.
 - [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 2.11, 2.12, 0.7`
@@ -120,6 +122,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
 - [ ] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
 - [ ] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
+- [ ] 2.13 Fotos reais dos produtos: reunir/tirar, salvar numa pasta compartilhada (Drive) e preencher os nomes de arquivo em `docs/levantamento-cardapio.md` `👤 Lucas + Bruno`
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 
@@ -306,7 +309,7 @@ Encontrados ao converter o planejamento em plano de produção:
 | --- | --- | --- | --- |
 | P1 | ✅ Link do repositório Git (recebido) | Rafael | — |
 | P2 | **Modelo/marca da impressora térmica** e sistema do PC/tablet da cozinha (Windows? tablet Android?) | Lucas | 4.6, 4.7 |
-| P3 | Cardápio completo: Entradas e Sobremesas, Bebidas, Ofertas com Desconto (fotos, preços, descrições) | Lucas + Bruno | 2.1 |
+| P3 | ~~Cardápio completo: Entradas e Sobremesas, Bebidas, Ofertas com Desconto~~ — resolvido em 2.1; só faltam as fotos (2.13) | Lucas + Bruno | 2.13 |
 | P4 | Regra de frete: R$/km, faixas de bairro ou mistura? Lista de bairros atendidos | Lucas | 3.5, 3.6 |
 | P5 | Gateway Pix: Mercado Pago ou Pagar.me; em nome de quem (CNPJ) | Rafael + Lucas | 3.1, 3.2 |
 | P6 | WhatsApp: semiautomático grátis ou API oficial paga? | Rafael + Lucas | 6.4 |
