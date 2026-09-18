@@ -51,7 +51,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto
 - [x] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos"
 - [x] 0.4 Projeto Vite + React + React Router + TypeScript
-- [ ] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR
+- [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod`
 - [x] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento)
