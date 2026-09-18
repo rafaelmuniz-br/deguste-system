@@ -5,6 +5,8 @@ import type { Cardapio, ConfigLoja, GrupoOpcao, Produto } from '../domain/tipos.
 // RLS do banco (supabase/migrations/*_rls.sql): só categorias/produtos/opções ativos.
 
 export type LinhaOpcao = {
+  /** Só vem preenchido quando lemos com a service role (o RLS já esconde os inativos do público). */
+  ativo?: boolean
   id: string
   nome: string
   preco_adicional_centavos: number
@@ -23,6 +25,7 @@ export type LinhaGrupo = {
 }
 
 export type LinhaProduto = {
+  ativo?: boolean
   id: string
   categoria_id: string
   nome: string
@@ -37,6 +40,7 @@ export type LinhaProduto = {
 }
 
 export type LinhaCategoria = {
+  ativo?: boolean
   id: string
   nome: string
   descricao: string | null
@@ -70,17 +74,21 @@ const porOrdem = <T extends { ordem: number; nome: string }>(a: T, b: T) =>
 
 /** Converte as linhas do banco (snake_case) no `Cardapio` usado pelo app. Função pura, testada. */
 export function montarCardapio(d: DadosDoBanco): Cardapio {
-  const categorias = [...d.categorias].sort(porOrdem).map((c) => ({
-    id: c.id,
-    nome: c.nome,
-    descricao: c.descricao ?? undefined,
-    ordem: c.ordem,
-  }))
+  // A service role (função de pedidos) ignora o RLS, então filtramos os inativos aqui também.
+  const categorias = [...d.categorias]
+    .filter((c) => c.ativo !== false)
+    .sort(porOrdem)
+    .map((c) => ({
+      id: c.id,
+      nome: c.nome,
+      descricao: c.descricao ?? undefined,
+      ordem: c.ordem,
+    }))
   const idsCategorias = new Set(categorias.map((c) => c.id))
 
   const produtos: Produto[] = [...d.produtos]
     // Produto de categoria inativa (que o público não enxerga) não deve aparecer sem seção.
-    .filter((p) => idsCategorias.has(p.categoria_id))
+    .filter((p) => p.ativo !== false && idsCategorias.has(p.categoria_id))
     .sort(porOrdem)
     .map((p) => ({
       id: p.id,
@@ -98,13 +106,16 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
         nome: g.nome,
         minEscolhas: g.min_escolhas,
         maxEscolhas: g.max_escolhas,
-        opcoes: [...(g.opcoes ?? [])].sort(porOrdem).map((o) => ({
-          id: o.id,
-          nome: o.nome,
-          precoAdicionalCentavos: o.preco_adicional_centavos,
-          produtoId: o.produto_id ?? undefined,
-          disponivel: o.disponivel,
-        })),
+        opcoes: [...(g.opcoes ?? [])]
+          .filter((o) => o.ativo !== false)
+          .sort(porOrdem)
+          .map((o) => ({
+            id: o.id,
+            nome: o.nome,
+            precoAdicionalCentavos: o.preco_adicional_centavos,
+            produtoId: o.produto_id ?? undefined,
+            disponivel: o.disponivel,
+          })),
       })),
     }))
 
@@ -137,13 +148,13 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
 }
 
 const COLUNAS_PRODUTO =
-  'id, categoria_id, nome, descricao, preco_centavos, preco_original_centavos, foto_path, eh_combo, disponivel, ordem, ' +
+  'id, ativo, categoria_id, nome, descricao, preco_centavos, preco_original_centavos, foto_path, eh_combo, disponivel, ordem, ' +
   'grupos_opcao(id, nome, min_escolhas, max_escolhas, ordem, ' +
-  'opcoes(id, nome, preco_adicional_centavos, produto_id, disponivel, ordem))'
+  'opcoes(id, ativo, nome, preco_adicional_centavos, produto_id, disponivel, ordem))'
 
 export async function carregarDoSupabase(client: SupabaseClient): Promise<Cardapio> {
   const [categorias, produtos, loja, horarios] = await Promise.all([
-    client.from('categorias').select('id, nome, descricao, ordem').order('ordem'),
+    client.from('categorias').select('id, nome, descricao, ordem, ativo').order('ordem'),
     client.from('produtos').select(COLUNAS_PRODUTO).order('ordem'),
     client
       .from('configuracoes_loja')

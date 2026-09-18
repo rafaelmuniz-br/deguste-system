@@ -17,7 +17,8 @@ export type RespostaCalculo =
   { ok: true; pedido: PedidoCalculado } | { ok: false; erros: ErroPedido[] }
 
 export type RespostaConfirmacao =
-  { ok: true; pedido: PedidoCalculado; numero: number } | { ok: false; erros: ErroPedido[] }
+  | { ok: true; pedido: PedidoCalculado; numero: number; token?: string }
+  | { ok: false; erros: ErroPedido[] }
 
 export type ApiPedidos = {
   calcular(bruto: unknown): Promise<RespostaCalculo>
