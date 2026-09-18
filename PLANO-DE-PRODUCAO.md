@@ -106,9 +106,10 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** cardápio real completo, bom no celular, em produção numa URL de teste.
 
-- [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* `👤 Lucas + Bruno`
-  - ✔ Levantamento entregue pelo Lucas (PR #1): itens, preços, descrições e opções conferidos com o relatório da Cardápio Web (`docs/levantamento-cardapio.md`).
-  - Falta: fotos e `alt` (todas `?`); conferir por dentro 3 combos (Brownie+Bebida Grátis, 4 Smashs, Boladão); molho é "1" ou "1 a 2"?; Brownie de Chocolate saiu do cardápio ou volta?; perguntas para o Bruno (pedido mínimo, frete, raio, tempo, impressora, cashback, titular do CNPJ); tirar do texto o caminho pessoal `/home/lucas/...`.
+- [x] 2.1 **Levantar o cardápio completo real** (descrições, preços, opções e combos) `👤 Lucas + Bruno`
+  - Feito em `docs/levantamento-cardapio.md`: todas as categorias (Ofertas com Desconto, Smashs, Burguers, Entradas e Sobremesas, Bebidas), grupos de opção do "monte o seu" e a estrutura completa dos 6 combos — os 3 que faltavam conferir por dentro (Brownie+Bebida Grátis, 4 Smashs, Boladão) já foram abertos e documentados. Conferido direto no site + relatório oficial de produtos.
+  - **Fotos ficaram de fora por decisão do Lucas** (18/09/2026): não bloqueiam a 2.2 nem o resto da Fase 2 (o banco aceita `foto_path` nulo — chega com o upload, tarefa 1.11). Acompanhar em 2.13.
+  - Ainda em aberto, sem bloquear nada (perguntas registradas em `docs/levantamento-cardapio.md`, seção "Perguntas em aberto"): grupo "Molho" aceita 1 ou até 2 opções (o site mostra contador inconsistente); "Brownie de Chocolate" volta como item avulso ou fica só dentro dos combos; pedido mínimo, regra de frete/raio, tempo de preparo, impressora térmica, saldo de cashback e titular do CNPJ (pendências P2/P4/P5/P9 da seção 8).
 - [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 2.11, 2.12, 0.7`
 - [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca `👤 Rafael`
 - [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx `👤 Rafael`
@@ -122,6 +123,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - **Decidido:** sim, pode repetir (Lucas, 18/09/2026 — dispensou aprovação do Rafael nesse item específico). Sem migration: `itens_pedido_componentes.quantidade` já suportava isso. Implementado em `domain/pedido.ts` (agrega repetições por opção) e na tela do produto (contador +/- em grupos com máximo > 1, em vez de check/radio).
 - [x] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
   - **Decidido:** mostrar o "de/por" (Lucas, 18/09/2026, opção recomendada — igual ao site atual). Migration `20260918140000_preco_original_produto.sql` (`produtos.preco_original_centavos`, nunca usado no total); exibido no card e no modal do produto com selo de desconto.
+- [ ] 2.13 Fotos reais dos produtos: reunir/tirar, salvar numa pasta compartilhada (Drive) e preencher os nomes de arquivo em `docs/levantamento-cardapio.md` `👤 Lucas + Bruno`
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 
@@ -310,7 +312,7 @@ Encontrados ao converter o planejamento em plano de produção:
 | --- | --- | --- | --- |
 | P1 | ✅ Link do repositório Git (recebido) | Rafael | — |
 | P2 | **Modelo/marca da impressora térmica** e sistema do PC/tablet da cozinha (Windows? tablet Android?) | Lucas | 4.6, 4.7 |
-| P3 | Cardápio completo: Entradas e Sobremesas, Bebidas, Ofertas com Desconto (fotos, preços, descrições) | Lucas + Bruno | 2.1 |
+| P3 | ~~Cardápio completo: Entradas e Sobremesas, Bebidas, Ofertas com Desconto~~ — resolvido em 2.1; só faltam as fotos (2.13) | Lucas + Bruno | 2.13 |
 | P4 | Regra de frete: R$/km, faixas de bairro ou mistura? Lista de bairros atendidos | Lucas | 3.5, 3.6 |
 | P5 | Gateway Pix: Mercado Pago ou Pagar.me; em nome de quem (CNPJ) | Rafael + Lucas | 3.1, 3.2 |
 | P6 | WhatsApp: semiautomático grátis ou API oficial paga? | Rafael + Lucas | 6.4 |
