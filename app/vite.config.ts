@@ -7,5 +7,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // jsdom + digitação simulada é lento em máquina ocupada (Windows); 5 s dava falso negativo.
+    testTimeout: 15_000,
+    // Testes sempre com dados de exemplo, independente das credenciais da máquina de quem roda.
+    env: { VITE_SUPABASE_URL: '', VITE_SUPABASE_ANON_KEY: '', VITE_USAR_API_SIMULADA: '' },
   },
 })

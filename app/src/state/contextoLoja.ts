@@ -6,6 +6,8 @@ export type ValorLoja = {
   cardapio: Cardapio
   /** true = dados de desenvolvimento (não é o cardápio real). */
   ehExemplo: boolean
+  /** true = pedidos NÃO vão a lugar nenhum (só desenvolvimento). Nunca é true em produção. */
+  apiSimulada: boolean
   api: ApiPedidos
 }
 

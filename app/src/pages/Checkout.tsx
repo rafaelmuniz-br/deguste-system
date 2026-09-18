@@ -31,7 +31,7 @@ const ETAPAS_RETIRADA = [
 ]
 
 export default function Checkout() {
-  const { cardapio, ehExemplo, api } = useLoja()
+  const { cardapio, apiSimulada, api } = useLoja()
   const { linhas, subtotalCentavos, dispatch } = useCarrinho()
   const estado = useEstadoLoja(cardapio.loja)
   const [form, setForm] = useState<Formulario>(formularioVazio)
@@ -103,7 +103,7 @@ export default function Checkout() {
         <h1 ref={tituloRef} tabIndex={-1}>
           Pedido nº {numero} registrado
         </h1>
-        {ehExemplo && (
+        {apiSimulada && (
           <p className="aviso-exemplo">PEDIDO DE TESTE: nada foi enviado à cozinha nem cobrado.</p>
         )}
         <p>
@@ -227,7 +227,7 @@ export default function Checkout() {
         Finalizar pedido
       </h1>
 
-      {ehExemplo && (
+      {apiSimulada && (
         <p className="aviso-exemplo">
           Modo de exemplo: o frete é simulado (3,2 km). Use o bairro “Paripe” para ver a recusa por
           área.
