@@ -26,6 +26,7 @@ export type CodigoErro =
   | 'FORA_DA_AREA'
   | 'DISTANCIA_INDISPONIVEL'
   | 'PEDIDO_MINIMO'
+  | 'SERVIDOR_INDISPONIVEL'
 
 export type ErroPedido = { codigo: CodigoErro; mensagem: string; campo?: string }
 

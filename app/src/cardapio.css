@@ -482,3 +482,132 @@ section h2 {
     scroll-behavior: smooth;
   }
 }
+
+/* ---- Checkout ---- */
+.checkout {
+  padding-top: 16px;
+  padding-bottom: 48px;
+}
+.checkout h1 {
+  font-size: 1.5rem;
+  outline: none;
+}
+.checkout fieldset {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+.campo input,
+.campo select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 14px;
+  font: inherit;
+  font-weight: 400;
+  color: inherit;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+.campo input[aria-invalid='true'] {
+  border-color: var(--fechado-texto);
+  outline: 1px solid var(--fechado-texto);
+}
+fieldset > .campo {
+  margin-top: 12px;
+}
+.erros {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--fechado-fundo);
+  color: var(--fechado-texto);
+}
+.erros ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.resumo {
+  margin: 20px 0;
+  padding: 12px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+}
+.resumo h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.resumo ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.resumo li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+.totais {
+  margin: 16px 0;
+}
+.totais > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+.totais dt,
+.totais dd {
+  margin: 0;
+}
+.totais .total {
+  border-top: 1px solid var(--borda);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.btn-secundario {
+  display: inline-block;
+  padding: 14px 18px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--texto);
+  text-align: center;
+  text-decoration: none;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.linha-tempo {
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+  border-left: 3px solid var(--borda);
+}
+.linha-tempo li {
+  padding: 6px 0 6px 16px;
+  color: var(--muted);
+}
+.linha-tempo li.atual {
+  margin-left: -3px;
+  padding-left: 13px;
+  border-left: 3px solid var(--acento);
+  color: var(--texto);
+  font-weight: 700;
+}
+
+.checkout a:not(.btn-secundario) {
+  color: var(--acento);
+}
+.checkout .rodape-acoes {
+  flex-direction: column-reverse;
+  align-items: stretch;
+}
+.checkout .rodape-acoes .btn-secundario {
+  width: 100%;
+}
+.checkout > .btn-secundario {
+  width: 100%;
+}
