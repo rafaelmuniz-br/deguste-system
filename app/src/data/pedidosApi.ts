@@ -1,4 +1,6 @@
 import { normalizarBairro } from '../domain/frete.ts'
+import { novoId } from '../domain/id.ts'
+import { registrarPedidoSimulado } from './acompanhamentoApi.ts'
 import {
   calcularPedido,
   lerEntrada,
@@ -58,7 +60,15 @@ export function criarApiSimulada(
     calcular,
     async confirmar(bruto) {
       const r = await calcular(bruto)
-      return r.ok ? { ok: true, pedido: r.pedido, numero: proximoNumero++ } : r
+      if (!r.ok) return r
+      const numero = proximoNumero++
+      const token = novoId()
+      registrarPedidoSimulado(token, {
+        numero,
+        tipo: r.pedido.tipo,
+        totalCentavos: r.pedido.totalCentavos,
+      })
+      return { ok: true, pedido: r.pedido, numero, token }
     },
   }
 }

@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import Acompanhar from './pages/Acompanhar.tsx'
 import Admin from './pages/Admin.tsx'
 import Cardapio from './pages/Cardapio.tsx'
 import Checkout from './pages/Checkout.tsx'
@@ -19,6 +20,7 @@ export default function App() {
         <Route element={<LojaLayout />}>
           <Route path="/" element={<Cardapio />} />
           <Route path="/pedido" element={<Checkout />} />
+          <Route path="/acompanhar/:token" element={<Acompanhar />} />
         </Route>
         {/* Páginas legais: estáticas, funcionam mesmo se o banco estiver fora do ar. */}
         <Route path="/privacidade" element={<Privacidade />} />

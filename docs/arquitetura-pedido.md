@@ -45,7 +45,7 @@ A regra de frete "por bairro" não precisa do `ORS_API_KEY`.
 
 ## Acompanhamento sem login
 
-Cada pedido tem um `token_acompanhamento` (UUID aleatório). O cliente acompanha em `/acompanhar/<token>` (tarefa 3.10), chamando `acompanhar_pedido(token)`, que devolve **só** número, tipo, status, pagamento, total e data. Telefone e endereço nunca saem por aí. O visitante continua sem acesso direto à tabela `pedidos`.
+Cada pedido tem um `token_acompanhamento` (UUID aleatório). Ao confirmar o pedido, o cliente recebe o link `/acompanhar/<token>` (tarefa 3.10). A página chama `acompanhar_pedido(token)` a cada 10 s enquanto a aba está aberta (pausa em segundo plano, atualiza ao voltar, e para quando o pedido termina). Um token que nem parece um UUID nunca chega ao banco. A função que devolve **só** número, tipo, status, pagamento, total e data. Telefone e endereço nunca saem por aí. O visitante continua sem acesso direto à tabela `pedidos`.
 
 ## Anti-spam (3.11)
 
@@ -60,3 +60,7 @@ Cada pedido tem um `token_acompanhamento` (UUID aleatório). O cliente acompanha
 | `limite_pedidos_pendentes` | Muitos pedidos pendentes desse telefone |
 | `componente_fora_do_pedido` | Componente ligado a item de outro pedido |
 | `totais_inconsistentes` | Itens não somam o subtotal |
+
+## Modo simulado (só desenvolvimento)
+
+Sem a função do servidor e sem cozinha, `VITE_USAR_API_SIMULADA=true` (em `app/.env.local`) faz o checkout usar uma API simulada no navegador, e o acompanhamento avança sozinho a cada 15 s (pagamento → fila → preparo → pronto → concluído), para dar para ver a linha do tempo funcionando. Isso **só existe em desenvolvimento**: no build de produção `import.meta.env.DEV` é falso e a API real é sempre usada.

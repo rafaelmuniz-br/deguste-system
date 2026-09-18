@@ -1,0 +1,192 @@
+import { act, render, screen } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import App from '../App.tsx'
+import type {
+  ApiAcompanhamento,
+  PedidoAcompanhado,
+  RespostaAcompanhamento,
+} from '../data/acompanhamentoApi.ts'
+import { cardapioExemplo } from '../data/exemplo.ts'
+import type { ApiPedidos } from '../data/pedidosApi.ts'
+import { ContextoLoja } from '../state/contextoLoja.ts'
+import Acompanhar from './Acompanhar.tsx'
+
+const pedido = (over: Partial<PedidoAcompanhado> = {}): PedidoAcompanhado => ({
+  numero: 7,
+  tipo: 'entrega',
+  status: 'aguardando_pagamento',
+  pagamentoStatus: 'pendente',
+  totalCentavos: 3579,
+  criadoEm: '2026-09-18T20:00:00Z',
+  ...over,
+})
+const ok = (over: Partial<PedidoAcompanhado> = {}): RespostaAcompanhamento => ({
+  ok: true,
+  pedido: pedido(over),
+})
+
+/** Renderiza a página com um acompanhamento controlado pelo teste. */
+function abrir(respostas: RespostaAcompanhamento[]) {
+  const buscar = vi.fn(
+    async () => respostas[Math.min(buscar.mock.calls.length - 1, respostas.length - 1)],
+  )
+  const acompanhamento: ApiAcompanhamento = { buscar }
+  const api = {} as ApiPedidos
+  render(
+    <ContextoLoja.Provider
+      value={{
+        cardapio: cardapioExemplo,
+        ehExemplo: false,
+        apiSimulada: false,
+        api,
+        acompanhamento,
+      }}
+    >
+      <MemoryRouter initialEntries={['/acompanhar/tok-1']}>
+        <Routes>
+          <Route path="/acompanhar/:token" element={<Acompanhar />} />
+        </Routes>
+      </MemoryRouter>
+    </ContextoLoja.Provider>,
+  )
+  return buscar
+}
+
+const avancar = (ms: number) =>
+  act(async () => {
+    await vi.advanceTimersByTimeAsync(ms)
+  })
+
+beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }))
+afterEach(() => {
+  vi.useRealTimers()
+  Object.defineProperty(document, 'hidden', { value: false, configurable: true })
+})
+
+describe('página de acompanhamento', () => {
+  it('mostra número, mensagem e o passo atual da linha do tempo', async () => {
+    abrir([ok({ status: 'em_preparo', pagamentoStatus: 'pago' })])
+    expect(await screen.findByRole('heading', { name: 'Pedido nº 7' })).toBeInTheDocument()
+    expect(screen.getByText('Seu pedido está sendo preparado.')).toBeInTheDocument()
+    const passos = screen.getAllByRole('listitem')
+    expect(passos.find((li) => li.getAttribute('aria-current') === 'step')).toHaveTextContent(
+      'Em preparo',
+    )
+    expect(passos[0]).toHaveTextContent('Concluído: Aguardando pagamento')
+  })
+
+  it('atualiza sozinho a cada 10 s e para de consultar quando o pedido termina', async () => {
+    const buscar = abrir([
+      ok(),
+      ok({ status: 'em_preparo', pagamentoStatus: 'pago' }),
+      ok({ status: 'concluido', pagamentoStatus: 'pago' }),
+    ])
+    expect(
+      await screen.findByText('Aguardando a confirmação do seu pagamento.'),
+    ).toBeInTheDocument()
+    await avancar(10_000)
+    expect(await screen.findByText('Seu pedido está sendo preparado.')).toBeInTheDocument()
+    await avancar(10_000)
+    expect(await screen.findByText('Pedido entregue. Bom apetite!')).toBeInTheDocument()
+
+    const chamadas = buscar.mock.calls.length
+    await avancar(60_000) // terminal: não consulta mais
+    expect(buscar.mock.calls.length).toBe(chamadas)
+  })
+
+  it('falha passageira não apaga o último status que a pessoa já estava vendo', async () => {
+    abrir([
+      ok({ status: 'em_preparo', pagamentoStatus: 'pago' }),
+      { ok: false, motivo: 'indisponivel' },
+    ])
+    expect(await screen.findByText('Seu pedido está sendo preparado.')).toBeInTheDocument()
+    await avancar(10_000)
+    expect(screen.getByText('Seu pedido está sendo preparado.')).toBeInTheDocument()
+    expect(screen.queryByText(/Não conseguimos consultar/)).not.toBeInTheDocument()
+  })
+
+  it('sem nenhum status anterior, falha mostra aviso sem alarmar ("seu pedido não foi afetado")', async () => {
+    abrir([{ ok: false, motivo: 'indisponivel' }])
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seu pedido não foi afetado')
+  })
+
+  it('token que não existe: mensagem clara e para de consultar', async () => {
+    const buscar = abrir([{ ok: false, motivo: 'nao_encontrado' }])
+    expect(
+      await screen.findByRole('heading', { name: 'Pedido não encontrado' }),
+    ).toBeInTheDocument()
+    const chamadas = buscar.mock.calls.length
+    await avancar(30_000)
+    expect(buscar.mock.calls.length).toBe(chamadas)
+  })
+
+  it('cancelado: alerta e sem linha do tempo', async () => {
+    abrir([ok({ status: 'cancelado', pagamentoStatus: 'estornado' })])
+    expect(await screen.findByText(/Este pedido foi cancelado/)).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: 'Andamento do pedido' })).not.toBeInTheDocument()
+  })
+
+  it('Pix expirado: diz que nada foi cobrado', async () => {
+    abrir([ok({ pagamentoStatus: 'expirado' })])
+    expect(await screen.findByText(/nada foi cobrado/)).toBeInTheDocument()
+  })
+
+  it('retirada usa os passos de retirada', async () => {
+    abrir([ok({ tipo: 'retirada', status: 'pronto', pagamentoStatus: 'pago' })])
+    expect(await screen.findByText('Seu pedido está pronto para retirada!')).toBeInTheDocument()
+    expect(screen.queryByText('Saiu para entrega')).not.toBeInTheDocument()
+    expect(screen.getByText('Pronto para retirar')).toBeInTheDocument()
+  })
+
+  it('aba em segundo plano: consulta uma vez ao abrir e depois pausa; ao voltar, atualiza na hora', async () => {
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true })
+    const buscar = abrir([ok(), ok({ status: 'em_preparo', pagamentoStatus: 'pago' })])
+    expect(
+      await screen.findByText('Aguardando a confirmação do seu pagamento.'),
+    ).toBeInTheDocument()
+    expect(buscar).toHaveBeenCalledTimes(1) // a 1ª consulta acontece mesmo com a aba oculta
+
+    await avancar(35_000) // oculta: não gasta requisição
+    expect(buscar).toHaveBeenCalledTimes(1)
+
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true })
+    await act(async () => {
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    expect(await screen.findByText('Seu pedido está sendo preparado.')).toBeInTheDocument()
+    expect(buscar).toHaveBeenCalledTimes(2)
+  })
+
+  it('mostra o total do pedido', async () => {
+    abrir([ok()])
+    expect(await screen.findByText(/R\$\s*35,79/)).toBeInTheDocument()
+  })
+})
+
+describe('jornada completa (modo simulado)', () => {
+  it('a página pelo endereço /acompanhar/<token> acha o pedido registrado pelo checkout simulado', async () => {
+    vi.useRealTimers()
+    const token = '3f2c9d1e-8a4b-4c6d-9e1f-2a3b4c5d6e7f'
+    localStorage.setItem(
+      'deguste:dev-pedidos',
+      JSON.stringify({
+        [token]: {
+          numero: 55,
+          tipo: 'retirada',
+          totalCentavos: 800,
+          criadoEm: Date.now() - 20_000,
+        },
+      }),
+    )
+    render(
+      <MemoryRouter initialEntries={[`/acompanhar/${token}`]}>
+        <App />
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('heading', { name: 'Pedido nº 55' })).toBeInTheDocument()
+    expect(screen.getByText(/Pedido de TESTE/)).toBeInTheDocument()
+    expect(screen.getByText(/Pagamento confirmado/)).toBeInTheDocument()
+    localStorage.clear()
+  })
+})

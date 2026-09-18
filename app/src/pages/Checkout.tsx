@@ -12,23 +12,7 @@ import { useLoja } from '../state/useLoja.ts'
 type Etapa =
   | { tipo: 'form' }
   | { tipo: 'revisao'; pedido: PedidoCalculado }
-  | { tipo: 'confirmado'; pedido: PedidoCalculado; numero: number }
-
-const ETAPAS_ENTREGA = [
-  'Aguardando pagamento',
-  'Pago',
-  'Em preparo',
-  'Pronto',
-  'Saiu para entrega',
-  'Entregue',
-]
-const ETAPAS_RETIRADA = [
-  'Aguardando pagamento',
-  'Pago',
-  'Em preparo',
-  'Pronto para retirar',
-  'Retirado',
-]
+  | { tipo: 'confirmado'; pedido: PedidoCalculado; numero: number; token?: string }
 
 export default function Checkout() {
   const { cardapio, apiSimulada, api } = useLoja()
@@ -76,7 +60,7 @@ export default function Checkout() {
     setEnviando(false)
     if (r.ok) {
       dispatch({ tipo: 'limpar' })
-      setEtapa({ tipo: 'confirmado', pedido: r.pedido, numero: r.numero })
+      setEtapa({ tipo: 'confirmado', pedido: r.pedido, numero: r.numero, token: r.token })
     } else {
       setErros(r.erros)
       setEtapa({ tipo: 'form' })
@@ -96,8 +80,7 @@ export default function Checkout() {
 
   // ---------------------------------------------------------------- pedido confirmado
   if (etapa.tipo === 'confirmado') {
-    const { pedido, numero } = etapa
-    const passos = pedido.tipo === 'entrega' ? ETAPAS_ENTREGA : ETAPAS_RETIRADA
+    const { pedido, numero, token } = etapa
     return (
       <main className="pagina checkout">
         <h1 ref={tituloRef} tabIndex={-1}>
@@ -110,17 +93,16 @@ export default function Checkout() {
           Obrigado, {pedido.cliente.nome}! Total do pedido:{' '}
           <strong>{formatarPreco(pedido.totalCentavos)}</strong>.
         </p>
-        <ol className="linha-tempo" aria-label="Andamento do pedido">
-          {passos.map((p, i) => (
-            <li
-              key={p}
-              aria-current={i === 0 ? 'step' : undefined}
-              className={i === 0 ? 'atual' : ''}
-            >
-              {p}
-            </li>
-          ))}
-        </ol>
+        {token && (
+          <>
+            <Link className="btn-primario" to={`/acompanhar/${token}`}>
+              Acompanhar meu pedido
+            </Link>
+            <p className="dica">
+              Guarde o endereço da página de acompanhamento: é assim que você vê o andamento.
+            </p>
+          </>
+        )}
         <p className="dica">
           Próximo passo: pagamento por Pix (ainda em construção). Depois do pagamento, o preparo
           leva cerca de {cardapio.loja.tempoPreparoMin} min.

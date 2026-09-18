@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Outlet, useSearchParams } from 'react-router-dom'
 import { carregarCardapio } from '../data/repositorio.ts'
+import {
+  criarAcompanhamentoSimulado,
+  criarAcompanhamentoSupabase,
+} from '../data/acompanhamentoApi.ts'
 import { criarApiHttp, criarApiSimulada } from '../data/pedidosApi.ts'
+import { supabase } from '../lib/supabase.ts'
 import type { Cardapio } from '../domain/tipos.ts'
 import CarrinhoProvider from '../state/CarrinhoProvider.tsx'
 import { ContextoLoja } from '../state/contextoLoja.ts'
@@ -69,7 +74,10 @@ export default function LojaLayout() {
     const apiSimulada =
       import.meta.env.DEV && (carga.ehExemplo || import.meta.env.VITE_USAR_API_SIMULADA === 'true')
     const api = apiSimulada ? criarApiSimulada(cardapio) : criarApiHttp()
-    return { cardapio, ehExemplo: carga.ehExemplo, apiSimulada, api }
+    const acompanhamento = apiSimulada
+      ? criarAcompanhamentoSimulado()
+      : criarAcompanhamentoSupabase(supabase)
+    return { cardapio, ehExemplo: carga.ehExemplo, apiSimulada, api, acompanhamento }
   }, [carga, forcar])
 
   if (carga.status === 'carregando') {

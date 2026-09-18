@@ -153,10 +153,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - A verificação de ponta a ponta contra o banco real é a tarefa 3.15.
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
-- [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
-  - ✔ Pronto: tela de pedido registrado com a linha do tempo (entrega e retirada) e revisão do total antes de confirmar (`app/src/pages/Checkout.tsx`).
-  - ✔ Banco: token de acompanhamento e `acompanhar_pedido(token)` (devolve só número, status e total; sem telefone nem endereço), testado.
-  - Falta: a tela `/acompanhar/<token>` lendo o status real (PR seguinte); Pix com QR code e expiração (3.8/3.9).
+- [x] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
+  - ✔ Pronto e testado: página `/acompanhar/<token>` (`app/src/pages/Acompanhar.tsx`) sobre `acompanhar_pedido` do banco. Atualiza a cada 10 s (pausa em segundo plano, atualiza ao voltar, para quando termina), mantém o último status se a rede falhar, trata cancelado e Pix expirado, e anuncia mudanças a leitores de tela. O checkout entrega o link ao confirmar. Modo simulado para desenvolvimento (`docs/arquitetura-pedido.md`).
+  - A expiração real do Pix e a confirmação do pagamento chegam com 3.8 e 3.9; a tela já mostra os estados `expirado`, `falhou` e `pago`.
 - [x] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
   - ✔ Banco: até 3 pedidos aguardando pagamento por telefone em 15 min. Função: 6 confirmações e 30 cálculos por minuto por IP e corpo de no máximo 20 KB. Testado.
   - Limite: o do IP vale por instância da função (best-effort); o do telefone vale para todos, pois fica no banco.
