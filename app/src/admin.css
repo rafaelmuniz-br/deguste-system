@@ -246,3 +246,88 @@
   object-fit: cover;
   border-radius: 12px;
 }
+
+/* Relatórios */
+.admin-periodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.admin-periodos .btn-secundario[aria-pressed='true'],
+.admin-periodo-livre .btn-secundario[aria-pressed='true'] {
+  background: var(--acento-suave);
+  color: var(--acento);
+  border-color: var(--acento);
+}
+.admin-periodo-livre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin-bottom: 16px;
+}
+.admin-periodo-livre label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 700;
+}
+.admin-periodo-livre input[type='date'] {
+  padding: 10px 12px;
+  font: inherit;
+  color: inherit;
+  background: var(--superficie);
+  border: 1px solid var(--borda-campo);
+  border-radius: 10px;
+}
+.admin-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.admin-resumo div {
+  padding: 12px 14px;
+  border: 1px solid var(--borda-campo);
+  border-radius: 12px;
+  background: var(--superficie);
+}
+.admin-resumo dt {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.admin-resumo dd {
+  margin: 4px 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.admin-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 16px;
+}
+.admin-tabela th,
+.admin-tabela td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--borda-campo);
+}
+.admin-tabela thead th {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.barra {
+  display: block;
+  width: 100%;
+  min-width: 80px;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--acento-suave);
+  overflow: hidden;
+}
+.barra-cheia {
+  display: block;
+  height: 100%;
+  background: var(--acento);
+}

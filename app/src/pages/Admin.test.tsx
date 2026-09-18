@@ -289,6 +289,37 @@ describe('Painel admin: navegação entre as seções', () => {
     expect(apiOpcoes.carregar).toHaveBeenCalledWith('p1')
   })
 
+  it('o menu leva aos relatórios de vendas', async () => {
+    const { cliente } = criarClienteFalso(sessaoAdmin)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    const vendas = vi.fn(async () => ({
+      inicio: '2026-09-12',
+      fim: '2026-09-18',
+      resumo: { pedidos: 0, receitaCentavos: 0, ticketMedioCentavos: 0, cancelados: 0 },
+      porDia: [],
+      porCanal: [],
+      porTipo: [],
+      porHora: [],
+      produtos: [],
+    }))
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={<Admin cliente={cliente} api={api} apiRelatorios={{ vendas }} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await screen.findByText('Logado como lucas@deguste.com')
+    const menu = screen.getByRole('navigation', { name: 'Seções do painel' })
+    await user.click(within(menu).getByRole('link', { name: 'Relatórios' }))
+    expect(await screen.findByRole('heading', { name: 'Relatórios de vendas' })).toBeInTheDocument()
+    expect(vendas).toHaveBeenCalledTimes(1)
+  })
+
   it('endereço que não existe volta ao início', async () => {
     abrirEm('/admin/qualquer-coisa')
     expect(await screen.findByText(/Escolha o que quer cuidar/)).toBeInTheDocument()
