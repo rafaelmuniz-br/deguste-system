@@ -198,7 +198,10 @@ export type ComponenteCalculado = {
   produtoId?: string
   grupoNome: string
   opcaoNome: string
-  /** Unidades TOTAIS da linha (quantidade do item × 1), para somar vendas por produto direto. */
+  /**
+   * Unidades TOTAIS desta opção na linha: quantidade do item × quantas vezes a opção foi escolhida
+   * (ex.: 2 combos com 3× Jackfino = 6). Permite somar vendas por produto direto.
+   */
   quantidade: number
   precoAdicionalCentavos: number
 }
