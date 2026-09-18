@@ -12,7 +12,7 @@ React + Vite + TypeScript + React Router (sem framework tipo Next), Netlify Func
 
 `npm run dev` · `npm test` · `npm run lint` · `npm run typecheck` · `npm run format` · `npm run build`
 
-Antes de dizer que algo está pronto: lint, typecheck, testes e build passando.
+Antes de dizer que algo está pronto: lint, typecheck, testes e build passando. Mexeu em `supabase/`? Rode também `npm test` dentro de `supabase/` (aplica as migrations num Postgres em memória e testa RLS e integridade).
 
 ## Regras do projeto
 
