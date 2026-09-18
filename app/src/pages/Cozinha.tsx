@@ -30,7 +30,7 @@ import '../cozinha.css'
 
 const ATUALIZAR_A_CADA_MS = 15_000
 const CHAVE_SOM = 'deguste:cozinha:som'
-const TEMPO_PREPARO_MIN = 30 // até a configuração da loja (1.12) chegar a esta tela
+const TEMPO_PREPARO_PADRAO_MIN = 30 // usado enquanto a configuração da loja não carrega
 
 const lerSom = () => {
   try {
@@ -68,6 +68,7 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
   const [conexao, setConexao] = useState<ConexaoTempoReal>('conectando')
   const [agora, setAgora] = useState(() => new Date())
   const [somAtivo, setSomAtivo] = useState(lerSom)
+  const [tempoPreparo, setTempoPreparo] = useState(TEMPO_PREPARO_PADRAO_MIN)
   const [ocupado, setOcupado] = useState<string | null>(null)
   const [aviso, setAviso] = useState('')
   const [cancelando, setCancelando] = useState<PedidoCozinha | null>(null)
@@ -75,12 +76,14 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
   const carregar = useCallback(async () => {
     if (!api) return
     try {
-      const [lista, probs] = await Promise.all([
+      const [lista, probs, tempo] = await Promise.all([
         api.listar(),
         api.problemasImpressao().catch(() => []),
+        api.tempoPreparoMin().catch(() => null), // sem a configuração, mantém o último valor conhecido
       ])
       setPedidos(lista)
       setProblemas(probs)
+      if (tempo && tempo > 0) setTempoPreparo(tempo)
       setFalhaDeCarga(false)
       setAtualizadoEm(new Date())
     } catch {
@@ -257,6 +260,7 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
                     key={p.id}
                     pedido={p}
                     agora={agora}
+                    tempoPreparo={tempoPreparo}
                     ocupado={ocupado === p.id}
                     onAcao={(para) => void executar(p, para)}
                     onCancelar={() => setCancelando(p)}
@@ -287,6 +291,7 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
 function Cartao({
   pedido: p,
   agora,
+  tempoPreparo,
   ocupado,
   onAcao,
   onCancelar,
@@ -294,6 +299,7 @@ function Cartao({
 }: {
   pedido: PedidoCozinha
   agora: Date
+  tempoPreparo: number
   ocupado: boolean
   onAcao: (para: PedidoCozinha['status']) => void
   onCancelar: () => void
@@ -301,7 +307,7 @@ function Cartao({
 }) {
   const acao = acaoPrincipal(p)
   const minutos = minutosDesde(p.criadoEm, agora)
-  const nivel = nivelDeAtraso(p.status, minutos, TEMPO_PREPARO_MIN)
+  const nivel = nivelDeAtraso(p.status, minutos, tempoPreparo)
   const rota = p.tipo === 'entrega' ? linkDaRota(p.endereco) : null
 
   return (

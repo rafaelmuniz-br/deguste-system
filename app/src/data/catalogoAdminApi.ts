@@ -75,14 +75,18 @@ export const mapearProduto = (l: LinhaProduto): ProdutoAdmin => ({
 const FALHA = 'Não foi possível salvar agora. Confira a internet e tente de novo.'
 
 /** Erro do Postgres → frase que a pessoa entende. */
-function traduzir(erro: { code?: string; message?: string }): string {
+export function traduzir(erro: { code?: string; message?: string }): string {
   if (erro.code === '23503') return 'Este item está em uso (tem produtos ou pedidos ligados a ele).'
   if (erro.code === '42501')
     return 'Sem permissão para alterar. Entre com uma conta de administrador.'
+  if (erro.code === '23514')
+    return 'Algum valor está fora do permitido. Confira os campos e tente de novo.'
+  if (erro.code === '23505')
+    return 'Já existe um item igual (por exemplo, dois horários começando na mesma hora).'
   return FALHA
 }
 
-const resultado = (erro: { code?: string; message?: string } | null): ResultadoSalvar =>
+export const resultado = (erro: { code?: string; message?: string } | null): ResultadoSalvar =>
   erro ? { ok: false, mensagem: traduzir(erro) } : { ok: true }
 
 export function criarCatalogoAdminSupabase(cliente: SupabaseClient): ApiCatalogoAdmin {

@@ -61,7 +61,7 @@ function pedido(extra: Partial<PedidoCozinha> = {}): PedidoCozinha {
 type Falha = { listar?: boolean }
 
 function apiFalsa(inicial: PedidoCozinha[], problemas: ProblemaImpressao[] = []) {
-  const estado = { pedidos: inicial, problemas, falha: {} as Falha }
+  const estado = { pedidos: inicial, problemas, falha: {} as Falha, tempoPreparo: 30 }
   let aoMudar: () => void = () => {}
   let aoConexao: (c: ConexaoTempoReal) => void = () => {}
   const api = {
@@ -71,6 +71,7 @@ function apiFalsa(inicial: PedidoCozinha[], problemas: ProblemaImpressao[] = [])
     }),
     mudarStatus: vi.fn<ApiCozinha['mudarStatus']>(async () => ({ ok: true })),
     reimprimir: vi.fn(async () => true),
+    tempoPreparoMin: vi.fn(async () => estado.tempoPreparo),
     problemasImpressao: vi.fn(async () => estado.problemas),
     assinar: vi.fn((mudou: () => void, conexao: (c: ConexaoTempoReal) => void) => {
       aoMudar = mudou
@@ -155,6 +156,21 @@ describe('Cozinha: quadro de pedidos', () => {
 
   it('pedido além do tempo prometido aparece como ATRASADO', async () => {
     abrir(apiFalsa([pedido({ criadoEm: agoraIso(45) })]))
+    expect(await screen.findByText(/ATRASADO/)).toBeInTheDocument()
+  })
+
+  it('o limite de atraso vem do tempo de preparo configurado na loja', async () => {
+    const f = apiFalsa([pedido({ criadoEm: agoraIso(45) })])
+    f.estado.tempoPreparo = 60 // 45 min de 60 ainda não é atraso (só atenção)
+    abrir(f)
+    await screen.findByText('Pedido 101')
+    expect(screen.queryByText(/ATRASADO/)).not.toBeInTheDocument()
+  })
+
+  it('sem conseguir ler a configuração, usa 30 minutos', async () => {
+    const f = apiFalsa([pedido({ criadoEm: agoraIso(45) })])
+    f.api.tempoPreparoMin.mockRejectedValue(new Error('rede'))
+    abrir(f)
     expect(await screen.findByText(/ATRASADO/)).toBeInTheDocument()
   })
 
