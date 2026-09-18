@@ -10,7 +10,8 @@ Tela em **`/cozinha`** (só para administradores). Feita para tablet ou PC na co
 4. Cada cartão tem um botão grande com o **próximo passo** (Aceitar e preparar → Pronto → Saiu para entrega / Entregue ao cliente → Entregue). Não dá para pular etapas nem voltar.
 5. **Recusar/Cancelar** pede um motivo (fica gravado no pedido). Se o cliente já pagou, será preciso devolver o valor.
 6. **Reimprimir** manda o pedido de novo para a impressora (o recibo sai marcado como reimpressão).
-7. Pedidos de entrega têm **Rota no mapa** (abre o Google Maps no endereço do cliente).
+7. **Marcar esgotado** (topo da tela) leva à lista de produtos, onde um toque bloqueia o produto no cardápio ([`admin-cadastro.md`](admin-cadastro.md)).
+8. Pedidos de entrega têm **Rota no mapa** (abre o Google Maps no endereço do cliente).
 
 ## O que a tela avisa sozinha
 
@@ -37,7 +38,6 @@ Precisa das migrations `150000`–`180000` aplicadas (ver `docs/migrations-aplic
 
 ## Ainda falta
 
-- **Marcar produto esgotado rápido** (4.3) — depende do CRUD de produtos (1.8).
 - Tempo de preparo configurável (hoje fixo em 30 min no código; virá da configuração da loja, 1.12) e **estimativa mostrada ao cliente** (4.5).
 - Waze e "copiar/enviar por WhatsApp" na rota (6.1).
 - Teste em tablet real e com internet caindo (4.13).

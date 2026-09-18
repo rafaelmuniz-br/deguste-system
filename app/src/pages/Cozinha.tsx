@@ -191,6 +191,7 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
           >
             {somAtivo ? '🔔 Som ligado' : '🔕 Ativar som'}
           </button>
+          <Link to="/admin/produtos">Marcar esgotado</Link>
           <Link to="/admin">Painel admin</Link>
         </div>
       </header>

@@ -1,8 +1,9 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+import { catalogoAdminFalso, categoria, produto } from '../test/catalogoAdminFalso.ts'
 import Admin from './Admin.tsx'
 
 // Supabase FALSO que emite os mesmos eventos do real: INITIAL_SESSION ao assinar, SIGNED_IN/SIGNED_OUT.
@@ -227,5 +228,57 @@ describe('Painel admin: buscadores', () => {
     )
     unmount()
     expect(document.querySelector('meta[name="robots"]')).toBeNull()
+  })
+})
+
+describe('Painel admin: navegação entre as seções', () => {
+  const sessaoAdmin = { sessao: { id: 'u-lucas', email: 'lucas@deguste.com' }, admins: ['u-lucas'] }
+
+  function abrirEm(rota: string, opcoes: Opcoes = sessaoAdmin) {
+    const { cliente } = criarClienteFalso(opcoes)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    render(
+      <MemoryRouter initialEntries={[rota]}>
+        <Routes>
+          <Route path="/admin/*" element={<Admin cliente={cliente} api={api} />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    return api
+  }
+
+  it('o início leva para categorias e produtos, e o menu marca a seção atual', async () => {
+    const user = userEvent.setup()
+    abrirEm('/admin')
+    await screen.findByText('Logado como lucas@deguste.com')
+
+    const menu = screen.getByRole('navigation', { name: 'Seções do painel' })
+    await user.click(within(menu).getByRole('link', { name: 'Produtos' }))
+    expect(await screen.findByRole('heading', { name: 'Produtos' })).toBeInTheDocument()
+    expect(await screen.findByText('Jackfino')).toBeInTheDocument()
+    expect(menu.querySelector('[aria-current="page"]')).toHaveTextContent('Produtos')
+
+    await user.click(within(menu).getByRole('link', { name: 'Categorias' }))
+    expect(await screen.findByRole('heading', { name: 'Categorias' })).toBeInTheDocument()
+  })
+
+  it('endereço direto de uma seção abre a seção (depois do login)', async () => {
+    abrirEm('/admin/categorias')
+    expect(await screen.findByRole('heading', { name: 'Categorias' })).toBeInTheDocument()
+    expect(await screen.findByText('Hambúrgueres')).toBeInTheDocument()
+  })
+
+  it('endereço que não existe volta ao início', async () => {
+    abrirEm('/admin/qualquer-coisa')
+    expect(await screen.findByText(/Escolha o que quer cuidar/)).toBeInTheDocument()
+  })
+
+  it('quem não é admin NÃO carrega categorias nem produtos', async () => {
+    const api = abrirEm('/admin/produtos', {
+      sessao: { id: 'u-visitante', email: 'visitante@exemplo.com' },
+      admins: [],
+    })
+    expect(await screen.findByRole('heading', { name: 'Sem acesso' })).toBeInTheDocument()
+    expect(api.listarProdutos).not.toHaveBeenCalled()
   })
 })
