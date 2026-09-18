@@ -2,7 +2,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type { ApiFotosAdmin } from '../../data/fotosAdminApi.ts'
 import { catalogoAdminFalso, categoria, produto } from '../../test/catalogoAdminFalso.ts'
 import Produtos from './Produtos.tsx'
 
@@ -191,6 +192,102 @@ describe('Admin: produtos', () => {
     await screen.findByText('Jackfino')
     expect(await violacoes()).toEqual([])
     await user.click(screen.getByRole('button', { name: 'Editar Jackfino' }))
+    await screen.findByRole('dialog')
+    expect(await violacoes()).toEqual([])
+  })
+})
+
+describe('Admin: fotos do produto', () => {
+  function fotosFalsas(resposta: { ok: true } | { ok: false; mensagem: string } = { ok: true }) {
+    const api = {
+      enviar: vi.fn(async () => resposta),
+      remover: vi.fn(async () => resposta),
+      urlPublica: (p: string) => `https://cdn.exemplo/${p}`,
+    }
+    return api as ApiFotosAdmin & typeof api
+  }
+  const abrirComFotos = (produtos = prods(), fotos = fotosFalsas()) => {
+    const { api } = catalogoAdminFalso(cats(), produtos)
+    render(
+      <MemoryRouter>
+        <Produtos api={api} fotos={fotos} />
+      </MemoryRouter>,
+    )
+    return { api, fotos }
+  }
+
+  it('produto com foto mostra miniatura na lista e a prévia no formulário (com alt)', async () => {
+    const user = userEvent.setup()
+    abrirComFotos([produto({ fotoPath: 'p1/a.webp' })])
+    const lista = await screen.findByRole('region', { name: 'Hambúrgueres' })
+    expect(lista.querySelector('img.admin-miniatura')).toHaveAttribute(
+      'src',
+      'https://cdn.exemplo/p1/a.webp',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Editar Jackfino' }))
+    expect(screen.getByAltText('Foto atual de Jackfino')).toHaveAttribute(
+      'src',
+      'https://cdn.exemplo/p1/a.webp',
+    )
+  })
+
+  it('escolher uma foto envia com o produto e a foto anterior', async () => {
+    const user = userEvent.setup()
+    const { fotos } = abrirComFotos([produto({ fotoPath: 'p1/antiga.webp' })])
+    await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
+
+    const arquivo = new File(['x'], 'lanche.jpg', { type: 'image/jpeg' })
+    await user.upload(screen.getByLabelText(/Foto do produto/), arquivo)
+
+    expect(fotos.enviar).toHaveBeenCalledWith('p1', arquivo, 'p1/antiga.webp')
+    expect(await screen.findByText('Foto atualizada.')).toBeInTheDocument()
+  })
+
+  it('erro ao enviar aparece na tela', async () => {
+    const user = userEvent.setup()
+    abrirComFotos(prods(), fotosFalsas({ ok: false, mensagem: 'A foto é muito grande.' }))
+    await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
+    await user.upload(
+      screen.getByLabelText(/Foto do produto/),
+      new File(['x'], 'a.jpg', { type: 'image/jpeg' }),
+    )
+    expect(await screen.findByText('A foto é muito grande.')).toBeInTheDocument()
+  })
+
+  it('remover foto', async () => {
+    const user = userEvent.setup()
+    const { fotos } = abrirComFotos([produto({ fotoPath: 'p1/a.webp' })])
+    await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
+    await user.click(screen.getByRole('button', { name: 'Remover foto' }))
+    expect(fotos.remover).toHaveBeenCalledWith('p1', 'p1/a.webp')
+    expect(await screen.findByText('Foto removida.')).toBeInTheDocument()
+  })
+
+  it('produto novo: pede para salvar antes de enviar a foto', async () => {
+    const user = userEvent.setup()
+    abrirComFotos()
+    await user.click(await screen.findByRole('button', { name: 'Novo produto' }))
+    expect(screen.getByText(/Salve o produto primeiro/)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Foto do produto/)).not.toBeInTheDocument()
+  })
+
+  it('sem a API de fotos, o formulário não mostra a seção', async () => {
+    const user = userEvent.setup()
+    const { api } = catalogoAdminFalso(cats(), prods())
+    render(
+      <MemoryRouter>
+        <Produtos api={api} />
+      </MemoryRouter>,
+    )
+    await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
+    expect(screen.queryByLabelText(/Foto do produto/)).not.toBeInTheDocument()
+  })
+
+  it('acessibilidade (axe) com foto', async () => {
+    const user = userEvent.setup()
+    abrirComFotos([produto({ fotoPath: 'p1/a.webp' })])
+    await user.click(await screen.findByRole('button', { name: 'Editar Jackfino' }))
     await screen.findByRole('dialog')
     expect(await violacoes()).toEqual([])
   })

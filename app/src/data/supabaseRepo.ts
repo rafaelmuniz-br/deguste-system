@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { BUCKET_FOTOS } from '../domain/fotos.ts'
 import type { Cardapio, ConfigLoja, GrupoOpcao, Produto } from '../domain/tipos.ts'
 
 // Lê o cardápio do Supabase com a chave PÚBLICA (anon). Quem decide o que o público enxerga é o
@@ -73,7 +74,11 @@ const porOrdem = <T extends { ordem: number; nome: string }>(a: T, b: T) =>
   a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR')
 
 /** Converte as linhas do banco (snake_case) no `Cardapio` usado pelo app. Função pura, testada. */
-export function montarCardapio(d: DadosDoBanco): Cardapio {
+export function montarCardapio(
+  d: DadosDoBanco,
+  /** Caminho no Storage → endereço público. Sem isto, o cardápio usa o marcador no lugar da foto. */
+  urlFoto: (caminho: string) => string = () => '',
+): Cardapio {
   // A service role (função de pedidos) ignora o RLS, então filtramos os inativos aqui também.
   const categorias = [...d.categorias]
     .filter((c) => c.ativo !== false)
@@ -97,8 +102,7 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
       descricao: p.descricao ?? undefined,
       precoCentavos: p.preco_centavos,
       precoOriginalCentavos: p.preco_original_centavos ?? undefined,
-      // As fotos passam a existir com o upload (tarefa 1.11); por ora o cardápio usa o marcador.
-      fotoUrl: undefined,
+      fotoUrl: (p.foto_path && urlFoto(p.foto_path)) || undefined,
       ehCombo: p.eh_combo,
       disponivel: p.disponivel,
       grupos: [...(p.grupos_opcao ?? [])].sort(porOrdem).map((g): GrupoOpcao => ({
@@ -169,10 +173,13 @@ export async function carregarDoSupabase(client: SupabaseClient): Promise<Cardap
   const falha = categorias.error ?? produtos.error ?? loja.error ?? horarios.error
   if (falha) throw new Error(`Falha ao ler o cardápio: ${falha.message}`)
 
-  return montarCardapio({
-    categorias: categorias.data as LinhaCategoria[],
-    produtos: produtos.data as unknown as LinhaProduto[],
-    loja: loja.data as LinhaLoja,
-    horarios: horarios.data as LinhaHorario[],
-  })
+  return montarCardapio(
+    {
+      categorias: categorias.data as LinhaCategoria[],
+      produtos: produtos.data as unknown as LinhaProduto[],
+      loja: loja.data as LinhaLoja,
+      horarios: horarios.data as LinhaHorario[],
+    },
+    (caminho) => client.storage.from(BUCKET_FOTOS).getPublicUrl(caminho).data.publicUrl,
+  )
 }

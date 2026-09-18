@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Modal from '../../components/Modal.tsx'
 import type { ApiCatalogoAdmin } from '../../data/catalogoAdminApi.ts'
+import type { ApiFotosAdmin } from '../../data/fotosAdminApi.ts'
 import {
   centavosParaReais,
   moverNaLista,
@@ -24,7 +25,7 @@ const novo = (categoriaId: string): Edicao => ({
   ativo: true,
 })
 
-export default function Produtos({ api }: { api: ApiCatalogoAdmin }) {
+export default function Produtos({ api, fotos }: { api: ApiCatalogoAdmin; fotos?: ApiFotosAdmin }) {
   const [categorias, setCategorias] = useState<CategoriaAdmin[] | null>(null)
   const [produtos, setProdutos] = useState<ProdutoAdmin[]>([])
   const [falha, setFalha] = useState(false)
@@ -134,6 +135,14 @@ export default function Produtos({ api }: { api: ApiCatalogoAdmin }) {
             {itens.map((p, i) => (
               <li key={p.id} className={p.ativo ? '' : 'inativo'}>
                 <div className="admin-item-info">
+                  {p.fotoPath && fotos && (
+                    <img
+                      className="admin-miniatura"
+                      src={fotos.urlPublica(p.fotoPath)}
+                      alt=""
+                      loading="lazy"
+                    />
+                  )}
                   <strong>{p.nome}</strong>
                   <span>{formatarPreco(p.precoCentavos)}</span>
                   {p.ehCombo && <span className="tag">Combo</span>}
@@ -209,6 +218,9 @@ export default function Produtos({ api }: { api: ApiCatalogoAdmin }) {
           inicial={editando}
           categorias={categorias}
           api={api}
+          fotos={fotos}
+          fotoAtual={produtos.find((p) => p.id === editando.id)?.fotoPath ?? null}
+          onFotoMudou={carregar}
           onFechar={() => setEditando(null)}
           onSalvo={async () => {
             setEditando(null)
@@ -225,18 +237,45 @@ function FormProdutoModal({
   inicial,
   categorias,
   api,
+  fotos,
+  fotoAtual,
+  onFotoMudou,
   onFechar,
   onSalvo,
 }: {
   inicial: Edicao
   categorias: CategoriaAdmin[]
   api: ApiCatalogoAdmin
+  fotos?: ApiFotosAdmin
+  fotoAtual: string | null
+  onFotoMudou: () => Promise<void>
   onFechar: () => void
   onSalvo: () => Promise<void>
 }) {
   const [f, setF] = useState(inicial)
   const [erros, setErros] = useState<string[]>([])
   const [salvando, setSalvando] = useState(false)
+  const [statusFoto, setStatusFoto] = useState('')
+  const [enviandoFoto, setEnviandoFoto] = useState(false)
+
+  async function trocarFoto(arquivo: File | undefined) {
+    if (!arquivo || !fotos || !f.id) return
+    setEnviandoFoto(true)
+    setStatusFoto('Enviando a foto…')
+    const r = await fotos.enviar(f.id, arquivo, fotoAtual)
+    setEnviandoFoto(false)
+    setStatusFoto(r.ok ? 'Foto atualizada.' : r.mensagem)
+    if (r.ok) await onFotoMudou()
+  }
+
+  async function tirarFoto() {
+    if (!fotos || !f.id || !fotoAtual) return
+    setEnviandoFoto(true)
+    const r = await fotos.remover(f.id, fotoAtual)
+    setEnviandoFoto(false)
+    setStatusFoto(r.ok ? 'Foto removida.' : r.mensagem)
+    if (r.ok) await onFotoMudou()
+  }
 
   async function salvar() {
     const v = validarProduto(f)
@@ -323,6 +362,50 @@ function FormProdutoModal({
           onChange={(e) => setF({ ...f, precoOriginal: e.target.value })}
         />
       </label>
+      {fotos && (
+        <div className="campo-foto">
+          {f.id ? (
+            <>
+              {fotoAtual && (
+                <img
+                  className="admin-foto-previa"
+                  src={fotos.urlPublica(fotoAtual)}
+                  alt={`Foto atual de ${f.nome || 'produto'}`}
+                />
+              )}
+              <label className="campo">
+                Foto do produto (JPG, PNG ou WebP)
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={enviandoFoto}
+                  onChange={(e) => {
+                    void trocarFoto(e.target.files?.[0])
+                    e.target.value = '' // permite escolher o mesmo arquivo de novo
+                  }}
+                />
+              </label>
+              {fotoAtual && (
+                <button
+                  type="button"
+                  className="btn-link"
+                  disabled={enviandoFoto}
+                  onClick={() => void tirarFoto()}
+                >
+                  Remover foto
+                </button>
+              )}
+              {statusFoto && (
+                <p role="status" className="dica">
+                  {statusFoto}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="dica">Salve o produto primeiro; depois é possível enviar a foto.</p>
+          )}
+        </div>
+      )}
       <label className="campo-check">
         <input
           type="checkbox"

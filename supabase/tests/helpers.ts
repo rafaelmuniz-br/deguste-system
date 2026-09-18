@@ -31,6 +31,20 @@ export async function criarBanco(): Promise<PGlite> {
     -- O Supabase também concede EXECUTE em funções novas; funções sensíveis revogam isso na própria migration.
     alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
     insert into auth.users (id) values ('${ADMIN_ID}'), ('${CLIENTE_LOGADO_ID}');
+    -- Storage mínimo, com o mesmo desenho do Supabase (RLS ligado em storage.objects): permite testar as políticas das fotos.
+    create schema storage;
+    create table storage.buckets (
+      id text primary key, name text not null, public boolean not null default false,
+      file_size_limit bigint, allowed_mime_types text[]
+    );
+    create table storage.objects (
+      id uuid primary key default gen_random_uuid(),
+      bucket_id text references storage.buckets (id), name text, owner uuid
+    );
+    alter table storage.objects enable row level security;
+    grant usage on schema storage to anon, authenticated;
+    grant select on storage.buckets to anon, authenticated;
+    grant select, insert, update, delete on storage.objects to anon, authenticated;
   `)
 
   const pasta = join(raiz, 'migrations')

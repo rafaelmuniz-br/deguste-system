@@ -17,6 +17,7 @@ O repositório é a fonte da verdade (`supabase/migrations/`), mas **quem aplica
 | `20260918170000_lgpd_direitos_do_titular` | `exportar_dados_cliente` e `anonimizar_cliente` | **⬜ pendente** | ⬜ |
 | `20260918180000_fila_de_impressao` | Fila de impressão, agente e reimpressão | **⬜ pendente** | ⬜ |
 | `20260918190000_salvar_configuracao_loja` | Função que salva configuração e horários da loja de uma vez | **⬜ pendente** | ⬜ |
+| `20260918200000_fotos_produtos` | Bucket público `fotos-produtos` e permissões (só admin envia) | **⬜ pendente** | ⬜ |
 
 O `deguste-prod` ainda não existe (tarefa 0.7); quando existir, aplicar **todas** as migrations em ordem.
 
