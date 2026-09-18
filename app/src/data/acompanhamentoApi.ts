@@ -12,6 +12,10 @@ export type PedidoAcompanhado = {
   pagamentoStatus: StatusPagamento
   totalCentavos: number
   criadoEm: string
+  /** Código "copia e cola" do Pix; só existe enquanto dá para pagar. */
+  pixCopiaCola?: string
+  /** Até quando o Pix pode ser pago. */
+  pagamentoExpiraEm?: string
 }
 
 export type RespostaAcompanhamento =
@@ -28,6 +32,8 @@ type LinhaStatus = {
   pagamento_status: StatusPagamento
   total_centavos: number
   criado_em: string
+  pix_copia_cola?: string | null
+  pagamento_expira_em?: string | null
 }
 
 export function criarAcompanhamentoSupabase(cliente: SupabaseClient | null): ApiAcompanhamento {
@@ -50,6 +56,8 @@ export function criarAcompanhamentoSupabase(cliente: SupabaseClient | null): Api
             pagamentoStatus: linha.pagamento_status,
             totalCentavos: linha.total_centavos,
             criadoEm: linha.criado_em,
+            pixCopiaCola: linha.pix_copia_cola ?? undefined,
+            pagamentoExpiraEm: linha.pagamento_expira_em ?? undefined,
           },
         }
       } catch {

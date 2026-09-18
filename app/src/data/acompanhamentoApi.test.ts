@@ -39,6 +39,45 @@ describe('criarAcompanhamentoSupabase', () => {
     })
   })
 
+  it('traz o Pix e o prazo quando o pedido aguarda pagamento (e ignora nulos)', async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: [
+        {
+          numero: 7,
+          tipo: 'retirada',
+          status: 'aguardando_pagamento',
+          pagamento_status: 'pendente',
+          total_centavos: 3000,
+          criado_em: '2026-09-18T20:00:00Z',
+          pix_copia_cola: '00020126...',
+          pagamento_expira_em: '2026-09-18T20:30:00Z',
+        },
+      ],
+      error: null,
+    })
+    const r = await criarAcompanhamentoSupabase(clienteCom(rpc)).buscar(TOKEN)
+    expect(r.ok && r.pedido.pixCopiaCola).toBe('00020126...')
+    expect(r.ok && r.pedido.pagamentoExpiraEm).toBe('2026-09-18T20:30:00Z')
+
+    rpc.mockResolvedValue({
+      data: [
+        {
+          numero: 7,
+          tipo: 'retirada',
+          status: 'novo',
+          pagamento_status: 'pago',
+          total_centavos: 3000,
+          criado_em: '2026-09-18T20:00:00Z',
+          pix_copia_cola: null,
+          pagamento_expira_em: null,
+        },
+      ],
+      error: null,
+    })
+    const pago = await criarAcompanhamentoSupabase(clienteCom(rpc)).buscar(TOKEN)
+    expect(pago.ok && pago.pedido.pixCopiaCola).toBeUndefined()
+  })
+
   it('token que não parece um UUID nem chega ao banco', async () => {
     const rpc = vi.fn()
     const api = criarAcompanhamentoSupabase(clienteCom(rpc))

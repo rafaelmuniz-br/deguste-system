@@ -161,7 +161,11 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Função pronta e testada (164 testes do app + 50 do banco): `app/src/server/pedidosHandler.ts` + `app/netlify/functions/pedidos.ts`. Empacotada com esbuild e chamada em Node (405 / 503 sem configuração / 400). Recalcula preço e frete, recusa loja fechada, esgotado e opção faltando, ignora preço vindo do navegador, grava pelo `criar_pedido` (atômico) e não vaza detalhe interno. Ver `docs/arquitetura-pedido.md`.
   - A verificação de ponta a ponta contra o banco real é a tarefa 3.15.
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
+  - ✔ Lado do banco pronto e testado: `registrar_cobranca_pix` (idempotente, uma cobrança por pedido) e `acompanhar_pedido` devolvendo o Pix e o prazo. Ver `docs/pagamento.md`.
+  - Falta: a chamada ao gateway e a tela do Pix (depende de 3.1/3.2).
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
+  - ✔ Lado do banco pronto e testado: `confirmar_pagamento_pix` idempotente, com trava de valor exato e tratamento de pagamento após cancelamento/expiração (vai para estorno, não para a cozinha). Ver `docs/pagamento.md`.
+  - Falta: receber o aviso do gateway e validar a assinatura (depende de 3.1/3.2).
 - [x] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
   - ✔ Pronto e testado: página `/acompanhar/<token>` (`app/src/pages/Acompanhar.tsx`) sobre `acompanhar_pedido` do banco. Atualiza a cada 10 s (pausa em segundo plano, atualiza ao voltar, para quando termina), mantém o último status se a rede falhar, trata cancelado e Pix expirado, e anuncia mudanças a leitores de tela. O checkout entrega o link ao confirmar. Modo simulado para desenvolvimento (`docs/arquitetura-pedido.md`).
   - A expiração real do Pix e a confirmação do pagamento chegam com 3.8 e 3.9; a tela já mostra os estados `expirado`, `falhou` e `pago`.
@@ -176,7 +180,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Falta: definir e publicar o **canal** para o cliente pedir (P11) e a revisão jurídica; aplicar a migration no dev (1.14).
 - [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
   - ✔ Parcial: fluxo pedido → acompanhamento → cozinha de ponta a ponta com o handler real e o banco real (`supabase/tests/fluxo-completo.test.ts`), incluindo valores forjados, loja fechada, anti-spam e combo com escolha repetida somando vendas por produto real.
-  - Falta: a parte do pagamento (webhook duplicado, pagamento após expirar), que depende de 3.8 e 3.9.
+  - ✔ Parte do **banco** do pagamento testada (`supabase/tests/pagamento-pix.test.ts`, 21 testes): aviso duplicado, valor divergente, pagamento após cancelamento e após expiração, expiração automática, permissões.
+  - Falta: o teste da function do webhook (assinatura, gateway) quando 3.8/3.9 existirem.
 - [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
