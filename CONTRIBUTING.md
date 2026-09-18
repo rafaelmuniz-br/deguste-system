@@ -2,6 +2,16 @@
 
 Guia pensado para quem está começando. Se travar em qualquer passo, pergunte antes de tentar "forçar" — quase tudo no Git tem conserto, exceto segredos que vazam.
 
+## Como saber quais são as minhas tarefas
+
+1. Baixe a versão mais recente: `git checkout main` e `git pull`.
+2. Na raiz do projeto, rode `node painel/server.js` e abra <http://localhost:4173>.
+3. Na aba **Minhas tarefas**, escolha o seu nome. Você vê:
+   - as tarefas em aberto, por fase, e quais **já podem ser começadas** (`▶ pode começar`) ou estão esperando outra (`⏳ aguardando`);
+   - as **informações que faltam de você** (ex.: modelo da impressora), que destravam tarefas dos outros.
+4. Ao terminar uma tarefa e ela ser mesclada, marque `[x]` no `PLANO-DE-PRODUCAO.md` (no mesmo PR). O painel atualiza sozinho.
+5. Todo dia útil, faça `git pull` antes de começar: o plano muda conforme o projeto avança.
+
 ## O ciclo de uma tarefa
 
 1. Escolha uma tarefa em [PLANO-DE-PRODUCAO.md](PLANO-DE-PRODUCAO.md) (ex.: `2.1`).

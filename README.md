@@ -36,6 +36,8 @@ Testes do banco (RLS e regras de integridade), dentro de `supabase/`: `npm insta
 node painel/server.js   # abre em http://localhost:4173
 ```
 
+Na aba **Minhas tarefas** escolha seu nome (Lucas, Rafael ou Bruno) para ver o que já pode ser começado e o que falta você informar.
+
 ## Estrutura
 
 ```

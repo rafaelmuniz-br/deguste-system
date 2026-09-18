@@ -4,6 +4,8 @@ Baseado em [Sistema-Deguste-Burguer-Planejamento.md](Sistema-Deguste-Burguer-Pla
 
 > Este arquivo é o **documento vivo de acompanhamento**. Marque `[x]` conforme as tarefas forem concluídas (via commit/PR) e o painel em `localhost` atualiza o progresso sozinho.
 
+**Como ler as tarefas:** cada uma termina com quem faz (`👤 Lucas`, `👤 Rafael + Lucas`…; o primeiro nome é o responsável principal) e, quando há, do que depende (`⏳ depende: 1.7` = só começa depois de 1.7 pronta). Para ver só as suas, rode `node painel/server.js`, abra <http://localhost:4173> e escolha seu nome em **Minhas tarefas**.
+
 ## 1. Objetivo e marco final
 
 Substituir a Cardápio Web por uma plataforma própria (custo fixo R$ 0) **sem perder nenhuma capacidade operacional**: cardápio, pedidos, Pix, cozinha em tempo real, impressão automática e rota de entrega.
@@ -47,17 +49,17 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** qualquer pessoa clona o repo, roda em 10 minutos e abre um PR que gera preview.
 
-- [x] 0.1 Criar repositório Git e enviar o link ao time
-- [ ] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto
-- [x] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos"
-- [x] 0.4 Projeto Vite + React + React Router + TypeScript
-- [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR
-- [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview
-- [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod`
-- [x] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento)
-- [x] 0.9 `CLAUDE.md` na raiz: convenções, comandos, regras do projeto, para o Claude Code de Lucas seguir as mesmas regras que o de Rafael
-- [x] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante
-- [ ] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro
+- [x] 0.1 Criar repositório Git e enviar o link ao time `👤 Rafael`
+- [ ] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto `👤 Rafael`
+- [x] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos" `👤 Rafael`
+- [x] 0.4 Projeto Vite + React + React Router + TypeScript `👤 Rafael`
+- [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
+- [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
+- [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Rafael`
+- [x] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento) `👤 Rafael`
+- [x] 0.9 `CLAUDE.md` na raiz: convenções, comandos, regras do projeto, para o Claude Code de Lucas seguir as mesmas regras que o de Rafael `👤 Rafael`
+- [x] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante `👤 Rafael`
+- [ ] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro `👤 Lucas`
 
 **Saída:** PR do Lucas mergeado, deploy preview funcionando.
 
@@ -69,21 +71,21 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Banco (Supabase, via migrations):**
 
-- [x] 1.1 Tabelas núcleo: `categorias`, `produtos`, `grupos_opcao` / `opcoes` (variações e adicionais do "monte o seu"), `configuracoes_loja`
-- [x] 1.2 Tabelas de pedido: `pedidos` (com `canal`, `tipo` entrega/retirada, `status`, `pagamento_status`), `itens_pedido`, `itens_pedido_componentes` (D3: combo resolvido em produtos reais), `clientes` (nome + telefone)
-- [x] 1.3 Tabelas reservadas para Fase 6 já desenhadas (`cupons`, saldo de cashback) mas **sem UI** — evita migração dolorosa depois
-- [x] 1.4 **RLS ativado em todas as tabelas desde o início**; políticas: público lê cardápio ativo; só admin autenticado escreve; pedidos só via função server-side
-- [x] 1.5 Seed com dados de exemplo para dev
-- [x] 1.6 Testes de RLS (anônimo não consegue ler `pedidos` nem `clientes`)
+- [x] 1.1 Tabelas núcleo: `categorias`, `produtos`, `grupos_opcao` / `opcoes` (variações e adicionais do "monte o seu"), `configuracoes_loja` `👤 Rafael`
+- [x] 1.2 Tabelas de pedido: `pedidos` (com `canal`, `tipo` entrega/retirada, `status`, `pagamento_status`), `itens_pedido`, `itens_pedido_componentes` (D3: combo resolvido em produtos reais), `clientes` (nome + telefone) `👤 Rafael`
+- [x] 1.3 Tabelas reservadas para Fase 6 já desenhadas (`cupons`, saldo de cashback) mas **sem UI** — evita migração dolorosa depois `👤 Rafael`
+- [x] 1.4 **RLS ativado em todas as tabelas desde o início**; políticas: público lê cardápio ativo; só admin autenticado escreve; pedidos só via função server-side `👤 Rafael`
+- [x] 1.5 Seed com dados de exemplo para dev `👤 Rafael`
+- [x] 1.6 Testes de RLS (anônimo não consegue ler `pedidos` nem `clientes`) `👤 Rafael`
 
 **Admin:**
 
-- [ ] 1.7 Login admin (Supabase Auth, e-mail + senha; 2 usuários: Bruno e Lucas)
-- [ ] 1.8 CRUD de categorias (ordem, ativo/inativo)
-- [ ] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado)
-- [ ] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional)
-- [ ] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier)
-- [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio
+- [ ] 1.7 Login admin (Supabase Auth, e-mail + senha; 2 usuários: Bruno e Lucas) `👤 Rafael` `⏳ depende: 0.7`
+- [ ] 1.8 CRUD de categorias (ordem, ativo/inativo) `👤 Lucas` `⏳ depende: 1.7`
+- [ ] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado) `👤 Rafael` `⏳ depende: 1.7`
+- [ ] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional) `👤 Rafael` `⏳ depende: 1.7`
+- [ ] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier) `👤 Rafael` `⏳ depende: 1.7`
+- [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
 
 **Saída:** Bruno cadastra "Smash Jackfino" com foto pelo admin.
 
@@ -93,16 +95,16 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** cardápio real completo, bom no celular, em produção numa URL de teste.
 
-- [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* *(Lucas + Bruno)*
-- [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR)
-- [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca
-- [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx
-- [x] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens
-- [x] 2.6 Loja abre/fecha automaticamente por horário (fuso `America/Bahia`); fora do horário, pedido bloqueado com aviso claro
-- [x] 2.7 Produto esgotado aparece bloqueado, não some
-- [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento)
-- [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90
-- [ ] 2.10 Domínio (ou subdomínio Netlify) definido
+- [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* `👤 Lucas + Bruno`
+- [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 0.7`
+- [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca `👤 Rafael`
+- [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx `👤 Rafael`
+- [x] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens `👤 Rafael`
+- [x] 2.6 Loja abre/fecha automaticamente por horário (fuso `America/Bahia`); fora do horário, pedido bloqueado com aviso claro `👤 Rafael`
+- [x] 2.7 Produto esgotado aparece bloqueado, não some `👤 Rafael`
+- [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento) `👤 Rafael + Lucas`
+- [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
+- [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 
@@ -112,20 +114,20 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** cliente faz um pedido completo e paga. Nada de dinheiro real ainda (sandbox).
 
-- [ ] 3.1 Decisão: gateway Pix — **Mercado Pago vs Pagar.me** (comparar taxa real, prazo de recebimento, qualidade do sandbox) *(Rafael + Lucas)*
-- [ ] 3.2 Conta do gateway criada em nome do CNPJ do Deguste, credenciais de sandbox nas variáveis do Netlify
-- [ ] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações
-- [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete
-- [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)*
-- [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem
-- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes
-- [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola
-- [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada)
-- [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado
-- [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos)
-- [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)*
-- [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir)
-- [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração)
+- [ ] 3.1 Decisão: gateway Pix — **Mercado Pago vs Pagar.me** (comparar taxa real, prazo de recebimento, qualidade do sandbox) `👤 Rafael + Lucas`
+- [ ] 3.2 Conta do gateway criada em nome do CNPJ do Deguste, credenciais de sandbox nas variáveis do Netlify `👤 Lucas + Rafael` `⏳ depende: 3.1`
+- [ ] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
+- [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
+- [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
+- [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem `👤 Rafael`
+- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
+- [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
+- [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
+- [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
+- [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
+- [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
+- [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
+- [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
 
@@ -137,22 +139,22 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Painel da cozinha / gestão de pedidos:**
 
-- [ ] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado)
-- [ ] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet
-- [ ] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo
-- [ ] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega)
-- [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente
+- [ ] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado) `👤 Rafael`
+- [ ] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
+- [ ] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
+- [ ] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
+- [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
 
 **Agente de impressão (`printer-agent/`):**
 
-- [ ] 4.6 **Confirmar modelo/marca da impressora térmica atual** — bloqueia a escolha da biblioteca ESC/POS *(Lucas/Bruno — ver seção 8)*
-- [ ] 4.7 Agente Node.js: autentica na API, escuta pedidos novos (Realtime ou polling), formata recibo ESC/POS (`node-thermal-printer`)
-- [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal)
-- [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu")
-- [ ] 4.10 Reimpressão manual de qualquer pedido pelo painel
-- [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar
-- [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção"
-- [ ] 4.13 Teste em condições reais: queda de internet, impressora sem papel/desligada, PC reiniciado
+- [ ] 4.6 **Confirmar modelo/marca da impressora térmica atual** — bloqueia a escolha da biblioteca ESC/POS `👤 Lucas`
+- [ ] 4.7 Agente Node.js: autentica na API, escuta pedidos novos (Realtime ou polling), formata recibo ESC/POS (`node-thermal-printer`) `👤 Rafael` `⏳ depende: 4.6`
+- [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal) `👤 Bruno + Lucas`
+- [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
+- [ ] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
+- [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar `👤 Rafael`
+- [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção" `👤 Rafael + Lucas`
+- [ ] 4.13 Teste em condições reais: queda de internet, impressora sem papel/desligada, PC reiniciado `👤 Lucas + Rafael`
 
 **Saída:** pedido de teste pago **sai impresso** na impressora real da cozinha.
 
@@ -164,23 +166,23 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Pré-requisitos de go-live (nenhum pode faltar):**
 
-- [ ] 5.1 Gateway Pix migrado do **sandbox para produção**, com um pagamento real de R$ 1 testado e estornado
-- [ ] 5.2 Backup: exportação periódica do banco fora do Supabase + **restauração testada de verdade** em projeto vazio
-- [ ] 5.3 Monitoramento: alerta (e-mail/WhatsApp para Rafael) quando uma function falha ou o agente de impressão fica offline
-- [ ] 5.4 Mitigação do pause do Supabase free tier (projeto pausa após ~1 semana sem atividade — confirmar regra vigente; loja fecha seg/ter, mas feriado/férias podem passar disso) → rotina de "keep-alive"
-- [ ] 5.5 Plano de contingência impresso na cozinha: sistema fora → WhatsApp manual (número atual) + como avisar clientes
-- [ ] 5.6 Runbook de incidentes (`docs/runbook.md`): "não imprime", "pedido não chegou", "Pix pago mas pedido não confirmou", quem acionar
-- [ ] 5.7 Backup de hardware: impressora reserva ou plano B de impressão (imprimir pelo navegador no PC)
-- [ ] 5.8 Treinamento de Bruno e Lucas (30–45 min, no local)
+- [ ] 5.1 Gateway Pix migrado do **sandbox para produção**, com um pagamento real de R$ 1 testado e estornado `👤 Rafael + Lucas` `⏳ depende: 3.2`
+- [ ] 5.2 Backup: exportação periódica do banco fora do Supabase + **restauração testada de verdade** em projeto vazio `👤 Rafael`
+- [ ] 5.3 Monitoramento: alerta (e-mail/WhatsApp para Rafael) quando uma function falha ou o agente de impressão fica offline `👤 Rafael`
+- [ ] 5.4 Mitigação do pause do Supabase free tier (projeto pausa após ~1 semana sem atividade — confirmar regra vigente; loja fecha seg/ter, mas feriado/férias podem passar disso) → rotina de "keep-alive" `👤 Rafael`
+- [ ] 5.5 Plano de contingência impresso na cozinha: sistema fora → WhatsApp manual (número atual) + como avisar clientes `👤 Lucas + Bruno`
+- [ ] 5.6 Runbook de incidentes (`docs/runbook.md`): "não imprime", "pedido não chegou", "Pix pago mas pedido não confirmou", quem acionar `👤 Rafael + Lucas`
+- [ ] 5.7 Backup de hardware: impressora reserva ou plano B de impressão (imprimir pelo navegador no PC) `👤 Lucas`
+- [ ] 5.8 Treinamento de Bruno e Lucas (30–45 min, no local) `👤 Rafael`
 
 **Piloto:**
 
-- [ ] 5.9 **Definir data de corte** e comunicar ao time *(Bruno + Lucas + Rafael)*
-- [ ] 5.10 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal
-- [ ] 5.11 Virada: link do Instagram/bio passa a apontar para o sistema novo; Cardápio Web fica **ativa em paralelo** (D5)
-- [ ] 5.12 Operar 1–2 semanas de quarta a domingo; registrar cada falha em issue com severidade
-- [ ] 5.13 Reunião de go/no-go: critérios abaixo atendidos → cancelar Cardápio Web
-- [ ] 5.14 Exportar dados de clientes/histórico da Cardápio Web *antes* de cancelar (dados são da Deguste)
+- [ ] 5.9 **Definir data de corte** e comunicar ao time `👤 Bruno + Lucas + Rafael`
+- [ ] 5.10 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal `👤 Lucas`
+- [ ] 5.11 Virada: link do Instagram/bio passa a apontar para o sistema novo; Cardápio Web fica **ativa em paralelo** (D5) `👤 Lucas + Rafael`
+- [ ] 5.12 Operar 1–2 semanas de quarta a domingo; registrar cada falha em issue com severidade `👤 Lucas + Bruno`
+- [ ] 5.13 Reunião de go/no-go: critérios abaixo atendidos → cancelar Cardápio Web `👤 Bruno + Lucas + Rafael`
+- [ ] 5.14 Exportar dados de clientes/histórico da Cardápio Web *antes* de cancelar (dados são da Deguste) `👤 Lucas`
 
 **Critério de go/no-go (todos verdadeiros):**
 
@@ -195,14 +197,14 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 
-- [ ] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp"
-- [ ] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3)
-- [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes
-- [ ] 6.4 **Mensagens automáticas de status por WhatsApp** — depende da decisão da seção 8 (custo!)
-- [ ] 6.5 Cupons de desconto (validade, uso único, valor mínimo, anti-abuso)
-- [ ] 6.6 Conta de cliente + cashback de 10%
-- [ ] 6.7 Gestão de motoboys: atribuir pedido, acompanhar entrega, cálculo do valor a pagar por entregador
-- [ ] 6.8 Ficha técnica e custo por produto (base para margem e controle de estoque)
+- [ ] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
+- [ ] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
+- [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes `👤 Rafael`
+- [ ] 6.4 **Mensagens automáticas de status por WhatsApp** — depende da decisão da seção 8 (custo!) `👤 Rafael`
+- [ ] 6.5 Cupons de desconto (validade, uso único, valor mínimo, anti-abuso) `👤 Rafael`
+- [ ] 6.6 Conta de cliente + cashback de 10% `👤 Rafael`
+- [ ] 6.7 Gestão de motoboys: atribuir pedido, acompanhar entrega, cálculo do valor a pagar por entregador `👤 Rafael + Lucas`
+- [ ] 6.8 Ficha técnica e custo por produto (base para margem e controle de estoque) `👤 Bruno + Lucas + Rafael`
 
 ---
 
@@ -210,11 +212,11 @@ Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 
 Só após Fase 5 estável e decisão de negócio (D6).
 
-- [ ] 7.1 Pesquisar estado atual das APIs: iFood (programa de integração/homologação) e 99Food — **validar se o caminho "Open Delivery" do planejamento cobre de fato as duas**
-- [ ] 7.2 Cadastrar como parceiro/desenvolvedor e iniciar homologação
-- [ ] 7.3 Receber pedidos como `canal = ifood|99food`, mapear itens do marketplace → `produto_id` (tabela de equivalência)
-- [ ] 7.4 Sincronizar cancelamentos/alterações vindos das plataformas
-- [ ] 7.5 Impressão e relatórios idênticos aos do canal próprio
+- [ ] 7.1 Pesquisar estado atual das APIs: iFood (programa de integração/homologação) e 99Food — **validar se o caminho "Open Delivery" do planejamento cobre de fato as duas** `👤 Rafael`
+- [ ] 7.2 Cadastrar como parceiro/desenvolvedor e iniciar homologação `👤 Rafael`
+- [ ] 7.3 Receber pedidos como `canal = ifood|99food`, mapear itens do marketplace → `produto_id` (tabela de equivalência) `👤 Rafael`
+- [ ] 7.4 Sincronizar cancelamentos/alterações vindos das plataformas `👤 Rafael`
+- [ ] 7.5 Impressão e relatórios idênticos aos do canal próprio `👤 Rafael`
 
 ---
 
@@ -280,7 +282,7 @@ Encontrados ao converter o planejamento em plano de produção:
 
 | # | Pendência | Quem | Bloqueia |
 | --- | --- | --- | --- |
-| P1 | Link do repositório Git | Rafael | 0.1 em diante |
+| P1 | ✅ Link do repositório Git (recebido) | Rafael | — |
 | P2 | **Modelo/marca da impressora térmica** e sistema do PC/tablet da cozinha (Windows? tablet Android?) | Lucas | 4.6, 4.7 |
 | P3 | Cardápio completo: Entradas e Sobremesas, Bebidas, Ofertas com Desconto (fotos, preços, descrições) | Lucas + Bruno | 2.1 |
 | P4 | Regra de frete: R$/km, faixas de bairro ou mistura? Lista de bairros atendidos | Lucas | 3.5, 3.6 |

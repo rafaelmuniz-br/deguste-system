@@ -52,6 +52,24 @@
   li:has(> input:checked) { color: var(--muted); text-decoration: line-through; }
   .mermaid { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; margin: 1em 0; }
   .err { color: #dc2626; }
+  /* etiquetas e cartões de tarefa */
+  code.chip, .chip { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-left: 6px; font-family: inherit; }
+  code.chip.dep { background: transparent; color: var(--muted); border-color: var(--line); font-weight: 500; }
+  nav a.pessoa.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 4px 14px; margin: 12px 0; }
+  summary { cursor: pointer; padding: 10px 0; }
+  ul.tarefas { list-style: none; margin: 0; padding: 0 0 8px; }
+  .tarefa { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .tarefa.feita { color: var(--muted); }
+  .tid { flex: none; min-width: 2.6em; font-weight: 700; color: var(--accent); }
+  .meta { margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .meta .chip { margin-left: 0; }
+  .est { font-size: 13px; font-weight: 600; padding: 1px 8px; border-radius: 6px; }
+  .est.livre { background: var(--ok); color: #fff; }
+  .est.bloq { background: var(--code); color: var(--muted); }
+  .est.ok { color: var(--ok); }
+  .pend { background: var(--accent-soft); border-radius: 12px; padding: 4px 16px 10px; margin: 16px 0; }
+  .pend h3 { margin-bottom: 4px; }
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
     aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -75,12 +93,18 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
+const TAREFAS = "@tarefas"; // aba virtual: lê o plano e mostra as tarefas por pessoa
 const DOCS = [
-  { file: "PLANO-DE-PRODUCAO.md", label: "Plano de produção" },
+  { file: TAREFAS, label: "Minhas tarefas", fonte: "PLANO-DE-PRODUCAO.md" },
+  { file: "PLANO-DE-PRODUCAO.md", label: "Plano completo" },
   { file: "Sistema-Deguste-Burguer-Planejamento.md", label: "Planejamento" },
 ];
+const PESSOAS = ["Lucas", "Rafael", "Bruno", "Todos"];
+const fonte = (file) => DOCS.find((d) => d.file === file)?.fonte || file;
 let current = localStorage.getItem("doc") || DOCS[0].file;
 if (!DOCS.some((d) => d.file === current)) current = DOCS[0].file;
+let pessoa = localStorage.getItem("pessoa") || "Todos";
+if (!PESSOAS.includes(pessoa)) pessoa = "Todos";
 let lastMtime = null;
 
 const $ = (id) => document.getElementById(id);
@@ -113,6 +137,24 @@ function renderSide(md) {
     current = b.dataset.f; localStorage.setItem("doc", current); lastMtime = null; load();
   });
 
+  if (current === TAREFAS) {
+    const todas = parseTarefas(md);
+    const resumo = (p) => {
+      const t = todas.filter((x) => p === "Todos" || x.donos.includes(p));
+      return { done: t.filter((x) => x.feito).length, total: t.length };
+    };
+    const r = resumo(pessoa), pct = r.total ? Math.round((r.done / r.total) * 100) : 0;
+    $("overall").innerHTML = `<b>${pct}%</b> <span class="sub">${r.done} de ${r.total} tarefas${pessoa === "Todos" ? " do projeto" : " de " + pessoa}</span><div class="bar"><i style="width:${pct}%"></i></div>`;
+    $("nav").innerHTML = `<div class="sub" style="margin-bottom:6px">Quem é você?</div>` + PESSOAS.map((p) => {
+      const x = resumo(p);
+      return `<a href="#" data-p="${p}" class="pessoa ${p === pessoa ? "on" : ""}">${p}<small>${x.done}/${x.total} tarefas</small></a>`;
+    }).join("");
+    $("nav").querySelectorAll("a.pessoa").forEach((a) => a.onclick = (e) => {
+      e.preventDefault(); pessoa = a.dataset.p; localStorage.setItem("pessoa", pessoa); load();
+    });
+    return;
+  }
+
   const secs = progress(md);
   const tasks = secs.filter((s) => s.title.startsWith("Fase ") && s.total > 0);
   const done = tasks.reduce((a, s) => a + s.done, 0), total = tasks.reduce((a, s) => a + s.total, 0);
@@ -127,8 +169,94 @@ function renderSide(md) {
   }).join("");
 }
 
+// Lê as tarefas numeradas ("- [ ] 1.8 texto `👤 Lucas` `⏳ depende: 1.7`") das seções "## Fase N".
+function parseTarefas(md) {
+  const tarefas = [];
+  let fase = null, fence = false;
+  for (const line of md.split("\n")) {
+    if (line.startsWith("```")) fence = !fence;
+    if (fence) continue;
+    if (line.startsWith("## ")) { fase = /^## (Fase \d+ .+)/.test(line) ? line.slice(3) : null; continue; }
+    const m = line.match(/^- \[([ xX])\] (\d+\.\d+) (.*)$/);
+    if (!m || !fase) continue;
+    const dono = m[3].match(/`👤 ([^`]+)`/), dep = m[3].match(/`⏳ depende: ([^`]+)`/);
+    tarefas.push({
+      id: m[2], feito: m[1] !== " ", fase,
+      texto: m[3].replace(/\s*`(?:👤|⏳)[^`]*`/g, ""),
+      donos: dono ? dono[1].split(" + ") : [],
+      deps: dep ? dep[1].split(", ") : [],
+    });
+  }
+  return tarefas;
+}
+
+// Pendências da seção "Decisões e informações pendentes": | P2 | texto | Lucas | bloqueia |
+function parsePendencias(md) {
+  return md.split("\n").flatMap((l) => {
+    const m = l.match(/^\| (P\d+) \| (.+?) \| (.+?) \| (.+?) \|$/);
+    return m && !m[2].includes("✅") ? [{ id: m[1], texto: m[2], quem: m[3], bloqueia: m[4] }] : [];
+  });
+}
+
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderTarefas(md) {
+  const todas = parseTarefas(md);
+  const feitas = new Set(todas.filter((t) => t.feito).map((t) => t.id));
+  const porId = Object.fromEntries(todas.map((t) => [t.id, t]));
+  const minhas = todas.filter((t) => pessoa === "Todos" || t.donos.includes(pessoa));
+  const abertas = minhas.filter((t) => !t.feito);
+  const bloqueada = (t) => t.deps.filter((d) => !feitas.has(d));
+  // Só as 3 fases mais próximas contam como "para agora"; as demais são futuras.
+  const numFase = (t) => Number(t.fase.match(/Fase (\d+)/)?.[1] ?? 99);
+  const faseMin = Math.min(...todas.filter((t) => !t.feito).map(numFase));
+  const futura = (t) => !t.feito && numFase(t) > faseMin + 2;
+
+  const card = (t) => {
+    const falta = bloqueada(t);
+    const estado = t.feito ? `<span class="est ok">✔ feita</span>`
+      : futura(t) ? `<span class="est bloq">🔒 fase futura</span>`
+      : falta.length ? `<span class="est bloq">⏳ aguardando ${falta.map((d) => `${d} (${esc((porId[d]?.texto || "").replace(/\*/g, "").slice(0, 32))}…)`).join(", ")}</span>`
+      : `<span class="est livre">▶ pode começar</span>`;
+    const com = t.donos.filter((d) => d !== pessoa);
+    return `<li class="tarefa ${t.feito ? "feita" : ""}">
+      <span class="tid">${t.id}</span>
+      <div><div>${marked.parseInline(t.texto)}</div>
+      <div class="meta">${estado}${pessoa === "Todos" ? t.donos.map((d) => `<span class="chip">👤 ${d}</span>`).join("") : (com.length ? `<span class="chip">com ${com.join(", ")}</span>` : "")}</div></div>
+    </li>`;
+  };
+
+  const fases = [...new Set(minhas.map((t) => t.fase))];
+  let abertasMostradas = 0;
+  const blocos = fases.map((f) => {
+    const ts = minhas.filter((t) => t.fase === f);
+    const pend = ts.filter((t) => !t.feito).length;
+    const abrir = pend > 0 && abertasMostradas < 2;
+    if (pend > 0) abertasMostradas++;
+    return `<details ${abrir ? "open" : ""}><summary><b>${esc(f)}</b> <span class="sub" style="margin:0">— ${ts.length - pend}/${ts.length} feitas</span></summary>
+      <ul class="tarefas">${ts.map(card).join("")}</ul></details>`;
+  }).join("");
+
+  const agora = abertas.filter((t) => bloqueada(t).length === 0 && !futura(t)).length;
+  const pend = parsePendencias(md).filter((p) => pessoa === "Todos" || p.quem.includes(pessoa));
+
+  $("content").innerHTML = `
+    <h1>${pessoa === "Todos" ? "Todas as tarefas" : "Tarefas de " + pessoa}</h1>
+    <p class="sub">${abertas.length ? `${abertas.length} em aberto · <b>${agora}</b> já podem ser começadas.` : "Nada em aberto. 🎉"}
+      Escolha quem você é na lateral. Tarefas com <code>▶ pode começar</code> não dependem de mais ninguém.</p>
+    ${pend.length ? `<div class="pend"><h3>❓ Informações que faltam de ${pessoa === "Todos" ? "todos" : "você"}</h3><ul>${pend.map((p) =>
+      `<li><b>${p.id}</b> — ${marked.parseInline(p.texto)} <span class="sub" style="margin:0">(${esc(p.quem)} · destrava ${esc(p.bloqueia)})</span></li>`).join("")}</ul></div>` : ""}
+    ${blocos}`;
+}
+
 async function renderMain(md) {
+  if (current === TAREFAS) return renderTarefas(md);
   $("content").innerHTML = marked.parse(md);
+  // etiquetas de responsável/dependência viram "chips"
+  $("content").querySelectorAll("code").forEach((c) => {
+    if (c.textContent.startsWith("👤")) c.className = "chip";
+    else if (c.textContent.startsWith("⏳")) c.className = "chip dep";
+  });
   // ids de âncora nos H2 (mesma ordem usada na navegação)
   let i = 0;
   $("content").querySelectorAll("h2").forEach((h) => { h.id = slug(h.textContent, i++); });
@@ -147,7 +275,7 @@ async function renderMain(md) {
 
 async function load() {
   try {
-    const r = await fetch("/doc/" + encodeURIComponent(current));
+    const r = await fetch("/doc/" + encodeURIComponent(fonte(current)));
     lastMtime = r.headers.get("X-Mtime");
     const md = await r.text();
     const y = window.scrollY;
@@ -163,7 +291,7 @@ async function load() {
 setInterval(async () => {
   try {
     const m = await (await fetch("/api/mtime")).json();
-    if (lastMtime !== null && String(m[current]) !== String(lastMtime)) load();
+    if (lastMtime !== null && String(m[fonte(current)]) !== String(lastMtime)) load();
   } catch (e) { $("live").textContent = "servidor offline"; }
 }, 2000);
 
