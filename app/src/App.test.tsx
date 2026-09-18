@@ -4,13 +4,15 @@ import { describe, expect, it } from 'vitest'
 import App from './App.tsx'
 
 describe('App', () => {
-  it('mostra o cardápio na rota raiz', () => {
+  it('mostra o cardápio na rota raiz', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('heading', { name: 'Deguste Burguer' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Deguste Burguer' }),
+    ).toBeInTheDocument()
   })
 
   it('mostra o painel da cozinha em /cozinha', () => {

@@ -16,7 +16,8 @@ body {
   margin: 0;
 }
 
-main {
+/* Páginas em construção (admin, cozinha) */
+main:not(.pagina) {
   max-width: 720px;
   margin: 0 auto;
   padding: 16px;
