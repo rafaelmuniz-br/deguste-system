@@ -59,7 +59,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento) `👤 Rafael`
 - [x] 0.9 `CLAUDE.md` na raiz: convenções, comandos, regras do projeto, para o Claude Code de Lucas seguir as mesmas regras que o de Rafael `👤 Rafael`
 - [x] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante `👤 Rafael`
-- [ ] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro `👤 Lucas`
+- [x] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro `👤 Lucas`
 
 **Saída:** PR do Lucas mergeado, deploy preview funcionando.
 
@@ -96,7 +96,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 **Objetivo:** cardápio real completo, bom no celular, em produção numa URL de teste.
 
 - [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* `👤 Lucas + Bruno`
-- [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 0.7`
+  - ✔ Levantamento entregue pelo Lucas (PR #1): itens, preços, descrições e opções conferidos com o relatório da Cardápio Web (`docs/levantamento-cardapio.md`).
+  - Falta: fotos e `alt` (todas `?`); conferir por dentro 3 combos (Brownie+Bebida Grátis, 4 Smashs, Boladão); molho é "1" ou "1 a 2"?; Brownie de Chocolate saiu do cardápio ou volta?; perguntas para o Bruno (pedido mínimo, frete, raio, tempo, impressora, cashback, titular do CNPJ); tirar do texto o caminho pessoal `/home/lucas/...`.
+- [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 2.11, 2.12, 0.7`
 - [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca `👤 Rafael`
 - [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx `👤 Rafael`
 - [x] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens `👤 Rafael`
@@ -105,6 +107,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento) `👤 Rafael + Lucas`
 - [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
 - [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
+- [ ] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
+- [ ] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 
