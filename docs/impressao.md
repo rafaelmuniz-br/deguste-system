@@ -39,8 +39,53 @@ select id from auth.users where email = 'EMAIL_DO_AGENTE';
 
 A senha fica **só no computador da cozinha** (arquivo de configuração do agente, fora do Git).
 
+## O agente (pasta `printer-agent/`)
+
+Programa Node que roda no PC da cozinha e faz o laço: **pega o próximo pedido → imprime → só então confirma**. Instalação e uso: [`printer-agent/README.md`](../printer-agent/README.md).
+
+- Imprime por **rede** (TCP 9100), por **impressora USB compartilhada do Windows** ou em **arquivo** (teste sem impressora). O modelo real da impressora ainda é a pendência **P2**: quando ela estiver em mãos, o "teste de impressão" (`npm run teste`) valida acentos, largura e corte.
+- Se a impressora falhar, avisa o banco (que tenta de novo com espera crescente). Se a internet cair, continua tentando e avisa quando volta.
+- Prefere sair uma **segunda via** a um pedido **não sair**: se imprimiu mas não conseguiu confirmar, a reserva expira e o pedido volta para a fila.
+- Testado com um servidor de rede de verdade e com transportes simulados (43 testes). **Não foi testado em impressora física.**
+
+### Exemplo do recibo (para o Bruno aprovar, tarefa 4.8)
+
+Na impressora, o número do pedido, os itens, as observações e o TOTAL saem em letra **maior/negrito**.
+
+```text
+PEDIDO 123
+>>> ENTREGA <<<
+SITE PROPRIO  18/09, 18:44
+------------------------------------------------
+2x Combo 3 Smashs 90g
+> Smashs: 4x Jackfino
+> Smashs: 2x Xeque Mate
+> Bebida: 2x Guarana Antarctica Lata
+!! SEM CEBOLA
+
+1x Batata frita
+
+------------------------------------------------
+OBSERVACAO DO PEDIDO:
+TOCAR A CAMPAINHA 2 VEZES
+------------------------------------------------
+Maria da Conceicao
+71999991234
+Rua Jose Augusto Tourinho Dantas, 506 - Praia do
+Flamengo
+Compl.: apto 201
+Ref.: portao azul
+------------------------------------------------
+Subtotal                                R$ 58,96
+Entrega                                  R$ 9,80
+TOTAL           R$ 68,76
+PIX: PAGO
+```
+
+Perguntas para o Bruno: falta alguma informação? Sobra alguma? O que precisa de destaque maior na hora do preparo? (Reimpressões saem com `*** REIMPRESSAO ***` no topo.)
+
 ## O que falta
 
-- O **agente** que roda no PC da cozinha e fala com a impressora (tarefa 4.7), e o modelo da impressora (pendência **P2**).
+- O modelo da impressora (pendência **P2**) e um teste em impressora real.
 - O layout do recibo aprovado pelo Bruno (4.8).
 - Aviso na tela da cozinha quando houver problema de impressão (4.4, 4.9) e o botão de reimprimir (4.10).
