@@ -95,11 +95,11 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 - [ ] 2.1 **Levantar o cardápio completo real** (fotos, descrições, preços) — faltam *Entradas e Sobremesas*, *Bebidas* e *Ofertas com Desconto* *(Lucas + Bruno)*
 - [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR)
-- [ ] 2.3 Página do cardápio: categorias, navegação por âncora, busca
-- [ ] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx
-- [ ] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens
-- [ ] 2.6 Loja abre/fecha automaticamente por horário (fuso `America/Bahia`); fora do horário, pedido bloqueado com aviso claro
-- [ ] 2.7 Produto esgotado aparece bloqueado, não some
+- [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca
+- [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx
+- [x] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens
+- [x] 2.6 Loja abre/fecha automaticamente por horário (fuso `America/Bahia`); fora do horário, pedido bloqueado com aviso claro
+- [x] 2.7 Produto esgotado aparece bloqueado, não some
 - [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento)
 - [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90
 - [ ] 2.10 Domínio (ou subdomínio Netlify) definido
@@ -118,7 +118,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)*
 - [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem
-- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), grava pedido + itens + componentes
+- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada)
 - [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado
