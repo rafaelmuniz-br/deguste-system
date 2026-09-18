@@ -26,6 +26,8 @@ export type ApiCozinha = {
     motivo?: string,
   ): Promise<ResultadoMudanca>
   reimprimir(id: string): Promise<boolean>
+  /** Tempo de preparo da loja (configuração 1.12), usado para colorir os pedidos atrasados. */
+  tempoPreparoMin(): Promise<number>
   problemasImpressao(): Promise<ProblemaImpressao[]>
   /** Avisa quando algo mudou e o estado da conexão. Devolve a função que desliga. */
   assinar(aoMudar: () => void, aoConexao: (c: ConexaoTempoReal) => void): () => void
@@ -119,6 +121,16 @@ export function criarCozinhaSupabase(cliente: SupabaseClient): ApiCozinha {
         .select('id')
       if (error) return { ok: false, motivo: 'erro' }
       return data && data.length > 0 ? { ok: true } : { ok: false, motivo: 'conflito' }
+    },
+
+    async tempoPreparoMin() {
+      const { data, error } = await cliente
+        .from('configuracoes_loja')
+        .select('tempo_preparo_min')
+        .eq('id', 1)
+        .maybeSingle()
+      if (error || !data) throw new Error(error?.message ?? 'sem configuração')
+      return Number((data as { tempo_preparo_min: number }).tempo_preparo_min)
     },
 
     async reimprimir(id) {

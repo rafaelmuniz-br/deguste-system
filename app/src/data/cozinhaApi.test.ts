@@ -84,6 +84,7 @@ function consultaFalsa(resposta: unknown) {
     }
   }
   consulta.then = (resolve: (v: unknown) => unknown) => resolve(resposta)
+  consulta.maybeSingle = () => Promise.resolve(resposta)
   return { consulta, chamadas }
 }
 
@@ -144,6 +145,18 @@ describe('criarCozinhaSupabase', () => {
       'update',
       [{ status: 'cancelado', motivo_cancelamento: 'sem estoque' }],
     ])
+  })
+
+  it('tempoPreparoMin lê a configuração da loja; sem configuração, lança', async () => {
+    const ok = consultaFalsa({ data: { tempo_preparo_min: 40 }, error: null })
+    const api = criarCozinhaSupabase({ from: () => ok.consulta } as unknown as SupabaseClient)
+    expect(await api.tempoPreparoMin()).toBe(40)
+
+    const vazio = consultaFalsa({ data: null, error: null })
+    const apiVazia = criarCozinhaSupabase({
+      from: () => vazio.consulta,
+    } as unknown as SupabaseClient)
+    await expect(apiVazia.tempoPreparoMin()).rejects.toThrow()
   })
 
   it('reimprimir chama a função do banco e devolve se deu certo', async () => {

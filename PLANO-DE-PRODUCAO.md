@@ -98,7 +98,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Tela `/admin/produtos`: criar/editar (preço digitado em reais → centavos, preço "de", combo, ativo), **marcar esgotado com um toque**, reordenar dentro da categoria, filtro por categoria. A **foto** é a 1.11.
 - [ ] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional) `👤 Rafael` `⏳ depende: 1.7`
 - [ ] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier) `👤 Rafael` `⏳ depende: 1.7`
-- [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
+- [x] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/loja`: modo (seguir horários / aberta / fechada agora), horários por dia com vários intervalos, tempo de preparo, pedido mínimo, taxa base + valor por km, raio, endereço e coordenadas. Grava tudo numa **única função atômica** do banco (`salvar_configuracao_loja`): erro em qualquer parte não muda nada. Precisa da migration `20260918190000` no banco (1.14). A cozinha já usa o tempo de preparo configurado.
 - [x] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
   - **Feito no `deguste-dev`** (18/09/2026, Lucas). Repetir em `deguste-prod` quando esse projeto for criado (perto do go-live, Fase 5).
 - [ ] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
@@ -195,6 +196,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
   - ✔ Indicador no topo (vira faixa vermelha quando cai), a biblioteca reconecta sozinha e a tela ainda consulta o banco a cada 15 s e ao voltar para a aba; se a consulta falha, mantém os pedidos e avisa que podem estar desatualizados.
 - [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
+  - ✔ Tempo de preparo agora é configurável (1.12) e aparece na confirmação do pedido. Falta: mostrar no cardápio/acompanhamento e somar o tempo de entrega pela distância (depende de 3.5).
 
 **Agente de impressão (`printer-agent/`):**
 

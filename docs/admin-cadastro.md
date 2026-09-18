@@ -17,14 +17,24 @@ Telas em **`/admin/categorias`** e **`/admin/produtos`** (só administradores). 
 - **Editar → desmarcar “Aparece no cardápio”**: esconde o produto (diferente de esgotado: some de vez).
 - **▲ ▼**: reordenam dentro da categoria.
 
+## Configurações da loja (`/admin/loja`)
+
+- **A loja está…**: *Seguir os horários* (normal), *Aberta agora* ou *Fechada agora*. Fechar na hora (acabou o estoque, imprevisto) é escolher “Fechada agora” e salvar; depois lembre de voltar para “Seguir os horários”.
+- **Horários**: por dia da semana, com quantos intervalos precisar (almoço e jantar, por exemplo). Dia sem horário = fechado. Só o horário de Salvador vale.
+- **Pedidos e entrega**: tempo de preparo (a cozinha pinta o pedido de amarelo aos 70% e de vermelho ao passar desse tempo), pedido mínimo, taxa base + valor por km, raio máximo.
+- **Localização**: latitude e longitude da loja (para medir a distância da entrega). No Google Maps: botão direito no local → copiar os números.
+- **Salvar** grava tudo de uma vez. Se algo estiver errado (ex.: fechar antes de abrir), a tela avisa e **nada muda**.
+
 ## Por dentro (Rafael)
 
 - Regras puras e testadas em `app/src/domain/adminCatalogo.ts`: conversão de reais para **centavos** (nunca float, recusa mais de 2 casas e negativos), validações, reordenação.
 - Acesso ao banco em `app/src/data/catalogoAdminApi.ts`. **Quem protege os dados é o RLS**: só linhas de `admins` escrevem em `categorias`/`produtos`; as telas são só conveniência. Erros do Postgres são traduzidos (`23503` em uso, `42501` sem permissão).
 - Reordenar grava 10, 20, 30… (espaço para ajustes manuais).
+- Configurações da loja: `app/src/domain/adminLoja.ts` (validação, sem sobreposição de horários) + função do banco `salvar_configuracao_loja` (migration `20260918190000`, testada em `supabase/tests/loja-admin.test.ts`: atomicidade, permissão, restrições). É `security invoker`: o RLS continua valendo.
 - Não altera `foto_path`, `disponivel` e `ordem` ao editar o formulário (cada um tem seu próprio caminho), então não há risco de o formulário sobrescrever o esgotado.
 
 ## Ainda falta
 
-- Foto do produto (1.11) e grupos de opção / “monte o seu” (1.10) e configurações da loja (1.12).
+- Foto do produto (1.11) e grupos de opção / “monte o seu” (1.10).
+- Aplicar a migration `20260918190000` no banco de dev (1.14) antes de usar `/admin/loja`.
 - Testar com o banco real: precisa de um usuário em `admins` (ver `docs/criar-admins.md`, tarefa 1.7).
