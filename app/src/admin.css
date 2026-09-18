@@ -1,0 +1,51 @@
+/* Painel admin. Reaproveita os tokens de cor do cardápio (cardapio.css). */
+.admin,
+.admin-login {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  color: var(--texto, inherit);
+}
+
+.admin-login h1,
+.admin h1 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+}
+
+.admin-login form {
+  margin-top: 16px;
+}
+
+.admin-login .campo,
+.admin .campo {
+  display: block;
+  margin-top: 12px;
+  font-weight: 700;
+}
+
+.admin-login .btn-primario {
+  margin-top: 16px;
+}
+
+.admin-login .erros {
+  margin: 12px 0;
+  outline: none;
+}
+
+.admin-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-secoes {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.admin-secoes li {
+  padding: 4px 0;
+}
