@@ -17,6 +17,12 @@ Telas em **`/admin/categorias`** e **`/admin/produtos`** (só administradores). 
 - **Editar → desmarcar “Aparece no cardápio”**: esconde o produto (diferente de esgotado: some de vez).
 - **▲ ▼**: reordenam dentro da categoria.
 
+## Fotos dos produtos
+
+No **Editar** do produto (produto novo: salve primeiro): **Foto do produto** → escolher a foto (JPG, PNG ou WebP, até 15 MB). O sistema **reduz sozinho** para 1000 px e comprime (fica ~100–200 KB), então pode mandar a foto direto do celular. Trocar a foto apaga a antiga; **Remover foto** volta ao ícone padrão. A foto aparece no cardápio com o nome do produto como texto alternativo (acessibilidade).
+
+Dica de foto boa: luz natural, fundo limpo, lanche centralizado (o cardápio mostra a foto quadrada).
+
 ## Opções do produto ("monte o seu", adicionais, combos)
 
 No produto, o botão **Opções** abre os grupos dele:
@@ -40,10 +46,11 @@ No produto, o botão **Opções** abre os grupos dele:
 - Acesso ao banco em `app/src/data/catalogoAdminApi.ts`. **Quem protege os dados é o RLS**: só linhas de `admins` escrevem em `categorias`/`produtos`; as telas são só conveniência. Erros do Postgres são traduzidos (`23503` em uso, `42501` sem permissão).
 - Reordenar grava 10, 20, 30… (espaço para ajustes manuais).
 - Configurações da loja: `app/src/domain/adminLoja.ts` (validação, sem sobreposição de horários) + função do banco `salvar_configuracao_loja` (migration `20260918190000`, testada em `supabase/tests/loja-admin.test.ts`: atomicidade, permissão, restrições). É `security invoker`: o RLS continua valendo.
+- Fotos: `app/src/domain/fotos.ts` (regras), `lib/imagem.ts` (canvas), `data/fotosAdminApi.ts`; migration `20260918200000` cria o bucket e as políticas de `storage.objects` (testadas em `supabase/tests/fotos.test.ts` com um Storage mínimo simulado).
 - Não altera `foto_path`, `disponivel` e `ordem` ao editar o formulário (cada um tem seu próprio caminho), então não há risco de o formulário sobrescrever o esgotado.
 
 ## Ainda falta
 
-- Foto do produto (1.11).
+- Aplicar as migrations pendentes no banco de dev (1.14) — inclui `20260918200000` (fotos).
 - Aplicar a migration `20260918190000` no banco de dev (1.14) antes de usar `/admin/loja`.
 - Testar com o banco real: precisa de um usuário em `admins` (ver `docs/criar-admins.md`, tarefa 1.7).

@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import PortaoAdmin from '../components/PortaoAdmin.tsx'
 import { criarCatalogoAdminSupabase, type ApiCatalogoAdmin } from '../data/catalogoAdminApi.ts'
+import { criarFotosAdminSupabase, type ApiFotosAdmin } from '../data/fotosAdminApi.ts'
 import { criarOpcoesAdminSupabase, type ApiOpcoesAdmin } from '../data/opcoesAdminApi.ts'
 import { criarLojaAdminSupabase, type ApiLojaAdmin } from '../data/lojaAdminApi.ts'
 import { supabase } from '../lib/supabase.ts'
@@ -54,11 +55,13 @@ function Painel({
   api,
   apiLoja,
   apiOpcoes,
+  apiFotos,
 }: {
   email: string
   api: ApiCatalogoAdmin | null
   apiLoja: ApiLojaAdmin | null
   apiOpcoes: ApiOpcoesAdmin | null
+  apiFotos: ApiFotosAdmin | null
 }) {
   const { sair } = useAuth()
   return (
@@ -84,7 +87,9 @@ function Painel({
       <Routes>
         <Route index element={<Inicio />} />
         {api && <Route path="categorias" element={<Categorias api={api} />} />}
-        {api && <Route path="produtos" element={<Produtos api={api} />} />}
+        {api && (
+          <Route path="produtos" element={<Produtos api={api} fotos={apiFotos ?? undefined} />} />
+        )}
         {apiOpcoes && (
           <Route path="produtos/:id/opcoes" element={<OpcoesProduto api={apiOpcoes} />} />
         )}
@@ -100,12 +105,14 @@ export default function Admin({
   api,
   apiLoja,
   apiOpcoes,
+  apiFotos,
 }: {
   cliente?: SupabaseClient | null
   /** Injetáveis para teste; em produção usam o Supabase. */
   api?: ApiCatalogoAdmin
   apiLoja?: ApiLojaAdmin
   apiOpcoes?: ApiOpcoesAdmin
+  apiFotos?: ApiFotosAdmin
 }) {
   const apiFinal = useMemo(
     () => api ?? (supabase ? criarCatalogoAdminSupabase(supabase) : null),
@@ -119,11 +126,21 @@ export default function Admin({
     () => apiOpcoes ?? (supabase ? criarOpcoesAdminSupabase(supabase) : null),
     [apiOpcoes],
   )
+  const apiFotosFinal = useMemo(
+    () => apiFotos ?? (supabase ? criarFotosAdminSupabase(supabase) : null),
+    [apiFotos],
+  )
   return (
     <AuthProvider cliente={cliente}>
       <PortaoAdmin titulo="Painel admin">
         {({ email }) => (
-          <Painel email={email} api={apiFinal} apiLoja={apiLojaFinal} apiOpcoes={apiOpcoesFinal} />
+          <Painel
+            email={email}
+            api={apiFinal}
+            apiLoja={apiLojaFinal}
+            apiOpcoes={apiOpcoesFinal}
+            apiFotos={apiFotosFinal}
+          />
         )}
       </PortaoAdmin>
     </AuthProvider>
