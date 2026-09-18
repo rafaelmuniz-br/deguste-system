@@ -47,16 +47,16 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Objetivo:** qualquer pessoa clona o repo, roda em 10 minutos e abre um PR que gera preview.
 
-- [ ] 0.1 Criar repositório Git e enviar o link ao time *(Rafael — aguardando)*
+- [x] 0.1 Criar repositório Git e enviar o link ao time
 - [ ] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto
-- [ ] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos"
-- [ ] 0.4 Projeto Vite + React + React Router + TypeScript
+- [x] 0.3 Estrutura do monorepo (D1) + `README.md` com "como rodar em 10 minutos"
+- [x] 0.4 Projeto Vite + React + React Router + TypeScript
 - [ ] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod`
-- [ ] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento)
-- [ ] 0.9 `CLAUDE.md` na raiz: convenções, comandos, regras do projeto, para o Claude Code de Lucas seguir as mesmas regras que o de Rafael
-- [ ] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante
+- [x] 0.8 `.env.example` documentado; `.gitignore` cobrindo `.env*`; segredos só no Netlify (segurança já definida no planejamento)
+- [x] 0.9 `CLAUDE.md` na raiz: convenções, comandos, regras do projeto, para o Claude Code de Lucas seguir as mesmas regras que o de Rafael
+- [x] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante
 - [ ] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro
 
 **Saída:** PR do Lucas mergeado, deploy preview funcionando.
