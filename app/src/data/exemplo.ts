@@ -254,6 +254,8 @@ export const cardapioExemplo: Cardapio = {
     modo: 'automatico',
     pedidoMinimoCentavos: 0,
     tempoPreparoMin: 30,
+    // Igual ao seed de desenvolvimento (regra final: pendência P4).
+    entrega: { regra: { tipo: 'por_km', baseCentavos: 500, porKmCentavos: 150 }, raioMaximoKm: 6 },
     // Quarta (3) a domingo (0), 18h às 22h — igual ao padrão das migrations.
     horarios: [3, 4, 5, 6, 0].map((diaSemana) => ({ diaSemana, abre: '18:00', fecha: '22:00' })),
   },
