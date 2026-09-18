@@ -193,7 +193,10 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 - [ ] 4.6 **Confirmar modelo/marca da impressora térmica atual** — bloqueia a escolha da biblioteca ESC/POS `👤 Lucas`
 - [ ] 4.7 Agente Node.js: autentica na API, escuta pedidos novos (Realtime ou polling), formata recibo ESC/POS (`node-thermal-printer`) `👤 Rafael` `⏳ depende: 4.6`
+  - ✔ Agente implementado e testado (`printer-agent/`, 43 testes): laço pega → imprime → confirma; transportes por rede (testado com servidor TCP de verdade, inclusive impressora que nunca fecha a conexão), impressora USB compartilhada do Windows e arquivo; acentos CP860 com modo ASCII de segurança; conta própria (sem `service_role`).
+  - Falta: **testar em impressora real** (modelo: P2) e ligar no `deguste-dev` (conta do agente + migration da fila, 1.14).
 - [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal) `👤 Bruno + Lucas`
+  - ✔ Proposta de layout implementada (`printer-agent/src/recibo.js`) e um exemplo em `docs/impressao.md`. Falta o **Bruno aprovar** (ou pedir ajustes).
 - [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
   - ✔ Lado do banco pronto e testado (21 testes): entrada automática ao pagar, reserva de 90 s, confirmação obrigatória, tentativas com espera crescente, esgota em 5 e vira `falhou`, alerta em `impressoes_com_problema`. Ver `docs/impressao.md`.
   - Falta: o agente que consome essa fila (4.7) e o aviso na tela da cozinha (4.4).
@@ -201,7 +204,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Função `reimprimir_pedido` (só admin) pronta e testada; a reimpressão vem marcada no recibo.
   - Falta: o botão no painel da cozinha (4.1).
 - [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar `👤 Rafael`
+  - ✔ `printer-agent/iniciar-agente.bat` religa o agente se ele fechar ou travar; passo a passo para iniciar com o Windows no `printer-agent/README.md`. Falta testar no PC da cozinha.
 - [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção" `👤 Rafael + Lucas`
+  - ✔ Rascunho do guia (instalação, teste, tabela de problemas) em `printer-agent/README.md`. Falta validar na cozinha, com prints.
 - [ ] 4.13 Teste em condições reais: queda de internet, impressora sem papel/desligada, PC reiniciado `👤 Lucas + Rafael`
 
 **Saída:** pedido de teste pago **sai impresso** na impressora real da cozinha.

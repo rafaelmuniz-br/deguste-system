@@ -1,0 +1,16 @@
+{
+  "name": "deguste-printer-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agente que imprime na cozinha os pedidos pagos do Deguste Burguer",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node --env-file=.env src/index.js",
+    "teste": "node --env-file=.env src/index.js --teste",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0"
+  }
+}
