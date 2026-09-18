@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+    # 'edited' para reconferir quando alguém corrige o texto do PR (ex.: acrescenta "Fecha: 1.8")
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
 
@@ -40,3 +42,16 @@ jobs:
       - run: npm ci
       # Aplica todas as migrations + seed num Postgres em memória e testa RLS e regras de integridade.
       - run: npm test
+
+  plano:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test scripts/plano.test.mjs
+      # Formato do plano e, em PR, se as tarefas que ele diz fechar estão marcadas [x].
+      - run: node scripts/verificar-plano.mjs
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}

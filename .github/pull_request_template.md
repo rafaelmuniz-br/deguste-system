@@ -1,5 +1,10 @@
 ## O que mudou
-<!-- Uma ou duas frases. Referencie a tarefa do plano: "Fecha 1.8" -->
+<!-- Uma ou duas frases. -->
+
+## Tarefas do plano que este PR fecha
+Fecha: 
+<!-- Escreva o número da tarefa, ex.: "Fecha: 1.8" ou "Fecha: 1.8, 2.3". Sem tarefa? Escreva "Fecha: nenhuma".
+     Marque também [x] nela no PLANO-DE-PRODUCAO.md, NESTE mesmo PR: o CI confere e falha se faltar. -->
 
 ## Como testar
 <!-- Passo a passo para quem for revisar (use o deploy preview do Netlify) -->
@@ -12,4 +17,4 @@
 - [ ] Nenhum segredo no diff
 - [ ] Nada de preço/pagamento calculado só no navegador
 - [ ] Mexeu em dados? Tem migration + RLS revisada
-- [ ] Marquei a tarefa como `[x]` em `PLANO-DE-PRODUCAO.md`
+- [ ] Preenchi "Fecha:" e marquei `[x]` no `PLANO-DE-PRODUCAO.md`

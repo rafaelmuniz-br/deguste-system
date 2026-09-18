@@ -9,7 +9,7 @@ Guia pensado para quem está começando. Se travar em qualquer passo, pergunte a
 3. Na aba **Minhas tarefas**, escolha o seu nome. Você vê:
    - as tarefas em aberto, por fase, e quais **já podem ser começadas** (`▶ pode começar`) ou estão esperando outra (`⏳ aguardando`);
    - as **informações que faltam de você** (ex.: modelo da impressora), que destravam tarefas dos outros.
-4. Ao terminar uma tarefa e ela ser mesclada, marque `[x]` no `PLANO-DE-PRODUCAO.md` (no mesmo PR). O painel atualiza sozinho.
+4. Ao terminar uma tarefa, marque `[x]` no `PLANO-DE-PRODUCAO.md` **no mesmo PR** e escreva `Fecha: 1.8` (o número da tarefa) na descrição do PR. O CI confere e **falha** se você disser que fecha uma tarefa que o plano ainda não marca. Não fechou nenhuma? Escreva `Fecha: nenhuma`. O painel atualiza sozinho.
 5. Todo dia útil, faça `git pull` antes de começar: o plano muda conforme o projeto avança.
 
 ## O ciclo de uma tarefa
