@@ -627,3 +627,19 @@ fieldset > .campo {
 .checkout > .btn-secundario {
   width: 100%;
 }
+
+.checkout a.btn-primario {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  margin: 12px 0;
+}
+.andamento-alerta {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--fechado-fundo);
+  color: var(--fechado-texto);
+}
+.linha-tempo li.feito {
+  color: var(--ok-texto);
+}
