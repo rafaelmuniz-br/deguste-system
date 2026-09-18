@@ -24,3 +24,19 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  banco:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: supabase/package-lock.json
+      - run: npm ci
+      # Aplica todas as migrations + seed num Postgres em memória e testa RLS e regras de integridade.
+      - run: npm test

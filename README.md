@@ -28,6 +28,8 @@ Comandos úteis (dentro de `app/`):
 | `npm run format` | Formata o código |
 | `npm run build` | Gera a versão de produção |
 
+Testes do banco (RLS e regras de integridade), dentro de `supabase/`: `npm install && npm test`.
+
 ## Acompanhar o progresso em uma página
 
 ```bash
