@@ -17,6 +17,7 @@ Antes de dizer que algo está pronto: lint, typecheck, testes e build passando. 
 ## Regras do projeto
 
 - **Git:** nunca commitar em `main`. Uma branch por tarefa (`feat/`, `fix/`, `docs/`), PR pequeno, referenciando o ID da tarefa do plano. Ao concluir uma tarefa, marcar `[x]` no `PLANO-DE-PRODUCAO.md`.
+- **Plano de produção:** toda tarefa em `PLANO-DE-PRODUCAO.md` termina com `` `👤 Responsável` `` (ex.: `👤 Lucas + Bruno`) e, se houver, `` `⏳ depende: 1.7` ``. Ao criar tarefa nova, siga esse formato (o painel em `painel/` lê essas etiquetas). Pendências entram na tabela da seção 8.
 - **Segredos:** nunca no código, em commit, em log ou em `.env.example`. `VITE_*` é público (vai para o navegador) — só a chave `anon` do Supabase pode ter esse prefixo. Service role e chaves do gateway ficam só em Netlify Functions, lidas de variáveis de ambiente.
 - **Dinheiro:** preço, frete, desconto e total são calculados **no servidor** a partir do banco; nunca confiar em valores enviados pelo navegador. Valores monetários em **centavos (inteiros)**, nunca float. Webhooks de pagamento devem ser idempotentes e validar assinatura.
 - **Banco:** schema só por migrations em `supabase/migrations/` (nomes `AAAAMMDDHHMMSS_descricao.sql`). **RLS ativado em toda tabela**; toda tabela nova precisa de política explícita. Nunca alterar schema direto no painel do Supabase.
