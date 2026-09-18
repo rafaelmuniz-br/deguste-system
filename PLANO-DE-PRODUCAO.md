@@ -59,6 +59,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Lucas + Rafael`
   - Decisão: criados na **conta do Lucas**, porque o plano gratuito limita a 2 projetos por conta e a do Rafael já usa os 2.
+  - `deguste-dev` ✅ criado (organização "Deguste Burguer", região São Paulo, plano Free). Todas as migrations de `supabase/migrations/` aplicadas, RLS ativo nas 13 tabelas, seed de exemplo carregado. Falta ainda: convidar o Rafael como Administrador na organização e criar o `deguste-prod` (perto do go-live, Fase 5).
   - Criar uma **organização** "Deguste Burguer" e **convidar o Rafael como Administrador**, para o banco não depender de uma pessoa só (ponto único de falha).
   - A senha do banco e a chave `service_role` ficam só com o Lucas (gerenciador de senhas); nunca no Git, chat ou `.env` versionado. A `service_role` vai direto nas variáveis do Netlify.
   - O Rafael precisa apenas de: URL do projeto e chave `anon` (públicas).
@@ -191,15 +192,16 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 5.6 Runbook de incidentes (`docs/runbook.md`): "não imprime", "pedido não chegou", "Pix pago mas pedido não confirmou", quem acionar `👤 Rafael + Lucas`
 - [ ] 5.7 Backup de hardware: impressora reserva ou plano B de impressão (imprimir pelo navegador no PC) `👤 Lucas`
 - [ ] 5.8 Treinamento de Bruno e Lucas (30–45 min, no local) `👤 Rafael`
+- [ ] 5.9 Ativar 2FA nas contas de serviço que guardam dados de clientes (Supabase, GitHub) — antes só de dev, sem pressa; obrigatório antes do go-live `👤 Lucas`
 
 **Piloto:**
 
-- [ ] 5.9 **Definir data de corte** e comunicar ao time `👤 Bruno + Lucas + Rafael`
-- [ ] 5.10 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal `👤 Lucas`
-- [ ] 5.11 Virada: link do Instagram/bio passa a apontar para o sistema novo; Cardápio Web fica **ativa em paralelo** (D5) `👤 Lucas + Rafael`
-- [ ] 5.12 Operar 1–2 semanas de quarta a domingo; registrar cada falha em issue com severidade `👤 Lucas + Bruno`
-- [ ] 5.13 Reunião de go/no-go: critérios abaixo atendidos → cancelar Cardápio Web `👤 Bruno + Lucas + Rafael`
-- [ ] 5.14 Exportar dados de clientes/histórico da Cardápio Web *antes* de cancelar (dados são da Deguste) `👤 Lucas`
+- [ ] 5.10 **Definir data de corte** e comunicar ao time `👤 Bruno + Lucas + Rafael`
+- [ ] 5.11 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal `👤 Lucas`
+- [ ] 5.12 Virada: link do Instagram/bio passa a apontar para o sistema novo; Cardápio Web fica **ativa em paralelo** (D5) `👤 Lucas + Rafael`
+- [ ] 5.13 Operar 1–2 semanas de quarta a domingo; registrar cada falha em issue com severidade `👤 Lucas + Bruno`
+- [ ] 5.14 Reunião de go/no-go: critérios abaixo atendidos → cancelar Cardápio Web `👤 Bruno + Lucas + Rafael`
+- [ ] 5.15 Exportar dados de clientes/histórico da Cardápio Web *antes* de cancelar (dados são da Deguste) `👤 Lucas`
 
 **Critério de go/no-go (todos verdadeiros):**
 
@@ -293,7 +295,7 @@ Encontrados ao converter o planejamento em plano de produção:
 2. **Supabase free tier pausa projetos inativos** — ver 5.4.
 3. **"Open Delivery" pode não ser o caminho real do iFood.** O iFood tem programa próprio de integração; validar antes de prometer (7.1). Por isso a Fase 7 é opcional e fora do caminho crítico.
 4. **Conta com CNPJ**: o gateway de Pix normalmente exige cadastro do negócio (CNPJ e conta bancária). Confirmar quem é o titular antes da Fase 3.
-5. **Dados dos clientes da Cardápio Web** (cashback/saldo atual dos clientes) precisam ser migrados ou honrados na virada — sem isso, clientes perdem saldo. Incluído em 5.14; decidir tratamento do saldo.
+5. **Dados dos clientes da Cardápio Web** (cashback/saldo atual dos clientes) precisam ser migrados ou honrados na virada — sem isso, clientes perdem saldo. Incluído em 5.15; decidir tratamento do saldo.
 
 ## 8. Decisões e informações pendentes (bloqueiam tarefas)
 
@@ -305,9 +307,9 @@ Encontrados ao converter o planejamento em plano de produção:
 | P4 | Regra de frete: R$/km, faixas de bairro ou mistura? Lista de bairros atendidos | Lucas | 3.5, 3.6 |
 | P5 | Gateway Pix: Mercado Pago ou Pagar.me; em nome de quem (CNPJ) | Rafael + Lucas | 3.1, 3.2 |
 | P6 | WhatsApp: semiautomático grátis ou API oficial paga? | Rafael + Lucas | 6.4 |
-| P7 | Data de corte e duração do paralelo | Bruno + Lucas | 5.9 |
+| P7 | Data de corte e duração do paralelo | Bruno + Lucas | 5.10 |
 | P8 | Domínio próprio (~R$ 40/ano) ou subdomínio Netlify no início | Lucas | 2.10 |
-| P9 | Como tratar o saldo de cashback atual dos clientes na virada | Bruno + Lucas | 5.14, 6.6 |
+| P9 | Como tratar o saldo de cashback atual dos clientes na virada | Bruno + Lucas | 5.15, 6.6 |
 | P10 | Emissão de nota fiscal: conversar com o contador | Lucas | Fase 7 / fora de escopo |
 
 ## 9. Cronograma de referência
