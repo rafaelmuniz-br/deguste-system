@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useAuth } from '../../state/useAuth.ts'
 
-export default function Login() {
+export default function Login({ titulo = 'Painel admin' }: { titulo?: string }) {
   const { entrar } = useAuth()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -28,7 +28,7 @@ export default function Login() {
 
   return (
     <main className="admin-login">
-      <h1>Painel admin</h1>
+      <h1>{titulo}</h1>
       <p className="dica">Acesso restrito à equipe do Deguste Burguer.</p>
       <form onSubmit={enviar}>
         <label className="campo">

@@ -88,4 +88,4 @@ Perguntas para o Bruno: falta alguma informação? Sobra alguma? O que precisa d
 
 - O modelo da impressora (pendência **P2**) e um teste em impressora real.
 - O layout do recibo aprovado pelo Bruno (4.8).
-- Aviso na tela da cozinha quando houver problema de impressão (4.4, 4.9) e o botão de reimprimir (4.10).
+- Testar o aviso de "não saiu impresso" e o botão Reimprimir (já existem na tela da cozinha, ver [`cozinha.md`](cozinha.md)) com a impressora real (4.13).

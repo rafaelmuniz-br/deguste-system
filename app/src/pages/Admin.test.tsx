@@ -1,6 +1,7 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import Admin from './Admin.tsx'
 
@@ -76,13 +77,21 @@ async function entrar(user: ReturnType<typeof userEvent.setup>, email: string, s
 
 describe('Painel admin: login', () => {
   it('sem credenciais do banco: avisa em vez de quebrar', async () => {
-    render(<Admin cliente={null} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={null} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText(/não está conectado ao banco/)).toBeInTheDocument()
   })
 
   it('sem sessão: mostra o formulário de login', async () => {
     const { cliente } = criarClienteFalso()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByRole('heading', { name: 'Painel admin' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-mail')).toBeInTheDocument()
     expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'password')
@@ -91,7 +100,11 @@ describe('Painel admin: login', () => {
   it('admin com e-mail e senha corretos entra no painel e pode sair', async () => {
     const { cliente, signOut } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'lucas@deguste.com', 'senha-certa-1')
 
     expect(await screen.findByText('Logado como lucas@deguste.com')).toBeInTheDocument()
@@ -105,7 +118,11 @@ describe('Painel admin: login', () => {
   it('senha errada e e-mail inexistente recebem a MESMA mensagem (não revela quem tem conta)', async () => {
     const { cliente } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
 
     await entrar(user, 'lucas@deguste.com', 'errada')
     const primeira = (await screen.findByRole('alert')).textContent
@@ -122,7 +139,11 @@ describe('Painel admin: login', () => {
   it('limpa a senha depois de errar e devolve o foco à mensagem de erro', async () => {
     const { cliente } = criarClienteFalso({ contas })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'lucas@deguste.com', 'errada')
     const alerta = await screen.findByRole('alert')
     expect(screen.getByLabelText('Senha')).toHaveValue('')
@@ -132,7 +153,11 @@ describe('Painel admin: login', () => {
   it('traduz o limite de tentativas do Supabase', async () => {
     const { cliente } = criarClienteFalso({ codigoErroLogin: 'over_request_rate_limit' })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'x@y.com', 'senha')
     expect(await screen.findByText(/Muitas tentativas/)).toBeInTheDocument()
   })
@@ -142,7 +167,11 @@ describe('Painel admin: quem pode entrar', () => {
   it('usuário logado que NÃO é admin vê "Sem acesso" e nenhum conteúdo do painel', async () => {
     const { cliente } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'visitante@exemplo.com', 'outra-senha-2')
 
     expect(await screen.findByRole('heading', { name: 'Sem acesso' })).toBeInTheDocument()
@@ -158,7 +187,11 @@ describe('Painel admin: quem pode entrar', () => {
       sessao: { id: 'u-lucas', email: 'lucas@deguste.com' },
       admins: ['u-lucas'],
     })
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText('Logado como lucas@deguste.com')).toBeInTheDocument()
     expect(screen.queryByLabelText('Senha')).not.toBeInTheDocument()
   })
@@ -169,7 +202,11 @@ describe('Painel admin: quem pode entrar', () => {
       admins: ['u-lucas'],
       falhaAoConsultarAdmins: true,
     })
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText(/Não conseguimos confirmar seu acesso/)).toBeInTheDocument()
     expect(screen.queryByText(/Em construção/)).not.toBeInTheDocument()
   })
@@ -178,7 +215,11 @@ describe('Painel admin: quem pode entrar', () => {
 describe('Painel admin: buscadores', () => {
   it('pede para não ser indexado e remove a marca ao sair da página', async () => {
     const { cliente } = criarClienteFalso()
-    const { unmount } = render(<Admin cliente={cliente} />)
+    const { unmount } = render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await screen.findByLabelText('E-mail')
     expect(document.querySelector('meta[name="robots"]')).toHaveAttribute(
       'content',
