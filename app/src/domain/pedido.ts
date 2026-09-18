@@ -287,12 +287,12 @@ function calcularItem(
   const componentes: ComponenteCalculado[] = []
   for (const grupo of produto.grupos) {
     const ids = item.escolhas[grupo.id] ?? []
-    if (new Set(ids).size !== ids.length) {
-      erros.push(erro('ESCOLHA_INVALIDA', `Opção repetida em "${grupo.nome}".`, campo))
-      continue
-    }
+    // A mesma opção pode aparecer mais de uma vez (ex.: 2x Jackfino num combo de 3 smashs,
+    // decisão da tarefa 2.11) — cada repetição soma na quantidade daquele componente.
+    const contagem = new Map<string, number>()
+    for (const id of ids) contagem.set(id, (contagem.get(id) ?? 0) + 1)
     let validas = 0
-    for (const id of ids) {
+    for (const [id, repeticoes] of contagem) {
       const opcao = grupo.opcoes.find((o) => o.id === id)
       if (!opcao) {
         erros.push(erro('ESCOLHA_INVALIDA', `Opção inválida em "${grupo.nome}".`, campo))
@@ -307,12 +307,12 @@ function calcularItem(
         erros.push(erro('OPCAO_INDISPONIVEL', `"${opcao.nome}" está esgotado no momento.`, campo))
         continue
       }
-      validas++
+      validas += repeticoes
       componentes.push({
         produtoId: opcao.produtoId,
         grupoNome: grupo.nome,
         opcaoNome: opcao.nome,
-        quantidade: item.quantidade,
+        quantidade: item.quantidade * repeticoes,
         precoAdicionalCentavos: opcao.precoAdicionalCentavos,
       })
     }

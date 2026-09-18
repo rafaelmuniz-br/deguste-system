@@ -156,6 +156,14 @@ describe('resolverCarrinho e subtotal', () => {
     ])
     expect(l.precoUnitarioCentavos).toBe(3999 + 400)
   })
+
+  it('agrega opções repetidas no resumo ("2x Bacon extra") e no preço', () => {
+    const [l] = resolverCarrinho(cardapioExemplo, [
+      linha({ escolhas: { [ADIC]: ['smash-jackfino-bacon', 'smash-jackfino-bacon'] } }),
+    ])
+    expect(l.resumoEscolhas).toEqual(['Adicionais: 2x Bacon extra'])
+    expect(l.precoUnitarioCentavos).toBe(2199 + 400 * 2)
+  })
 })
 
 describe('combos apontam para produtos reais (base para relatórios corretos)', () => {

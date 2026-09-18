@@ -48,11 +48,16 @@ describe('Cardápio público', () => {
     await user.click(screen.getByRole('button', { name: /Jackfino/ }))
     const dialogo = screen.getByRole('dialog', { name: 'Jackfino' })
 
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Bacon extra/ }))
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Ovo/ }))
+    await user.click(
+      within(dialogo).getByRole('button', { name: 'Aumentar quantidade de Bacon extra' }),
+    )
+    await user.click(within(dialogo).getByRole('button', { name: 'Aumentar quantidade de Ovo' }))
     const adicionar = within(dialogo).getByRole('button', { name: /Adicionar/ })
     expect(normal(adicionar.textContent)).toContain('R$ 28,49') // 21,99 + 4,00 + 2,50
-    expect(within(dialogo).getByRole('checkbox', { name: /Picles/ })).toBeDisabled()
+    // Picles está esgotado: não tem contador pra clicar, só o aviso de "Esgotado".
+    expect(
+      within(dialogo).queryByRole('button', { name: /quantidade de Picles/ }),
+    ).not.toBeInTheDocument()
 
     await user.click(
       within(dialogo).getByRole('button', { name: 'Aumentar quantidade de Jackfino' }),
@@ -85,20 +90,41 @@ describe('Cardápio público', () => {
   })
 
   it('limita a 3 adicionais: ao atingir o máximo, as demais opções ficam bloqueadas', async () => {
+    // Adicionais permite repetir (tarefa 2.11), então cada opção tem um contador +/-.
     const { user } = await abrir()
     await user.click(screen.getByRole('button', { name: /Jackfino/ }))
     const dialogo = screen.getByRole('dialog')
-    const cebola = within(dialogo).getByRole('checkbox', { name: /Cebola caramelizada/ })
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Bacon extra/ }))
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Queijo extra/ }))
-    expect(cebola).toBeEnabled()
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Ovo/ }))
-    expect(cebola).toBeDisabled()
-    // Desmarcar uma libera de novo. Total: 21,99 + 4,00 + 3,00 + 2,50 = 31,49
+    const maisCebola = within(dialogo).getByRole('button', {
+      name: /Aumentar quantidade de Cebola caramelizada/,
+    })
+    await user.click(
+      within(dialogo).getByRole('button', { name: /Aumentar quantidade de Bacon extra/ }),
+    )
+    await user.click(
+      within(dialogo).getByRole('button', { name: /Aumentar quantidade de Queijo extra/ }),
+    )
+    expect(maisCebola).toBeEnabled()
+    await user.click(within(dialogo).getByRole('button', { name: /Aumentar quantidade de Ovo/ }))
+    expect(maisCebola).toBeDisabled()
+    // Diminuir uma libera de novo. Total: 21,99 + 4,00 + 3,00 + 2,50 = 31,49
     const adicionar = within(dialogo).getByRole('button', { name: /Adicionar/ })
     expect(normal(adicionar.textContent)).toContain('R$ 31,49')
-    await user.click(within(dialogo).getByRole('checkbox', { name: /Ovo/ }))
-    expect(cebola).toBeEnabled()
+    await user.click(within(dialogo).getByRole('button', { name: /Diminuir quantidade de Ovo/ }))
+    expect(maisCebola).toBeEnabled()
+  })
+
+  it('adicional permite repetir a mesma opção mais de uma vez (tarefa 2.11)', async () => {
+    const { user } = await abrir()
+    await user.click(screen.getByRole('button', { name: /Jackfino/ }))
+    const dialogo = screen.getByRole('dialog')
+    const maisBacon = within(dialogo).getByRole('button', {
+      name: /Aumentar quantidade de Bacon extra/,
+    })
+    await user.click(maisBacon)
+    await user.click(maisBacon)
+    const adicionar = within(dialogo).getByRole('button', { name: /Adicionar/ })
+    // 21,99 + 2x 4,00 (bacon) = 29,99
+    expect(normal(adicionar.textContent)).toContain('R$ 29,99')
   })
 
   it('loja fechada: dá para ver o cardápio, mas não adicionar', async () => {

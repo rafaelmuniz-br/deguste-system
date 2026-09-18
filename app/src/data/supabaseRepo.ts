@@ -28,6 +28,7 @@ export type LinhaProduto = {
   nome: string
   descricao: string | null
   preco_centavos: number
+  preco_original_centavos: number | null
   foto_path: string | null
   eh_combo: boolean
   disponivel: boolean
@@ -87,6 +88,7 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
       nome: p.nome,
       descricao: p.descricao ?? undefined,
       precoCentavos: p.preco_centavos,
+      precoOriginalCentavos: p.preco_original_centavos ?? undefined,
       // As fotos passam a existir com o upload (tarefa 1.11); por ora o cardápio usa o marcador.
       fotoUrl: undefined,
       ehCombo: p.eh_combo,
@@ -135,7 +137,7 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
 }
 
 const COLUNAS_PRODUTO =
-  'id, categoria_id, nome, descricao, preco_centavos, foto_path, eh_combo, disponivel, ordem, ' +
+  'id, categoria_id, nome, descricao, preco_centavos, preco_original_centavos, foto_path, eh_combo, disponivel, ordem, ' +
   'grupos_opcao(id, nome, min_escolhas, max_escolhas, ordem, ' +
   'opcoes(id, nome, preco_adicional_centavos, produto_id, disponivel, ordem))'
 

@@ -115,8 +115,10 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento) `👤 Rafael + Lucas`
 - [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
 - [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
-- [ ] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
-- [ ] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
+- [x] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
+  - **Decidido:** sim, pode repetir (Lucas, 18/09/2026 — dispensou aprovação do Rafael nesse item específico). Sem migration: `itens_pedido_componentes.quantidade` já suportava isso. Implementado em `domain/pedido.ts` (agrega repetições por opção) e na tela do produto (contador +/- em grupos com máximo > 1, em vez de check/radio).
+- [x] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
+  - **Decidido:** mostrar o "de/por" (Lucas, 18/09/2026, opção recomendada — igual ao site atual). Migration `20260918140000_preco_original_produto.sql` (`produtos.preco_original_centavos`, nunca usado no total); exibido no card e no modal do produto com selo de desconto.
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 

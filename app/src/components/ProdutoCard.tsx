@@ -9,6 +9,13 @@ export default function ProdutoCard({
   onAbrir: (produto: Produto) => void
 }) {
   const temOpcoes = produto.grupos.length > 0
+  const precoOriginal =
+    produto.precoOriginalCentavos !== undefined &&
+    produto.precoOriginalCentavos > produto.precoCentavos
+      ? produto.precoOriginalCentavos
+      : undefined
+  const percentualDesconto =
+    precoOriginal !== undefined ? Math.round((1 - produto.precoCentavos / precoOriginal) * 100) : 0
   return (
     <li>
       <button
@@ -21,11 +28,17 @@ export default function ProdutoCard({
           <span className="produto-nome">
             {produto.nome}
             {produto.ehCombo && <span className="tag">Combo</span>}
+            {precoOriginal !== undefined && (
+              <span className="tag tag-desconto">-{percentualDesconto}%</span>
+            )}
           </span>
           {produto.descricao && <span className="produto-desc">{produto.descricao}</span>}
           <span className="produto-preco">
             {produto.disponivel ? (
               <>
+                {precoOriginal !== undefined && (
+                  <span className="preco-original">{formatarPreco(precoOriginal)}</span>
+                )}
                 {temOpcoes && !produto.ehCombo ? 'a partir de ' : ''}
                 {formatarPreco(produto.precoCentavos)}
               </>

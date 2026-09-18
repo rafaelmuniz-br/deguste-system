@@ -31,6 +31,8 @@ export type Produto = {
   nome: string
   descricao?: string
   precoCentavos: number
+  /** Preço "de", riscado no cardápio, quando o item está com desconto (tarefa 2.12). Exibição apenas — o total sempre usa `precoCentavos`. */
+  precoOriginalCentavos?: number
   fotoUrl?: string
   ehCombo: boolean
   /** false = esgotado (aparece bloqueado, não some). */
