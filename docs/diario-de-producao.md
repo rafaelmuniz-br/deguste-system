@@ -1,14 +1,42 @@
 # Diário de produção e relatório de pausa
 
-Registro do que foi feito na sessão de produção em modo automático (18/09/2026) e do que falta. O status oficial das tarefas continua sendo o `PLANO-DE-PRODUCAO.md` (**45 de 97 concluídas**); este arquivo explica o "como estamos" em linguagem simples para quem for retomar.
+Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois entender o que mudou, o que foi verificado e o que falta. Entradas novas entram **no topo**, como uma seção `## AAAA-MM-DD — ...`; sessões mais antigas (abaixo) documentam tudo que já existia até ali.
 
-## Onde paramos
+> **Nota:** pode haver mais de uma entrada de 19/09 vindo de PRs diferentes ainda não mesclados (trabalho em paralelo, Lucas e Rafael) — normal, sem conflito de fundo; só ordem de leitura.
+
+---
+
+## 2026-09-19 — Sessão do Lucas (autônoma, continuação)
+
+**Tarefa executada: 2.2 — Carga do cardápio real no banco `deguste-dev`.**
+
+Criado `supabase/seed-cardapio-real.sql`: remove o cardápio de exemplo (`supabase/seed.sql`) e carrega o cardápio real completo a partir de `docs/levantamento-cardapio.md` — 5 categorias, 35 produtos (6 combos), 34 grupos de opção, 158 opções. Aplicado no `deguste-dev` via conector Supabase (testado primeiro, corrigido um erro de ordem de exclusão — `opcoes.produto_id` é `on delete restrict` — antes de aplicar).
+
+Isso também resolveu, na prática, a tarefa **2.14** (o que fazer com "Brownie de Chocolate", que está `Inativo` mas aparecia dentro de combos no site antigo): decisão provisória de tratá-lo como resquício e deixá-lo de fora inteiramente (nem avulso, nem opção de combo), registrada no plano para o Bruno confirmar ou reverter.
+
+**Verificação de ponta a ponta no navegador (com a loja aberta via `?loja=aberta`):**
+- Cardápio completo carregando do banco real (todas as categorias, preços "de/por" e selos de desconto corretos).
+- Abri o "Combo 3 Smashs 90g", cliquei 3x em "Aumentar quantidade de Jackfino": contador foi a 3, o botão "Aumentar" das outras opções do mesmo grupo ficou desabilitado (limite do grupo atingido) e o botão "Adicionar" ficou habilitado — confirma que a tarefa 2.11 (repetição de opção) funciona com dados reais, não só nos testes automatizados.
+
+**Problema encontrado (ambiente, não código):** depois de editar `supabase/seed-cardapio-real.sql`, o Vite HMR do servidor de dev ficou com um erro fantasma (`temDesconto is not defined`, variável que não existe mais no código-fonte atual). Resolvido reiniciando o servidor e abrindo uma aba nova do navegador — confirmado por `grep` que o código-fonte não tinha mais essa variável, então era só cache do HMR.
+
+**Documentação atualizada:** `PLANO-DE-PRODUCAO.md` (2.2 e 2.14 marcadas, nota na 2.1 sobre o Brownie de Chocolate), este diário.
+
+**Próxima tarefa recomendada:** `git pull` antes de decidir (Rafael continua rápido em paralelo). Com 2.2 feita, o cardápio real já está "ao vivo" no dev — próximo passo natural seria conferir no celular (deploy preview, quando existir — depende de 0.6) ou seguir com tarefas menores só do Lucas (2.10 domínio, 2.13 fotos, 4.6 impressora).
+
+---
+
+## 2026-09-18 — Sessão do Rafael (modo automático)
+
+Registro do que foi feito na sessão de produção em modo automático (18/09/2026) e do que falta, tal como escrito naquele momento (histórico, não atualizado). O status oficial das tarefas é sempre o `PLANO-DE-PRODUCAO.md` atual.
+
+### Onde paramos
 
 - `main` está em dia, sem PR aberto e sem trabalho pela metade. Última entrega: exportação de pedidos em CSV (PR #33).
 - Testes no fim da sessão: **app 626**, **banco 140+** (PGlite: migrations, RLS, funções, fluxos de ponta a ponta), agente de impressão 43. CI verde (jobs `app`, `banco`, `plano`, `agente`).
 - Tudo foi testado com **fakes/bancos em memória**. **Nada do que foi feito nesta sessão foi ainda validado contra o Supabase real, o Netlify, o gateway de Pix ou a impressora real**: isso depende de ações humanas (abaixo).
 
-## O que foi entregue nesta sessão (PRs #20 a #33)
+### O que foi entregue nesta sessão (PRs #20 a #33)
 
 | PR | Entrega | Tarefas |
 | --- | --- | --- |
@@ -29,16 +57,16 @@ Registro do que foi feito na sessão de produção em modo automático (18/09/20
 
 Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `desempenho.md`, `pagamento.md`, `runbook.md`, `contingencia.md`, `manter-banco-ativo.md`.
 
-## Erros achados e corrigidos no caminho (para lembrar)
+### Erros achados e corrigidos no caminho (para lembrar)
 
 - Function `webhook-pix` sem variável de ambiente estourava exceção não tratada: agora responde 502 limpo (teste de regressão).
 - Rodapé "pulando" ao carregar o cardápio derrubava o Lighthouse para 78 (CLS 0,34): corrigido (nota 94–97).
 - Testes de acessibilidade ficaram frágeis com páginas carregadas sob demanda: agora pré-carregam.
 - O trecho do adaptador Mercado Pago que confere a assinatura usa o mesmo id que depois processa (evita assinar um id e agir sobre outro).
 
-## Relatório do que falta
+### Relatório do que falta
 
-### A. Bloqueado por decisão ou ação de gente (o que mais destrava)
+#### A. Bloqueado por decisão ou ação de gente (o que mais destrava)
 
 | # | O que | Quem | Por que importa |
 | --- | --- | --- | --- |
@@ -56,13 +84,13 @@ Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `dese
 | 12 | Preencher contatos e chave Pix no `runbook.md` e `contingencia.md`; imprimir | Lucas + Bruno | 5.5, 5.6 |
 | 13 | 2FA em Supabase e GitHub (5.9); convidar Rafael como admin do Supabase; incluir o job `agente` nos checks obrigatórios do ruleset | Lucas / Rafael | Segurança |
 
-### B. Depende do que precisa acontecer acima, mas o código já está pronto
+#### B. Depende do que precisa acontecer acima, mas o código já está pronto
 
 - **3.8 e 3.9 (Pix)**: banco, functions, adaptador, tela e testes prontos; falta o **sandbox real** (pontos `SANDBOX:` em `app/src/server/pix/mercadoPago.ts`).
 - **3.15** verificação de pedido de ponta a ponta no dev; **4.7** agente na impressora real.
 - **2.2 seed do cardápio real** (depende de 2.14 e das fotos/preço final) e **2.15** (produção).
 
-### C. Ainda não feito e dá para eu fazer quando retomar
+#### C. Ainda não feito e dá para eu fazer quando retomar
 
 - **6.3** histórico por cliente (telefone) e clientes recorrentes.
 - **6.5 cupons** e **6.6 conta de cliente + cashback** (tabelas reservadas já existem; são maiores).
@@ -71,14 +99,14 @@ Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `dese
 - **Fase 7** (iFood/99Food): começa por pesquisa de APIs (7.1).
 - Melhorias citadas nos documentos: tempo de deslocamento somado à previsão (depende de 3.5), tela de pagamentos a conferir com histórico.
 
-### D. Riscos a ter em mente
+#### D. Riscos a ter em mente
 
 1. Nada foi ainda rodado contra Supabase/Netlify/gateway reais: o primeiro dia de teste real vai revelar pequenos ajustes.
 2. Adaptador do Mercado Pago escrito pela documentação: conferir formatos e assinatura no sandbox antes de qualquer teste com dinheiro.
 3. Política de pagamento tardio (estornar, não aceitar) é decisão minha a confirmar com o Bruno (`docs/pagamento.md`).
 4. Migrations são aplicadas manualmente pelo Lucas, em ordem: erro de ordem é o risco mais provável.
 
-## Como retomar
+### Como retomar
 
 1. `git pull` em `main`; `docs/migrations-aplicadas.md` mostra o que falta aplicar.
 2. Lucas aplica as migrations 150000–220000 no dev e cria os admins (`docs/criar-admins.md`); depois abrir `/admin` e `/cozinha` no dev e fazer um pedido de teste.
