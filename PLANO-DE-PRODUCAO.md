@@ -151,6 +151,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Falta: status reais em tempo real (Supabase Realtime), Pix com QR code e expiração (3.8/3.9).
 - [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
+  - Estrutura implementada pelo Rafael (`app/src/pages/legal/`, `docs/paginas-legais.md`). Lucas resolveu 7 das 11 pendências (19/09/2026): razão social, canal/encarregado LGPD, prazos de reembolso e reclamação, regras de cancelamento e cliente ausente aprovadas, e forma de pagamento (Pix + pagamento na entrega em dinheiro/cartão — **atenção Rafael**: isso precisa de uma opção nova no checkout, hoje ele só cobre Pix).
+  - Ainda falta pra "publicar" de verdade (tirar do modo rascunho): gateway Pix (3.1), serviço de mapas/rotas (3.5), prazo de retenção de dados (Lucas + contador) e revisão jurídica final de todo o texto.
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
