@@ -58,6 +58,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
   - Ao criar o site, cadastrar em Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secreta: só no Netlify) e, se a regra de frete for por distância, `ORS_API_KEY`. Detalhes em `docs/arquitetura-pedido.md`.
+  - **Tentativa do Lucas (19/09/2026):** criou conta no Netlify e tentou importar o repositório, mas `deguste-system` não aparece na lista — é da conta do Rafael no GitHub, só ele consegue autorizar o app do Netlify a acessar esse repositório específico (permissão do GitHub, não trava do Netlify). **Ação do Rafael:** ou (a) autorizar o Netlify GitHub App para o repositório em github.com/settings/installations, ou (b) criar o site ele mesmo e depois convidar o Lucas como membro do time no Netlify.
+  - `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (públicas) também precisam ir nas Environment variables, senão o site publicado não conecta no banco — mesmos valores do `app/.env.local` do Lucas.
+  - Como o `deguste-prod` ainda não existe (0.7), o site de produção do Netlify vai apontar pro `deguste-dev` por enquanto — trocar quando o `deguste-prod` for criado, perto do go-live.
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Lucas + Rafael`
   - Decisão: criados na **conta do Lucas**, porque o plano gratuito limita a 2 projetos por conta e a do Rafael já usa os 2.
   - `deguste-dev` ✅ criado (organização "Deguste Burguer", região São Paulo, plano Free). Todas as migrations de `supabase/migrations/` aplicadas, RLS ativo nas 13 tabelas, seed de exemplo carregado. Falta ainda: convidar o Rafael como Administrador na organização e criar o `deguste-prod` (perto do go-live, Fase 5).
