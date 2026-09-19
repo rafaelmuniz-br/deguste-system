@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ApiExportacao } from '../../data/exportacaoApi.ts'
 import type { ApiRelatorios } from '../../data/relatoriosApi.ts'
 import { formatarPreco } from '../../domain/dinheiro.ts'
+import { nomeDoArquivo, pedidosParaCsv } from '../../domain/exportarVendas.ts'
 import {
   PERIODOS,
   percentualDaBarra,
@@ -16,6 +18,18 @@ import {
 
 type Escolha = PeriodoId | 'personalizado'
 
+/** Entrega o arquivo ao navegador ("salvar como"). Separado para os testes não precisarem de download de verdade. */
+function baixarArquivo(nome: string, conteudo: string) {
+  const url = URL.createObjectURL(new Blob([conteudo], { type: 'text/csv;charset=utf-8' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = nome
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 /** Barra horizontal proporcional (decorativa: o número também aparece em texto). */
 function Barra({ percentual }: { percentual: number }) {
   return (
@@ -27,9 +41,14 @@ function Barra({ percentual }: { percentual: number }) {
 
 export default function Relatorios({
   api,
+  exportacao,
+  baixar = baixarArquivo,
   agora = () => new Date(),
 }: {
   api: ApiRelatorios
+  exportacao?: ApiExportacao
+  /** Injetável para teste. */
+  baixar?: (nome: string, conteudo: string) => void
   /** Injetável para teste (o "hoje" muda com o relógio). */
   agora?: () => Date
 }) {
@@ -40,6 +59,8 @@ export default function Relatorios({
   const [dados, setDados] = useState<RelatorioVendas | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [exportando, setExportando] = useState(false)
+  const [avisoExportacao, setAvisoExportacao] = useState('')
   // Descarta resposta atrasada de um período que a pessoa já trocou.
   const pedidoAtual = useRef(0)
 
@@ -78,6 +99,26 @@ export default function Relatorios({
     setInicio(p.inicio)
     setFim(p.fim)
     void buscar(p.inicio, p.fim)
+  }
+
+  async function exportar() {
+    if (!exportacao || !dados) return
+    setExportando(true)
+    setAvisoExportacao('')
+    try {
+      // Exporta o período que está NA TELA (o que a pessoa está vendo), não o que ela digitou depois.
+      const pedidos = await exportacao.pedidos(dados.inicio, dados.fim)
+      baixar(nomeDoArquivo(dados.inicio, dados.fim), pedidosParaCsv(pedidos))
+      setAvisoExportacao(`${pedidos.length} pedido(s) exportado(s).`)
+    } catch (e) {
+      setAvisoExportacao(
+        e instanceof Error && e.message.startsWith('Mais de')
+          ? e.message
+          : 'Não foi possível exportar agora. Tente de novo.',
+      )
+    } finally {
+      setExportando(false)
+    }
   }
 
   const r = dados
@@ -156,6 +197,27 @@ export default function Relatorios({
               <dd>{r.resumo.cancelados}</dd>
             </div>
           </dl>
+
+          {exportacao && (
+            <div className="admin-exportar">
+              <button
+                type="button"
+                className="btn-secundario"
+                disabled={exportando}
+                onClick={() => void exportar()}
+              >
+                {exportando ? 'Preparando…' : 'Baixar pedidos deste período (planilha CSV)'}
+              </button>
+              <p className="dica">
+                Todos os pedidos do período, de qualquer situação,{' '}
+                <strong>sem nome, telefone nem rua</strong> do cliente. Abre no Excel e no
+                Planilhas.
+              </p>
+              <p role="status" className="dica">
+                {avisoExportacao}
+              </p>
+            </div>
+          )}
 
           {r.resumo.pedidos === 0 ? (
             <p>Nenhuma venda neste período.</p>
