@@ -207,8 +207,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ **Marcar esgotado rápido**: atalho "Marcar esgotado" no topo da cozinha leva à lista de produtos (1.9), com o botão de um toque.
 - [x] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
   - ✔ Indicador no topo (vira faixa vermelha quando cai), a biblioteca reconecta sozinha e a tela ainda consulta o banco a cada 15 s e ao voltar para a aba; se a consulta falha, mantém os pedidos e avisa que podem estar desatualizados.
-- [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
-  - ✔ Tempo de preparo agora é configurável (1.12) e aparece na confirmação do pedido. Falta: mostrar no cardápio/acompanhamento e somar o tempo de entrega pela distância (depende de 3.5).
+- [x] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
+  - ✔ Tempo de preparo (configurável em 1.12) aparece no **cardápio**, na **confirmação** do pedido e na **página do pedido** ("cerca de N min depois do pagamento confirmado, mais o tempo da entrega"; some quando o pedido fica pronto).
+  - Evolução possível: somar o tempo de deslocamento pela distância (quando a 3.5 for validada com a chave real).
 
 **Agente de impressão (`printer-agent/`):**
 
@@ -272,8 +273,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 
-- [ ] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
-  - ✔ Botão "Rota no mapa" (Google Maps) nos pedidos de entrega da cozinha. Falta: Waze e "copiar/enviar por WhatsApp".
+- [x] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
+  - ✔ Nos pedidos de entrega da cozinha: **Rota no mapa** (Google Maps), **Waze** e **Enviar ao entregador (WhatsApp)**, com o texto pronto (pedido, cliente, telefone, endereço, referência e rota; sem valores nem itens).
 - [x] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
   - ✔ Tela `/admin/relatorios`: resumo (pedidos, faturamento, ticket médio, cancelados), por dia, horário de pico, canal/tipo e produtos mais vendidos, com períodos prontos e personalizado. Conta feita numa função do banco (`relatorio_vendas`, migration `20260918210000`), testada com pedidos reais (fuso da Bahia, combos, cancelados). Regras em `docs/relatorios.md`. Falta: exportar CSV.
 - [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes `👤 Rafael`

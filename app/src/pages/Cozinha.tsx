@@ -16,6 +16,9 @@ import {
   agrupar,
   COLUNAS,
   linkDaRota,
+  linkWaze,
+  linkWhatsapp,
+  mensagemParaEntregador,
   minutosDesde,
   nivelDeAtraso,
   podeCancelar,
@@ -352,6 +355,8 @@ function Cartao({
   const minutos = minutosDesde(p.criadoEm, agora)
   const nivel = nivelDeAtraso(p.status, minutos, tempoPreparo)
   const rota = p.tipo === 'entrega' ? linkDaRota(p.endereco) : null
+  const waze = p.tipo === 'entrega' ? linkWaze(p.endereco) : null
+  const mensagem = p.tipo === 'entrega' ? mensagemParaEntregador(p) : null
 
   return (
     <li className={`cartao-pedido ${nivel}`}>
@@ -414,6 +419,21 @@ function Cartao({
         {rota && (
           <a className="btn-secundario" href={rota} target="_blank" rel="noreferrer">
             Rota no mapa
+          </a>
+        )}
+        {waze && (
+          <a className="btn-secundario" href={waze} target="_blank" rel="noreferrer">
+            Waze
+          </a>
+        )}
+        {mensagem && (
+          <a
+            className="btn-secundario"
+            href={linkWhatsapp(mensagem)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Enviar ao entregador (WhatsApp)
           </a>
         )}
         <button type="button" className="btn-secundario" onClick={onReimprimir}>

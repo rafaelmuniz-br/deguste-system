@@ -42,6 +42,7 @@ export default function Cardapio() {
             {descreverEstado(estado)}
           </p>
           <p className="sub">Hamburgueria. Sem miséria! 🍔🤘</p>
+          <p className="sub">Preparo em cerca de {loja.tempoPreparoMin} min depois do pagamento.</p>
         </div>
       </header>
 

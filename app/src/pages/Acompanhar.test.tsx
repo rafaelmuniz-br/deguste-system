@@ -81,6 +81,24 @@ describe('página de acompanhamento', () => {
     expect(passos[0]).toHaveTextContent('Concluído: Aguardando pagamento')
   })
 
+  it('mostra a previsão de preparo enquanto não está pronto (e a entrega é mencionada)', async () => {
+    abrir([ok({ status: 'em_preparo', pagamentoStatus: 'pago' })])
+    expect(await screen.findByText(/Preparo em cerca de/)).toHaveTextContent(
+      'Preparo em cerca de 30 min depois do pagamento confirmado, mais o tempo da entrega.',
+    )
+  })
+
+  it('retirada não menciona entrega; pedido pronto ou concluído não mostra mais a previsão', async () => {
+    abrir([ok({ tipo: 'retirada', status: 'novo', pagamentoStatus: 'pago' })])
+    expect(await screen.findByText(/Preparo em cerca de/)).not.toHaveTextContent(/entrega/)
+  })
+
+  it('pedido pronto: sem previsão de preparo', async () => {
+    abrir([ok({ status: 'pronto', pagamentoStatus: 'pago' })])
+    await screen.findByRole('heading', { name: 'Pedido nº 7' })
+    expect(screen.queryByText(/Preparo em cerca de/)).not.toBeInTheDocument()
+  })
+
   it('atualiza sozinho a cada 10 s e para de consultar quando o pedido termina', async () => {
     const buscar = abrir([
       ok(),

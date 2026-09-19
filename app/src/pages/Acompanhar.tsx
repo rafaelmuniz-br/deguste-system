@@ -18,7 +18,7 @@ const INTERVALO_MS = 10_000
 /** Acompanhamento do pedido pelo token (sem login). Consulta de tempos em tempos enquanto a aba está visível. */
 export default function Acompanhar() {
   const { token = '' } = useParams()
-  const { acompanhamento, apiSimulada, pix } = useLoja()
+  const { acompanhamento, apiSimulada, pix, cardapio } = useLoja()
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
   // "Já paguei" pede uma consulta imediata em vez de esperar os 10 s.
   const consultarAgora = useRef<() => Promise<void>>(async () => {})
@@ -102,7 +102,13 @@ export default function Acompanhar() {
       )}
 
       {estado.tipo === 'ok' && (
-        <Andamento pedido={estado.pedido} token={token} pix={pix} aoConferir={conferir} />
+        <Andamento
+          pedido={estado.pedido}
+          token={token}
+          pix={pix}
+          aoConferir={conferir}
+          tempoPreparoMin={cardapio.loja.tempoPreparoMin}
+        />
       )}
     </main>
   )
@@ -113,11 +119,13 @@ function Andamento({
   token,
   pix,
   aoConferir,
+  tempoPreparoMin,
 }: {
   pedido: PedidoAcompanhado
   token: string
   pix: ApiPix
   aoConferir: () => Promise<void>
+  tempoPreparoMin: number
 }) {
   const passos = PASSOS[pedido.tipo]
   const atual = passoAtual(pedido.tipo, pedido.status)
@@ -154,6 +162,15 @@ function Andamento({
           api={pix}
           aoConferir={aoConferir}
         />
+      )}
+
+      {(pedido.status === 'aguardando_pagamento' ||
+        pedido.status === 'novo' ||
+        pedido.status === 'em_preparo') && (
+        <p className="dica">
+          Preparo em cerca de <strong>{tempoPreparoMin} min</strong> depois do pagamento confirmado
+          {pedido.tipo === 'entrega' ? ', mais o tempo da entrega' : ''}.
+        </p>
       )}
 
       <p className="dica">
