@@ -165,3 +165,20 @@ export function percentualDaBarra(valor: number, maximo: number): number {
   if (maximo <= 0 || valor <= 0) return 0
   return Math.max(2, Math.round((valor / maximo) * 100)) // mínimo visível
 }
+
+// ---------- exportação (CSV) ----------
+
+/** "2026-09-10T22:30:00Z" → "10/09/2026 19:30" (hora de Salvador). */
+export function dataHoraDaBahia(iso: string): string {
+  const partes = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Bahia',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(iso))
+  const p = (tipo: string) => partes.find((x) => x.type === tipo)?.value ?? ''
+  return `${p('day')}/${p('month')}/${p('year')} ${p('hour')}:${p('minute')}`
+}

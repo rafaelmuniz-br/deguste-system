@@ -18,6 +18,15 @@ Tela em **`/admin/relatorios`** (só administradores). Escolha o período (Hoje,
 - **Faturamento por produto só do avulso.** O preço de um combo é um valor fechado; dividir por produto seria inventar número. Por isso a coluna se chama "Faturamento avulso" e mostra "—" quando o produto só foi vendido em combos.
 - Período máximo: 1 ano.
 
+## Exportar para planilha (CSV)
+
+Na tela de relatórios, **Baixar pedidos deste período (planilha CSV)** baixa todos os pedidos do período que está na tela, de qualquer situação (o contador filtra o que precisar). Colunas: pedido, data e hora de Salvador, canal, tipo, situação, pagamento, forma de pagamento, bairro, subtotal, taxa de entrega, desconto, total e itens. Valores em reais com vírgula; abre direto no Excel/Planilhas (acentos ok).
+
+- **Sem dado pessoal**: nada de nome, telefone nem rua do cliente (a consulta nem pede essas colunas; teste garante).
+- **Segurança de planilha**: texto que começa com `=`, `+`, `-` ou `@` recebe um apóstrofo, para o Excel não executar como fórmula (as observações e nomes vêm de clientes).
+- Limite de 5.000 pedidos por arquivo; acima disso a tela pede um período menor (não corta em silêncio).
+- Serve também como **cópia de segurança simples** dos pedidos (a rotina de backup completo, 5.2, continua em aberto).
+
 ## Por dentro (Rafael)
 
 - Toda a conta é feita **no banco**, numa função só: `relatorio_vendas(inicio, fim)` (migration `20260918210000`), que devolve JSON. É `security invoker`: o RLS continua valendo (só admin lê pedidos) e há checagem explícita com mensagem clara.
@@ -26,6 +35,6 @@ Tela em **`/admin/relatorios`** (só administradores). Escolha o período (Hoje,
 
 ## Ainda falta
 
-- Exportar para planilha (CSV) e comparação com o período anterior.
+- Comparação com o período anterior.
 - Aplicar a migration `20260918210000` no banco de dev (1.14).
 - Pedidos de iFood/99Food só aparecerão quando a Fase 7 criar esses pedidos (o campo `canal` já está pronto).

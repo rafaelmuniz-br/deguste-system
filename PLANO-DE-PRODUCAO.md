@@ -280,7 +280,7 @@ Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 - [x] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
   - ✔ Nos pedidos de entrega da cozinha: **Rota no mapa** (Google Maps), **Waze** e **Enviar ao entregador (WhatsApp)**, com o texto pronto (pedido, cliente, telefone, endereço, referência e rota; sem valores nem itens).
 - [x] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
-  - ✔ Tela `/admin/relatorios`: resumo (pedidos, faturamento, ticket médio, cancelados), por dia, horário de pico, canal/tipo e produtos mais vendidos, com períodos prontos e personalizado. Conta feita numa função do banco (`relatorio_vendas`, migration `20260918210000`), testada com pedidos reais (fuso da Bahia, combos, cancelados). Regras em `docs/relatorios.md`. Falta: exportar CSV.
+  - ✔ Tela `/admin/relatorios`: resumo (pedidos, faturamento, ticket médio, cancelados), por dia, horário de pico, canal/tipo e produtos mais vendidos, com períodos prontos e personalizado. Conta feita numa função do banco (`relatorio_vendas`, migration `20260918210000`), testada com pedidos reais (fuso da Bahia, combos, cancelados). Regras em `docs/relatorios.md`. **Exportação para planilha (CSV)** sem dado pessoal e com proteção contra injeção de fórmula.
 - [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes `👤 Rafael`
 - [ ] 6.4 **Mensagens automáticas de status por WhatsApp** — depende da decisão da seção 8 (custo!) `👤 Rafael`
 - [ ] 6.5 Cupons de desconto (validade, uso único, valor mínimo, anti-abuso) `👤 Rafael`

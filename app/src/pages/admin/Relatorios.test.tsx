@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { describe, expect, it, vi } from 'vitest'
+import type { ApiExportacao, PedidoExportado } from '../../data/exportacaoApi.ts'
 import type { ApiRelatorios } from '../../data/relatoriosApi.ts'
 import type { RelatorioVendas } from '../../domain/relatorios.ts'
 import Relatorios from './Relatorios.tsx'
@@ -221,5 +222,90 @@ describe('Admin: relatórios de vendas', () => {
     expect(
       r.violations.map((v) => `${v.id}: ${v.help} → ${v.nodes[0]?.html.slice(0, 80)}`),
     ).toEqual([])
+  })
+})
+
+describe('Admin: exportar pedidos (CSV)', () => {
+  const pedidoExportado: PedidoExportado = {
+    numero: 42,
+    criadoEm: '2026-09-17T22:30:00Z',
+    canal: 'proprio',
+    tipo: 'retirada',
+    status: 'concluido',
+    pagamentoStatus: 'pago',
+    pagamentoMetodo: 'pix',
+    bairro: null,
+    subtotalCentavos: 3579,
+    taxaEntregaCentavos: 0,
+    descontoCentavos: 0,
+    totalCentavos: 3579,
+    itens: '1x Smash',
+  }
+
+  function abrirComExportacao(pedidos = vi.fn(async () => [pedidoExportado])) {
+    const { api } = apiFalsa()
+    const exportacao: ApiExportacao = { pedidos }
+    const baixar = vi.fn()
+    render(<Relatorios api={api} exportacao={exportacao} baixar={baixar} agora={AGORA} />)
+    return { pedidos, baixar }
+  }
+
+  it('baixa o CSV do período que está na tela, com nome do arquivo e conteúdo certos', async () => {
+    const user = userEvent.setup()
+    const { pedidos, baixar } = abrirComExportacao()
+    await screen.findByText('Ticket médio')
+
+    await user.click(screen.getByRole('button', { name: /Baixar pedidos deste período/ }))
+
+    expect(pedidos).toHaveBeenCalledWith('2026-09-12', '2026-09-18')
+    expect(baixar).toHaveBeenCalledTimes(1)
+    const [nome, conteudo] = baixar.mock.calls[0]
+    expect(nome).toBe('pedidos-deguste-2026-09-12_a_2026-09-18.csv')
+    expect(conteudo).toContain(
+      '42;17/09/2026 19:30;Site próprio;Retirada;Concluído;Pago;pix;;35,79',
+    )
+    expect(await screen.findByText('1 pedido(s) exportado(s).')).toBeInTheDocument()
+  })
+
+  it('exporta o período EXIBIDO, mesmo que a pessoa tenha mexido nas datas sem clicar em "Ver período"', async () => {
+    const user = userEvent.setup()
+    const { pedidos } = abrirComExportacao()
+    await screen.findByText('Ticket médio')
+    await user.clear(screen.getByLabelText('De'))
+    await user.type(screen.getByLabelText('De'), '2025-01-01') // digitou, não confirmou
+    await user.click(screen.getByRole('button', { name: /Baixar pedidos deste período/ }))
+    expect(pedidos).toHaveBeenCalledWith('2026-09-12', '2026-09-18')
+  })
+
+  it('avisa que o arquivo não tem dado pessoal', async () => {
+    abrirComExportacao()
+    expect(await screen.findByText(/sem nome, telefone nem rua/)).toBeInTheDocument()
+  })
+
+  it('período grande demais: mostra a orientação do banco; outro erro: mensagem genérica', async () => {
+    const user = userEvent.setup()
+    const pedidos = vi
+      .fn()
+      .mockRejectedValueOnce(
+        new Error('Mais de 5000 pedidos no período; escolha um período menor.'),
+      )
+      .mockRejectedValueOnce(new Error('rede'))
+    const { baixar } = abrirComExportacao(pedidos)
+    await screen.findByText('Ticket médio')
+
+    await user.click(screen.getByRole('button', { name: /Baixar pedidos deste período/ }))
+    expect(await screen.findByText(/Mais de 5000 pedidos/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Baixar pedidos deste período/ }))
+    expect(
+      await screen.findByText('Não foi possível exportar agora. Tente de novo.'),
+    ).toBeInTheDocument()
+    expect(baixar).not.toHaveBeenCalled()
+  })
+
+  it('sem a API de exportação, o botão não aparece', async () => {
+    const { api } = apiFalsa()
+    render(<Relatorios api={api} agora={AGORA} />)
+    await screen.findByText('Ticket médio')
+    expect(screen.queryByRole('button', { name: /Baixar pedidos/ })).not.toBeInTheDocument()
   })
 })

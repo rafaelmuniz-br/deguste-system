@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import PortaoAdmin from '../components/PortaoAdmin.tsx'
 import { criarCatalogoAdminSupabase, type ApiCatalogoAdmin } from '../data/catalogoAdminApi.ts'
+import { criarExportacaoSupabase, type ApiExportacao } from '../data/exportacaoApi.ts'
 import { criarRelatoriosSupabase, type ApiRelatorios } from '../data/relatoriosApi.ts'
 import { criarFotosAdminSupabase, type ApiFotosAdmin } from '../data/fotosAdminApi.ts'
 import { criarOpcoesAdminSupabase, type ApiOpcoesAdmin } from '../data/opcoesAdminApi.ts'
@@ -63,6 +64,7 @@ function Painel({
   apiOpcoes,
   apiFotos,
   apiRelatorios,
+  apiExportacao,
 }: {
   email: string
   api: ApiCatalogoAdmin | null
@@ -70,6 +72,7 @@ function Painel({
   apiOpcoes: ApiOpcoesAdmin | null
   apiFotos: ApiFotosAdmin | null
   apiRelatorios: ApiRelatorios | null
+  apiExportacao: ApiExportacao | null
 }) {
   const { sair } = useAuth()
   return (
@@ -102,7 +105,12 @@ function Painel({
         {apiOpcoes && (
           <Route path="produtos/:id/opcoes" element={<OpcoesProduto api={apiOpcoes} />} />
         )}
-        {apiRelatorios && <Route path="relatorios" element={<Relatorios api={apiRelatorios} />} />}
+        {apiRelatorios && (
+          <Route
+            path="relatorios"
+            element={<Relatorios api={apiRelatorios} exportacao={apiExportacao ?? undefined} />}
+          />
+        )}
         {apiLoja && <Route path="loja" element={<Loja api={apiLoja} />} />}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
@@ -117,6 +125,7 @@ export default function Admin({
   apiOpcoes,
   apiFotos,
   apiRelatorios,
+  apiExportacao,
 }: {
   cliente?: SupabaseClient | null
   /** Injetáveis para teste; em produção usam o Supabase. */
@@ -125,6 +134,7 @@ export default function Admin({
   apiOpcoes?: ApiOpcoesAdmin
   apiFotos?: ApiFotosAdmin
   apiRelatorios?: ApiRelatorios
+  apiExportacao?: ApiExportacao
 }) {
   const apiFinal = useMemo(
     () => api ?? (supabase ? criarCatalogoAdminSupabase(supabase) : null),
@@ -146,6 +156,10 @@ export default function Admin({
     () => apiRelatorios ?? (supabase ? criarRelatoriosSupabase(supabase) : null),
     [apiRelatorios],
   )
+  const apiExportacaoFinal = useMemo(
+    () => apiExportacao ?? (supabase ? criarExportacaoSupabase(supabase) : null),
+    [apiExportacao],
+  )
   return (
     <AuthProvider cliente={cliente}>
       <PortaoAdmin titulo="Painel admin">
@@ -157,6 +171,7 @@ export default function Admin({
             apiOpcoes={apiOpcoesFinal}
             apiFotos={apiFotosFinal}
             apiRelatorios={apiRelatoriosFinal}
+            apiExportacao={apiExportacaoFinal}
           />
         )}
       </PortaoAdmin>
