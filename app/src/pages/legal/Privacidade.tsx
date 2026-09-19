@@ -47,9 +47,10 @@ export default function Privacidade() {
       <p>
         <strong>Não coletamos nem guardamos dados de cartão.</strong> O pagamento por Pix é
         processado por um provedor de pagamento (<Pendente valor={NEGOCIO.gatewayPix} />
-        ), que recebe apenas o que é necessário para gerar a cobrança. Hoje o site não exige criação
-        de conta nem senha para o cliente. Se isso mudar (por exemplo, com programa de cashback),
-        esta política será atualizada antes.
+        ), que recebe apenas o que é necessário para gerar a cobrança. Se você escolher pagar na
+        entrega (dinheiro ou cartão), o pagamento é feito direto com o entregador, sem passar pelo
+        site. Hoje o site não exige criação de conta nem senha para o cliente. Se isso mudar (por
+        exemplo, com programa de cashback), esta política será atualizada antes.
       </p>
 
       <h2>3. Para que usamos os dados e em que base legal</h2>

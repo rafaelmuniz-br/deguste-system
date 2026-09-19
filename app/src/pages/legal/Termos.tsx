@@ -49,18 +49,24 @@ export default function Termos() {
         </li>
         <li>
           Confira o endereço e esteja disponível pelo telefone informado. Se não conseguirmos
-          contato nem entregar por motivo do cliente, o pedido pode ser considerado entregue.{' '}
-          <Revisar>definir regra para cliente ausente</Revisar>
+          contato nem entregar por motivo do cliente, o pedido pode ser considerado entregue.
         </li>
       </ul>
 
       <h2>5. Pagamento</h2>
-      <p>
-        O pagamento é feito por <strong>Pix</strong>, por meio de{' '}
-        <Pendente valor={NEGOCIO.gatewayPix} />. O pedido só é enviado para a cozinha depois da
-        confirmação do pagamento. O código Pix tem prazo de validade; depois dele, é preciso gerar
-        outro. Outras formas de pagamento: <Revisar>definir se haverá outras</Revisar>
-      </p>
+      <p>Você escolhe a forma de pagamento na hora de fechar o pedido:</p>
+      <ul>
+        <li>
+          <strong>Pix</strong>, por meio de <Pendente valor={NEGOCIO.gatewayPix} />: o pedido só é
+          enviado para a cozinha depois da confirmação do pagamento. O código Pix tem prazo de
+          validade; depois dele, é preciso gerar outro.
+        </li>
+        <li>
+          <strong>Pagamento na entrega</strong>, em dinheiro ou cartão (débito/crédito): feito
+          diretamente com o entregador, na maquininha ou em espécie. Nesse caso o pedido já segue
+          para a cozinha, sem confirmação prévia de pagamento pelo site.
+        </li>
+      </ul>
 
       <h2>6. Alergias e restrições alimentares</h2>
       <p>
