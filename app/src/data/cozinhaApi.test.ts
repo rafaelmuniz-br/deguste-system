@@ -159,6 +159,39 @@ describe('criarCozinhaSupabase', () => {
     await expect(apiVazia.tempoPreparoMin()).rejects.toThrow()
   })
 
+  it('pagamentosParaRevisar: só os não resolvidos, com o número do pedido (bigint como texto)', async () => {
+    const { consulta, chamadas } = consultaFalsa({
+      data: [
+        {
+          id: 'r1',
+          motivo: 'pago_apos_cancelamento',
+          valor_recebido_centavos: 3579,
+          pedidos: { numero: '42' },
+        },
+      ],
+      error: null,
+    })
+    const api = criarCozinhaSupabase({ from: () => consulta } as unknown as SupabaseClient)
+    expect(await api.pagamentosParaRevisar()).toEqual([
+      { id: 'r1', numero: 42, motivo: 'pago_apos_cancelamento', valorCentavos: 3579 },
+    ])
+    expect(chamadas).toContainEqual(['eq', ['resolvido', false]])
+  })
+
+  it('resolverPagamento marca só aquele registro como resolvido', async () => {
+    const { consulta, chamadas } = consultaFalsa({ error: null })
+    const api = criarCozinhaSupabase({ from: () => consulta } as unknown as SupabaseClient)
+    expect(await api.resolverPagamento('r1')).toBe(true)
+    expect(chamadas).toContainEqual(['update', [{ resolvido: true }]])
+    expect(chamadas).toContainEqual(['eq', ['id', 'r1']])
+
+    const falha = consultaFalsa({ error: { message: 'x' } })
+    const apiFalha = criarCozinhaSupabase({
+      from: () => falha.consulta,
+    } as unknown as SupabaseClient)
+    expect(await apiFalha.resolverPagamento('r1')).toBe(false)
+  })
+
   it('reimprimir chama a função do banco e devolve se deu certo', async () => {
     const rpc = vi
       .fn()

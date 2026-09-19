@@ -42,7 +42,7 @@ Quem decide se o pedido está pago é **o banco**, nunca o navegador nem o "avis
 
 1. **Pagamento tardio é estornado, não aceito.** Alternativa: aceitar o pedido tardio se ainda houver como fazer. Escolhi estornar por segurança (o cliente já pode ter desistido e o preço pode ter mudado).
 2. **Prazo do Pix:** 30 minutos (ajustável na chamada da expiração).
-3. Quem faz o **estorno**: no painel do gateway, manualmente (o volume esperado é baixo). A tela de "pagamentos para revisar" no admin é uma melhoria futura.
+3. Quem faz o **estorno**: no painel do gateway, manualmente (o volume esperado é baixo). O aviso aparece **no painel da cozinha** (faixa "pagamentos precisam de conferência"), com o botão **Já resolvi** para dar baixa depois de estornar.
 
 ## Servidor (Netlify Functions)
 
@@ -98,5 +98,4 @@ Código: `app/src/components/PagamentoPix.tsx`, `app/src/domain/qr.ts` (bibliote
 
 - Escolha do gateway e conta com CNPJ (3.1, 3.2) e **teste no sandbox real** (a parte que os testes simulados não provam).
 - Aplicar a migration `20260918220000` no banco de dev (1.14) e cadastrar as variáveis no Netlify (0.6).
-- Tela de "pagamentos para revisar" no admin (hoje é consulta no banco).
 

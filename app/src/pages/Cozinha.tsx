@@ -7,6 +7,7 @@ import {
   criarCozinhaSupabase,
   type ApiCozinha,
   type ConexaoTempoReal,
+  type PagamentoParaRevisar,
   type ProblemaImpressao,
 } from '../data/cozinhaApi.ts'
 import { formatarPreco } from '../domain/dinheiro.ts'
@@ -62,6 +63,7 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
   )
   const [pedidos, setPedidos] = useState<PedidoCozinha[]>([])
   const [problemas, setProblemas] = useState<ProblemaImpressao[]>([])
+  const [pagamentos, setPagamentos] = useState<PagamentoParaRevisar[]>([])
   const [carregado, setCarregado] = useState(false)
   const [falhaDeCarga, setFalhaDeCarga] = useState(false)
   const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null)
@@ -76,13 +78,16 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
   const carregar = useCallback(async () => {
     if (!api) return
     try {
-      const [lista, probs, tempo] = await Promise.all([
+      const [lista, probs, pags, tempo] = await Promise.all([
         api.listar(),
         api.problemasImpressao().catch(() => []),
+        // Sem conseguir consultar, não apaga o aviso que já estava na tela.
+        api.pagamentosParaRevisar().catch(() => null),
         api.tempoPreparoMin().catch(() => null), // sem a configuração, mantém o último valor conhecido
       ])
       setPedidos(lista)
       setProblemas(probs)
+      if (pags) setPagamentos(pags)
       if (tempo && tempo > 0) setTempoPreparo(tempo)
       setFalhaDeCarga(false)
       setAtualizadoEm(new Date())
@@ -159,6 +164,16 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
     setOcupado(null)
   }
 
+  async function resolverPagamento(id: string) {
+    if (!api) return
+    setAviso(
+      (await api.resolverPagamento(id))
+        ? 'Pagamento marcado como resolvido.'
+        : 'Não consegui marcar como resolvido. Tente de novo.',
+    )
+    await carregar()
+  }
+
   async function reimprimir(numero: number, id: string) {
     if (!api) return
     setAviso(
@@ -231,6 +246,34 @@ function Painel({ apiInjetada }: { apiInjetada?: ApiCozinha }) {
                   }}
                 >
                   Reimprimir
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {pagamentos.length > 0 && (
+        <section className="erros" role="alert" aria-label="Pagamentos para conferir">
+          <strong>
+            {pagamentos.length === 1
+              ? '1 pagamento precisa de conferência'
+              : `${pagamentos.length} pagamentos precisam de conferência`}
+            :
+          </strong>
+          <ul>
+            {pagamentos.map((p) => (
+              <li key={p.id}>
+                Pedido {p.numero}:{' '}
+                {p.motivo === 'pago_apos_cancelamento'
+                  ? `o Pix de ${formatarPreco(p.valorCentavos)} chegou depois do pedido ser cancelado ou expirar. Devolva o valor no painel do gateway (estorno).`
+                  : `chegou ${formatarPreco(p.valorCentavos)}, valor diferente do total do pedido. Confira no painel do gateway.`}{' '}
+                <button
+                  type="button"
+                  className="btn-link"
+                  onClick={() => void resolverPagamento(p.id)}
+                >
+                  Já resolvi (pedido {p.numero})
                 </button>
               </li>
             ))}
