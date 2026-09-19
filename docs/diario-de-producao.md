@@ -1,6 +1,18 @@
 # Diário de produção e relatório de pausa
 
-Registro do que foi feito na sessão de produção em modo automático (18/09/2026) e do que falta. O status oficial das tarefas continua sendo o `PLANO-DE-PRODUCAO.md` (**45 de 97 concluídas**); este arquivo explica o "como estamos" em linguagem simples para quem for retomar.
+Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois entender o que mudou, o que foi verificado e o que falta. Entradas novas entram **no topo**, como uma seção `## AAAA-MM-DD — ...`; sessões mais antigas (abaixo) documentam tudo que já existia até ali.
+
+> **Nota:** pode haver mais de uma entrada de 19/09 vindo de PRs diferentes ainda não mesclados (trabalho em paralelo, Lucas e Rafael) — normal, sem conflito de fundo; só ordem de leitura.
+
+---
+
+## 2026-09-19 — Sessão do Lucas (autônoma, mais duas pendências resolvidas)
+
+**Confirmado:** o Realtime já está habilitado para `pedidos` e `impressoes` no `deguste-dev` (item nº 6 da lista "Bloqueado" abaixo) — checado direto em `pg_publication_tables`, resultado das próprias migrations aplicadas na tarefa 1.14. Não precisa de nenhuma ação manual no painel.
+
+**Tarefa 2.10 — Domínio decidido.** Optei pelo subdomínio gratuito da Netlify por enquanto (consistente com a premissa de "custo fixo R$ 0" do projeto); domínio próprio (~R$ 40/ano) fica como opção futura, sem pressa. Documentado no plano (2.10 e pendência P8).
+
+**Documentação atualizada:** `PLANO-DE-PRODUCAO.md`.
 
 ## Onde paramos
 
