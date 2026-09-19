@@ -90,13 +90,10 @@ export function nivelDeAtraso(
   return 'ok'
 }
 
-/** Link do Google Maps com a rota até o cliente; null se não há endereço. Abre no celular do entregador. */
-export function linkDaRota(
-  endereco: PedidoCozinha['endereco'],
-  cidade = 'Salvador',
-): string | null {
+/** Endereço numa linha só para buscadores de mapa: "Rua X, 10, Pituba, Salvador, BA, Brasil". Null se não há rua. */
+function enderecoParaMapa(endereco: PedidoCozinha['endereco'], cidade: string): string | null {
   if (!endereco?.rua) return null
-  const destino = [
+  return [
     `${endereco.rua}${endereco.numero ? `, ${endereco.numero}` : ''}`,
     endereco.bairro,
     cidade,
@@ -105,5 +102,53 @@ export function linkDaRota(
   ]
     .filter(Boolean)
     .join(', ')
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`
+}
+
+/** Link do Google Maps com a rota até o cliente; null se não há endereço. Abre no celular do entregador. */
+export function linkDaRota(
+  endereco: PedidoCozinha['endereco'],
+  cidade = 'Salvador',
+): string | null {
+  const destino = enderecoParaMapa(endereco, cidade)
+  return destino
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`
+    : null
+}
+
+/** Link do Waze (já começa a navegar); null se não há endereço. */
+export function linkWaze(endereco: PedidoCozinha['endereco'], cidade = 'Salvador'): string | null {
+  const destino = enderecoParaMapa(endereco, cidade)
+  return destino ? `https://waze.com/ul?q=${encodeURIComponent(destino)}&navigate=yes` : null
+}
+
+/**
+ * Texto para mandar ao entregador: número do pedido, quem receber, telefone, endereço com referência
+ * e o link da rota. Só o necessário para a entrega (nada de valores nem itens do pedido).
+ */
+export function mensagemParaEntregador(
+  p: Pick<PedidoCozinha, 'numero' | 'clienteNome' | 'clienteTelefone' | 'endereco'>,
+  cidade = 'Salvador',
+): string | null {
+  const e = p.endereco
+  const rota = linkDaRota(e, cidade)
+  if (!e?.rua || !rota) return null
+  const linhaEndereco = [
+    `${e.rua}${e.numero ? `, ${e.numero}` : ''}`,
+    e.bairro,
+    e.complemento ? `(${e.complemento})` : null,
+  ]
+    .filter(Boolean)
+    .join(' - ')
+  return [
+    `Entrega do pedido ${p.numero} - Deguste Burguer`,
+    `Cliente: ${p.clienteNome} (${p.clienteTelefone})`,
+    `Endereço: ${linhaEndereco}`,
+    ...(e.referencia ? [`Referência: ${e.referencia}`] : []),
+    `Rota: ${rota}`,
+  ].join('\n')
+}
+
+/** Abre o WhatsApp para escolher o contato (o entregador) com o texto já pronto. */
+export function linkWhatsapp(texto: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(texto)}`
 }

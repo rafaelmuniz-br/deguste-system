@@ -3,6 +3,9 @@ import {
   acaoPrincipal,
   agrupar,
   linkDaRota,
+  linkWaze,
+  linkWhatsapp,
+  mensagemParaEntregador,
   minutosDesde,
   nivelDeAtraso,
   podeCancelar,
@@ -118,5 +121,72 @@ describe('linkDaRota', () => {
     expect(linkDaRota({ bairro: 'Pituba' })).toBeNull()
     expect(linkDaRota({ rua: 'Rua A & B #1?x=y', numero: '1' })).not.toMatch(/[& #?](?=[^=]*$)/)
     expect(linkDaRota({ rua: 'Rua A & B', numero: '1' })).toContain('destination=Rua%20A%20%26%20B')
+  })
+})
+
+describe('linkWaze', () => {
+  it('abre o Waze já navegando até o endereço (com cidade, para não errar de Salvador para outra)', () => {
+    const l = linkWaze({ rua: 'Rua José Augusto', numero: '506', bairro: 'Praia do Flamengo' })!
+    expect(l.startsWith('https://waze.com/ul?q=')).toBe(true)
+    expect(l.endsWith('&navigate=yes')).toBe(true)
+    expect(decodeURIComponent(l)).toContain(
+      'Rua José Augusto, 506, Praia do Flamengo, Salvador, BA',
+    )
+  })
+  it('sem endereço: null', () => {
+    expect(linkWaze(undefined)).toBeNull()
+    expect(linkWaze({ bairro: 'Pituba' })).toBeNull()
+  })
+})
+
+describe('mensagemParaEntregador', () => {
+  const pedido = {
+    numero: 42,
+    clienteNome: 'Maria Silva',
+    clienteTelefone: '71999998888',
+    endereco: {
+      rua: 'Rua das Flores',
+      numero: '10',
+      bairro: 'Pituba',
+      complemento: 'apto 5',
+      referencia: 'portão azul',
+    },
+  }
+
+  it('traz número, cliente, telefone, endereço, referência e a rota — e só isso', () => {
+    const m = mensagemParaEntregador(pedido)!
+    expect(m).toContain('Entrega do pedido 42')
+    expect(m).toContain('Cliente: Maria Silva (71999998888)')
+    expect(m).toContain('Endereço: Rua das Flores, 10 - Pituba - (apto 5)')
+    expect(m).toContain('Referência: portão azul')
+    expect(m).toContain('Rota: https://www.google.com/maps/dir/')
+  })
+
+  it('não vaza dados do pedido que o entregador não precisa (valores, itens, observações)', () => {
+    const m = mensagemParaEntregador({
+      ...pedido,
+      // @ts-expect-error campos extras de propósito: a função só olha os quatro que precisa
+      totalCentavos: 12345,
+      itens: [{ nome: 'Combo secreto' }],
+      observacoes: 'alergia a amendoim',
+    })!
+    expect(m).not.toMatch(/12345|123,45|Combo secreto|alergia/)
+  })
+
+  it('sem complemento e sem referência: linhas omitidas; sem endereço: null', () => {
+    const m = mensagemParaEntregador({ ...pedido, endereco: { rua: 'Rua A', bairro: 'Pituba' } })!
+    expect(m).not.toContain('Referência')
+    expect(m).toContain('Endereço: Rua A - Pituba')
+    expect(mensagemParaEntregador({ ...pedido, endereco: undefined })).toBeNull()
+  })
+})
+
+describe('linkWhatsapp', () => {
+  it('abre o WhatsApp para escolher o contato, com o texto codificado (quebra de linha e acento)', () => {
+    const l = linkWhatsapp('Olá\nRota: https://x/?a=1&b=2')
+    expect(l.startsWith('https://wa.me/?text=')).toBe(true)
+    expect(decodeURIComponent(l.slice('https://wa.me/?text='.length))).toBe(
+      'Olá\nRota: https://x/?a=1&b=2',
+    )
   })
 })

@@ -165,6 +165,28 @@ describe('Cozinha: quadro de pedidos', () => {
     )
   })
 
+  it('entrega: Waze e "Enviar ao entregador (WhatsApp)" com o texto pronto; retirada não tem', async () => {
+    const f = apiFalsa([
+      pedido(),
+      pedido({ id: 'p2', numero: 102, tipo: 'retirada', endereco: undefined }),
+    ])
+    abrir(f)
+    await screen.findByText('Pedido 101')
+
+    const waze = screen.getAllByRole('link', { name: 'Waze' })
+    expect(waze).toHaveLength(1)
+    expect(waze[0]).toHaveAttribute('href', expect.stringContaining('waze.com/ul'))
+
+    const zap = screen.getAllByRole('link', { name: 'Enviar ao entregador (WhatsApp)' })
+    expect(zap).toHaveLength(1)
+    const href = zap[0].getAttribute('href')!
+    expect(href.startsWith('https://wa.me/?text=')).toBe(true)
+    const texto = decodeURIComponent(href.slice('https://wa.me/?text='.length))
+    expect(texto).toContain('Entrega do pedido 101')
+    expect(texto).toContain('Rua das Flores, 10')
+    expect(texto).toContain('Portão azul')
+  })
+
   it('pedido de marketplace mostra a etiqueta do canal', async () => {
     abrir(apiFalsa([pedido({ canal: 'ifood' })]))
     expect(await screen.findByText('iFood')).toBeInTheDocument()

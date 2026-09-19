@@ -11,7 +11,7 @@ Tela em **`/cozinha`** (só para administradores). Feita para tablet ou PC na co
 5. **Recusar/Cancelar** pede um motivo (fica gravado no pedido). Se o cliente já pagou, será preciso devolver o valor.
 6. **Reimprimir** manda o pedido de novo para a impressora (o recibo sai marcado como reimpressão).
 7. **Marcar esgotado** (topo da tela) leva à lista de produtos, onde um toque bloqueia o produto no cardápio ([`admin-cadastro.md`](admin-cadastro.md)).
-8. Pedidos de entrega têm **Rota no mapa** (abre o Google Maps no endereço do cliente).
+8. Pedidos de entrega têm **Rota no mapa** (Google Maps), **Waze** e **Enviar ao entregador (WhatsApp)**: abre o WhatsApp para escolher o contato do entregador, com a mensagem pronta (número do pedido, nome e telefone do cliente, endereço, referência e link da rota — sem valores nem itens).
 
 ## O que a tela avisa sozinha
 
@@ -39,6 +39,4 @@ Precisa das migrations `150000`–`180000` aplicadas (ver `docs/migrations-aplic
 
 ## Ainda falta
 
-- Tempo de preparo configurável (hoje fixo em 30 min no código; virá da configuração da loja, 1.12) e **estimativa mostrada ao cliente** (4.5).
-- Waze e "copiar/enviar por WhatsApp" na rota (6.1).
 - Teste em tablet real e com internet caindo (4.13).
