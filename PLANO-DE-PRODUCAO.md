@@ -129,7 +129,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Restam, em tarefas próprias: teste manual (2.16, Lucas) e `alt` das fotos (2.13).
 - [x] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
   - ✔ Medido com Lighthouse mobile: **desempenho 94–97**, acessibilidade 100, boas práticas 100, SEO 100. Feito: carregamento sob demanda das rotas, bibliotecas em pacotes separados (cache), correção do deslocamento de layout (nota 78 → 97), miniatura de 320 px nas fotos dos cartões, descrição e `robots.txt`. Detalhes em `docs/desempenho.md`. Falta só medir de novo no Netlify e com fotos reais (2.13).
-- [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
+- [x] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
+  - **Decidido (Lucas, 19/09/2026):** começar com o **subdomínio gratuito da Netlify** (ex.: `deguste-burguer.netlify.app`, nome exato a confirmar quando o site existir, tarefa 0.6) — consistente com a premissa do projeto de **custo fixo R$ 0**. Domínio próprio (~R$ 40/ano) fica como opção **futura e opcional**, sem custo nem decisão urgente agora; pode ser comprado e apontado a qualquer momento sem quebrar nada.
 - [x] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
   - **Decidido:** sim, pode repetir (Lucas, 18/09/2026 — dispensou aprovação do Rafael nesse item específico). Sem migration: `itens_pedido_componentes.quantidade` já suportava isso. Implementado em `domain/pedido.ts` (agrega repetições por opção) e na tela do produto (contador +/- em grupos com máximo > 1, em vez de check/radio).
 - [x] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
@@ -371,7 +372,7 @@ Encontrados ao converter o planejamento em plano de produção:
 | P5 | Gateway Pix: Mercado Pago ou Pagar.me; em nome de quem (CNPJ) | Rafael + Lucas | 3.1, 3.2 |
 | P6 | WhatsApp: semiautomático grátis ou API oficial paga? | Rafael + Lucas | 6.4 |
 | P7 | Data de corte e duração do paralelo | Bruno + Lucas | 5.10 |
-| P8 | Domínio próprio (~R$ 40/ano) ou subdomínio Netlify no início | Lucas | 2.10 |
+| P8 | ~~Domínio próprio (~R$ 40/ano) ou subdomínio Netlify no início~~ — resolvido: subdomínio Netlify por ora | Lucas | 2.10 |
 | P9 | Como tratar o saldo de cashback atual dos clientes na virada | Bruno + Lucas | 5.15, 6.6 |
 | P10 | Emissão de nota fiscal: conversar com o contador | Lucas | Fase 7 / fora de escopo |
 | P11 | Razão social, canal (e-mail/WhatsApp) e responsável (encarregado) para pedidos da LGPD, e prazo de retenção dos pedidos | Lucas | 3.12, 3.13 |
