@@ -104,7 +104,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Tela `/admin/loja`: modo (seguir horários / aberta / fechada agora), horários por dia com vários intervalos, tempo de preparo, pedido mínimo, taxa base + valor por km, raio, endereço e coordenadas. Grava tudo numa **única função atômica** do banco (`salvar_configuracao_loja`): erro em qualquer parte não muda nada. Precisa da migration `20260918190000` no banco (1.14). A cozinha já usa o tempo de preparo configurado.
 - [x] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
   - **Feito no `deguste-dev`** (18/09/2026, Lucas). Repetir em `deguste-prod` quando esse projeto for criado (perto do go-live, Fase 5).
-- [ ] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
+- [x] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
+  - Feito (19/09/2026): as 8 migrations pendentes aplicadas via conector Supabase (não pelo SQL Editor manual, mas mesmo efeito). `deguste-dev` agora está com o schema igual ao repositório. `supabase/tests` (140 testes) e `get_advisors` conferidos depois — sem achado novo além dos avisos já esperados (funções `SECURITY DEFINER` com checagem própria de permissão).
 
 **Saída:** Bruno cadastra "Smash Jackfino" com foto pelo admin.
 
