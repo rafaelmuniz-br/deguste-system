@@ -658,3 +658,46 @@ fieldset > .campo {
 .pagina-carregando {
   min-height: 110vh;
 }
+
+/* Pagamento por Pix */
+.pix {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--borda-campo);
+  border-radius: 14px;
+  background: var(--superficie);
+}
+.pix h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+.pix-passos {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+.pix-qr {
+  display: block;
+  width: min(260px, 100%);
+  height: auto;
+  margin: 12px auto;
+  border-radius: 8px;
+}
+.pix textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  font:
+    0.85rem/1.3 ui-monospace,
+    monospace;
+  color: inherit;
+  background: var(--superficie);
+  border: 1px solid var(--borda-campo);
+  border-radius: 10px;
+  word-break: break-all;
+}
+.pix .btn-primario,
+.pix .btn-secundario {
+  margin-top: 12px;
+}

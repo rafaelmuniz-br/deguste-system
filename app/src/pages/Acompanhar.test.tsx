@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App.tsx'
@@ -9,6 +10,7 @@ import type {
 } from '../data/acompanhamentoApi.ts'
 import { cardapioExemplo } from '../data/exemplo.ts'
 import type { ApiPedidos } from '../data/pedidosApi.ts'
+import type { ApiPix } from '../data/pixApi.ts'
 import { ContextoLoja } from '../state/contextoLoja.ts'
 import Acompanhar from './Acompanhar.tsx'
 
@@ -26,8 +28,10 @@ const ok = (over: Partial<PedidoAcompanhado> = {}): RespostaAcompanhamento => ({
   pedido: pedido(over),
 })
 
+const pixIndisponivel: ApiPix = { gerar: async () => ({ ok: false, motivo: 'indisponivel' }) }
+
 /** Renderiza a página com um acompanhamento controlado pelo teste. */
-function abrir(respostas: RespostaAcompanhamento[]) {
+function abrir(respostas: RespostaAcompanhamento[], pix: ApiPix = pixIndisponivel) {
   const buscar = vi.fn(
     async () => respostas[Math.min(buscar.mock.calls.length - 1, respostas.length - 1)],
   )
@@ -41,6 +45,7 @@ function abrir(respostas: RespostaAcompanhamento[]) {
         apiSimulada: false,
         api,
         acompanhamento,
+        pix,
       }}
     >
       <MemoryRouter initialEntries={['/acompanhar/tok-1']}>
@@ -188,5 +193,64 @@ describe('jornada completa (modo simulado)', () => {
     expect(screen.getByText(/Pedido de TESTE/)).toBeInTheDocument()
     expect(screen.getByText(/Pagamento confirmado/)).toBeInTheDocument()
     localStorage.clear()
+  })
+})
+
+describe('pagamento por Pix na página do pedido', () => {
+  const CODIGO =
+    '00020126580014br.gov.bcb.pix0136xyz5204000053039865802BR5913DEGUSTE6008SALVADOR62070503***6304ABCD'
+  const pixOk = (): ApiPix & { gerar: ReturnType<typeof vi.fn> } => ({
+    gerar: vi.fn(async () => ({
+      ok: true as const,
+      copiaCola: CODIGO,
+      expiraEm: '2099-01-01T00:00:00Z',
+    })),
+  })
+
+  it('aguardando pagamento: pede o Pix com o token da página e mostra QR e código', async () => {
+    const pix = pixOk()
+    abrir([ok()], pix)
+    expect(await screen.findByRole('heading', { name: 'Pague com Pix' })).toBeInTheDocument()
+    expect(await screen.findByRole('img', { name: /QR Code/ })).toBeInTheDocument()
+    expect(pix.gerar).toHaveBeenCalledWith('tok-1')
+    expect(screen.getByLabelText('Pix Copia e Cola')).toHaveValue(CODIGO)
+  })
+
+  it('o Pix que o banco já devolveu no acompanhamento é usado direto (sem gerar outro)', async () => {
+    const pix = pixOk()
+    abrir(
+      [ok({ pixCopiaCola: 'CODIGO-JA-GERADO', pagamentoExpiraEm: '2099-01-01T00:00:00Z' })],
+      pix,
+    )
+    expect(await screen.findByLabelText('Pix Copia e Cola')).toHaveValue('CODIGO-JA-GERADO')
+    expect(pix.gerar).not.toHaveBeenCalled()
+  })
+
+  it('quando o pagamento é confirmado, o bloco do Pix some e o pedido segue', async () => {
+    abrir([ok(), ok({ status: 'novo', pagamentoStatus: 'pago' })], pixOk())
+    expect(await screen.findByRole('heading', { name: 'Pague com Pix' })).toBeInTheDocument()
+    await avancar(10_000)
+    expect(
+      await screen.findByText('Pagamento confirmado! Seu pedido entrou na fila da cozinha.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Pague com Pix' })).not.toBeInTheDocument()
+  })
+
+  it('"Já paguei" consulta o pedido na hora, sem esperar os 10 s', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const buscar = abrir([ok(), ok({ status: 'novo', pagamentoStatus: 'pago' })], pixOk())
+    await screen.findByRole('img', { name: /QR Code/ })
+    const antes = buscar.mock.calls.length
+
+    await user.click(screen.getByRole('button', { name: 'Já paguei' }))
+    expect(buscar.mock.calls.length).toBeGreaterThan(antes)
+  })
+
+  it('pedido já pago ou em andamento: nenhum Pix é pedido', async () => {
+    const pix = pixOk()
+    abrir([ok({ status: 'em_preparo', pagamentoStatus: 'pago' })], pix)
+    await screen.findByRole('heading', { name: 'Pedido nº 7' })
+    expect(pix.gerar).not.toHaveBeenCalled()
+    expect(screen.queryByRole('heading', { name: 'Pague com Pix' })).not.toBeInTheDocument()
   })
 })

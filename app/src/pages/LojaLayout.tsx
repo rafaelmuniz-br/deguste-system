@@ -6,6 +6,7 @@ import {
   criarAcompanhamentoSupabase,
 } from '../data/acompanhamentoApi.ts'
 import { criarApiHttp, criarApiSimulada } from '../data/pedidosApi.ts'
+import { criarPixHttp, criarPixSimulado } from '../data/pixApi.ts'
 import { supabase } from '../lib/supabase.ts'
 import type { Cardapio } from '../domain/tipos.ts'
 import CarrinhoProvider from '../state/CarrinhoProvider.tsx'
@@ -77,7 +78,8 @@ export default function LojaLayout() {
     const acompanhamento = apiSimulada
       ? criarAcompanhamentoSimulado()
       : criarAcompanhamentoSupabase(supabase)
-    return { cardapio, ehExemplo: carga.ehExemplo, apiSimulada, api, acompanhamento }
+    const pix = apiSimulada ? criarPixSimulado() : criarPixHttp()
+    return { cardapio, ehExemplo: carga.ehExemplo, apiSimulada, api, acompanhamento, pix }
   }, [carga, forcar])
 
   if (carga.status === 'carregando') {

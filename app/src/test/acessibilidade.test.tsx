@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { MemoryRouter } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import App from '../App.tsx'
 
 // Auditoria automática de acessibilidade (axe-core, regras WCAG 2.x A/AA) nas telas principais.
@@ -31,6 +31,20 @@ function abrir(rota: string) {
     </MemoryRouter>,
   )
 }
+
+// As páginas fora do cardápio são carregadas sob demanda (React.lazy). Carregar os módulos antes evita que
+// o primeiro teste de cada página estoure o tempo de espera do Testing Library só por compilar o código.
+beforeAll(async () => {
+  await Promise.all([
+    import('../pages/Checkout.tsx'),
+    import('../pages/Acompanhar.tsx'),
+    import('../pages/Admin.tsx'),
+    import('../pages/legal/Privacidade.tsx'),
+    import('../pages/legal/Termos.tsx'),
+    import('../pages/legal/Cancelamento.tsx'),
+    import('../pages/legal/Faq.tsx'),
+  ])
+}, 60_000)
 
 beforeEach(() => {
   localStorage.clear()
