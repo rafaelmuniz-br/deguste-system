@@ -22,6 +22,7 @@ Tela em **`/cozinha`** (só para administradores). Feita para tablet ou PC na co
 | Internet/tempo real caiu | Faixa vermelha "Sem tempo real: atualizando a cada 15 s" |
 | Não conseguiu consultar o banco | Aviso "pode estar desatualizado"; os pedidos que já estavam na tela continuam visíveis |
 | Pedido não saiu impresso | Faixa "N pedidos não saíram impressos", com botão **Reimprimir** |
+| Pix caiu depois do pedido cancelado/expirado, ou com valor diferente | Faixa "N pagamentos precisam de conferência": diz o pedido e o valor. **Devolva o dinheiro no painel do gateway** e toque em **Já resolvi** (ver `docs/pagamento.md`) |
 | Outra pessoa mexeu no mesmo pedido | "O pedido X já foi alterado por outra pessoa. Atualizei a tela." |
 
 ## Como funciona por dentro (Rafael / Lucas)

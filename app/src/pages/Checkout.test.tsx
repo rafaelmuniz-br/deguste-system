@@ -78,10 +78,9 @@ describe('Checkout', () => {
       await screen.findByRole('heading', { name: /Pedido nº 1001 registrado/ }),
     ).toBeInTheDocument()
     expect(screen.getByText(/PEDIDO DE TESTE/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Acompanhar meu pedido' })).toHaveAttribute(
-      'href',
-      expect.stringMatching(/^\/acompanhar\/[0-9a-f-]{36}$/),
-    )
+    expect(
+      screen.getByRole('link', { name: 'Acompanhar meu pedido e pagar com Pix' }),
+    ).toHaveAttribute('href', expect.stringMatching(/^\/acompanhar\/[0-9a-f-]{36}$/))
     expect(localStorage.getItem('deguste:sacola:v1')).toBe('[]')
   })
 

@@ -10,6 +10,13 @@ export type ConexaoTempoReal = 'conectando' | 'conectado' | 'desconectado'
 
 export type ProblemaImpressao = { numero: number; status: string; erro: string | null }
 
+export type PagamentoParaRevisar = {
+  id: string
+  numero: number
+  motivo: 'pago_apos_cancelamento' | 'valor_divergente'
+  valorCentavos: number
+}
+
 export type ResultadoMudanca = { ok: true } | { ok: false; motivo: 'conflito' | 'erro' }
 
 export type ApiCozinha = {
@@ -29,6 +36,10 @@ export type ApiCozinha = {
   /** Tempo de preparo da loja (configuração 1.12), usado para colorir os pedidos atrasados. */
   tempoPreparoMin(): Promise<number>
   problemasImpressao(): Promise<ProblemaImpressao[]>
+  /** Pix que precisa de uma pessoa: pagamento depois do cancelamento (estornar) ou de valor diferente. */
+  pagamentosParaRevisar(): Promise<PagamentoParaRevisar[]>
+  /** Marca como resolvido (a pessoa já estornou/conferiu no painel do gateway). */
+  resolverPagamento(id: string): Promise<boolean>
   /** Avisa quando algo mudou e o estado da conexão. Devolve a função que desliga. */
   assinar(aoMudar: () => void, aoConexao: (c: ConexaoTempoReal) => void): () => void
 }
@@ -151,6 +162,36 @@ export function criarCozinhaSupabase(cliente: SupabaseClient): ApiCozinha {
           erro: p.erro,
         }),
       )
+    },
+
+    async pagamentosParaRevisar() {
+      const { data, error } = await cliente
+        .from('pagamentos_para_revisar')
+        .select('id, motivo, valor_recebido_centavos, pedidos(numero)')
+        .eq('resolvido', false)
+        .order('created_at', { ascending: true })
+      if (error) throw new Error(error.message)
+      return (
+        data as unknown as {
+          id: string
+          motivo: PagamentoParaRevisar['motivo']
+          valor_recebido_centavos: number
+          pedidos: { numero: number | string } | null
+        }[]
+      ).map((p) => ({
+        id: p.id,
+        numero: Number(p.pedidos?.numero ?? 0),
+        motivo: p.motivo,
+        valorCentavos: p.valor_recebido_centavos,
+      }))
+    },
+
+    async resolverPagamento(id) {
+      const { error } = await cliente
+        .from('pagamentos_para_revisar')
+        .update({ resolvido: true })
+        .eq('id', id)
+      return !error
     },
 
     assinar(aoMudar, aoConexao) {

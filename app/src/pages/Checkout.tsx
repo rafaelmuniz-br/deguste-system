@@ -93,20 +93,21 @@ export default function Checkout() {
           Obrigado, {pedido.cliente.nome}! Total do pedido:{' '}
           <strong>{formatarPreco(pedido.totalCentavos)}</strong>.
         </p>
+        <p>
+          <strong>Falta só o pagamento.</strong> O pedido só vai para a cozinha depois que o Pix for
+          confirmado; depois disso, o preparo leva cerca de {cardapio.loja.tempoPreparoMin} min.
+        </p>
         {token && (
           <>
             <Link className="btn-primario" to={`/acompanhar/${token}`}>
-              Acompanhar meu pedido
+              Acompanhar meu pedido e pagar com Pix
             </Link>
             <p className="dica">
-              Guarde o endereço da página de acompanhamento: é assim que você vê o andamento.
+              Guarde o endereço da página de acompanhamento: é ali que fica o Pix e é assim que você
+              vê o andamento.
             </p>
           </>
         )}
-        <p className="dica">
-          Próximo passo: pagamento por Pix (ainda em construção). Depois do pagamento, o preparo
-          leva cerca de {cardapio.loja.tempoPreparoMin} min.
-        </p>
         <Link className="btn-secundario" to="/">
           Voltar ao cardápio
         </Link>

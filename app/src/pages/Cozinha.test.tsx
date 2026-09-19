@@ -4,7 +4,12 @@ import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ApiCozinha, ConexaoTempoReal, ProblemaImpressao } from '../data/cozinhaApi.ts'
+import type {
+  ApiCozinha,
+  ConexaoTempoReal,
+  PagamentoParaRevisar,
+  ProblemaImpressao,
+} from '../data/cozinhaApi.ts'
 import type { PedidoCozinha } from '../domain/cozinha.ts'
 import Cozinha from './Cozinha.tsx'
 
@@ -61,7 +66,13 @@ function pedido(extra: Partial<PedidoCozinha> = {}): PedidoCozinha {
 type Falha = { listar?: boolean }
 
 function apiFalsa(inicial: PedidoCozinha[], problemas: ProblemaImpressao[] = []) {
-  const estado = { pedidos: inicial, problemas, falha: {} as Falha, tempoPreparo: 30 }
+  const estado = {
+    pedidos: inicial,
+    problemas,
+    falha: {} as Falha,
+    tempoPreparo: 30,
+    pagamentos: [] as PagamentoParaRevisar[],
+  }
   let aoMudar: () => void = () => {}
   let aoConexao: (c: ConexaoTempoReal) => void = () => {}
   const api = {
@@ -71,6 +82,11 @@ function apiFalsa(inicial: PedidoCozinha[], problemas: ProblemaImpressao[] = [])
     }),
     mudarStatus: vi.fn<ApiCozinha['mudarStatus']>(async () => ({ ok: true })),
     reimprimir: vi.fn(async () => true),
+    pagamentosParaRevisar: vi.fn(async () => estado.pagamentos),
+    resolverPagamento: vi.fn(async (id: string) => {
+      estado.pagamentos = estado.pagamentos.filter((p) => p.id !== id)
+      return true
+    }),
     tempoPreparoMin: vi.fn(async () => estado.tempoPreparo),
     problemasImpressao: vi.fn(async () => estado.problemas),
     assinar: vi.fn((mudou: () => void, conexao: (c: ConexaoTempoReal) => void) => {
@@ -254,6 +270,70 @@ describe('Cozinha: cancelar e recusar', () => {
   })
 })
 
+describe('Cozinha: pagamentos para conferir', () => {
+  it('Pix depois do cancelamento: alerta com o valor e a orientação de estornar', async () => {
+    const f = apiFalsa([])
+    f.estado.pagamentos = [
+      { id: 'r1', numero: 42, motivo: 'pago_apos_cancelamento', valorCentavos: 3579 },
+    ]
+    abrir(f)
+    const alerta = await screen.findByRole('alert', { name: 'Pagamentos para conferir' })
+    expect(within(alerta).getByText(/1 pagamento precisa de conferência/)).toBeInTheDocument()
+    expect(within(alerta).getByText(/Pedido 42/)).toBeInTheDocument()
+    expect(
+      within(alerta).getByText(/35,79.*chegou depois do pedido ser cancelado/),
+    ).toBeInTheDocument()
+    expect(within(alerta).getByText(/estorno/)).toBeInTheDocument()
+  })
+
+  it('valor diferente: pede para conferir no gateway', async () => {
+    const f = apiFalsa([])
+    f.estado.pagamentos = [{ id: 'r2', numero: 7, motivo: 'valor_divergente', valorCentavos: 2000 }]
+    abrir(f)
+    expect(await screen.findByText(/valor diferente do total do pedido/)).toBeInTheDocument()
+  })
+
+  it('"Já resolvi" marca como resolvido e o aviso some', async () => {
+    const f = apiFalsa([])
+    f.estado.pagamentos = [
+      { id: 'r1', numero: 42, motivo: 'pago_apos_cancelamento', valorCentavos: 3579 },
+      { id: 'r2', numero: 43, motivo: 'valor_divergente', valorCentavos: 100 },
+    ]
+    const user = userEvent.setup()
+    abrir(f)
+    expect(await screen.findByText(/2 pagamentos precisam de conferência/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Já resolvi (pedido 42)' }))
+
+    expect(f.api.resolverPagamento).toHaveBeenCalledWith('r1')
+    expect(await screen.findByText(/1 pagamento precisa de conferência/)).toBeInTheDocument()
+    expect(screen.getByText('Pagamento marcado como resolvido.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Já resolvi (pedido 42)' })).not.toBeInTheDocument()
+  })
+
+  it('sem pagamentos pendentes: nenhum alerta', async () => {
+    abrir(apiFalsa([pedido()]))
+    await screen.findByText('Pedido 101')
+    expect(
+      screen.queryByRole('alert', { name: 'Pagamentos para conferir' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('falha ao consultar os pagamentos não apaga o aviso que já estava na tela', async () => {
+    const f = apiFalsa([])
+    f.estado.pagamentos = [
+      { id: 'r1', numero: 42, motivo: 'pago_apos_cancelamento', valorCentavos: 3579 },
+    ]
+    abrir(f)
+    await screen.findByRole('alert', { name: 'Pagamentos para conferir' })
+
+    f.api.pagamentosParaRevisar.mockRejectedValue(new Error('rede'))
+    f.dispararEvento()
+    await waitFor(() => expect(f.api.pagamentosParaRevisar).toHaveBeenCalledTimes(2))
+    expect(screen.getByRole('alert', { name: 'Pagamentos para conferir' })).toBeInTheDocument()
+  })
+})
+
 describe('Cozinha: impressão', () => {
   it('reimprimir um pedido chama o banco e confirma', async () => {
     const f = apiFalsa([pedido()])
@@ -425,6 +505,9 @@ describe('Cozinha: acessibilidade (axe-core; o contraste tem teste próprio em c
       ],
       [{ numero: 101, status: 'falhou', erro: 'sem papel' }],
     )
+    f.estado.pagamentos = [
+      { id: 'r1', numero: 101, motivo: 'pago_apos_cancelamento', valorCentavos: 4290 },
+    ]
     abrir(f)
     await screen.findByText('Pedido 101')
     expect(await violacoes()).toEqual([])
