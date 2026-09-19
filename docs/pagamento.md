@@ -1,6 +1,6 @@
 # Pagamento por Pix
 
-> Estado: **banco e servidor prontos e testados**; a **tela do Pix** e o teste no **sandbox real** ainda faltam. O gateway ainda não foi escolhido (tarefa 3.1), então o desenho é **independente de gateway**: existe um adaptador do Mercado Pago (candidato, escrito pela documentação e testado com respostas simuladas) e trocar por Pagar.me é escrever outro adaptador.
+> Estado: **banco, servidor e tela do Pix prontos e testados**; falta só o teste no **sandbox real** do gateway. O gateway ainda não foi escolhido (tarefa 3.1), então o desenho é **independente de gateway**: existe um adaptador do Mercado Pago (candidato, escrito pela documentação e testado com respostas simuladas) e trocar por Pagar.me é escrever outro adaptador.
 
 ## Como o pagamento funciona
 
@@ -74,6 +74,21 @@ Nada disso vai para o Git nem para o navegador (nenhuma começa com `VITE_`). Fa
 
 Pontos do adaptador marcados com `SANDBOX:` em `mercadoPago.ts` devem ser conferidos nessa primeira execução (formato de `point_of_interaction`, significado de `approved`).
 
+## Tela do Pix (o que o cliente vê)
+
+Na página do pedido (`/acompanhar/<token>`), enquanto o pedido aguarda pagamento, aparece o bloco **Pague com Pix**:
+
+1. Passo a passo curto (abrir o app do banco → Pix → QR Code ou Copia e Cola).
+2. **QR Code** desenhado no próprio navegador a partir do código (nenhum serviço externo recebe o código). Fundo branco e módulos pretos sempre, mesmo no modo escuro. Conferi com um leitor de QR de verdade (jsQR) que o QR desenhado decodifica exatamente o "copia e cola".
+3. Campo **Pix Copia e Cola** + botão **Copiar código** (se o aparelho não deixar copiar sozinho, o texto fica selecionado e a tela explica).
+4. "Você tem cerca de **N min** para pagar."
+5. **Já paguei**: consulta o pedido na hora (a página já consulta sozinha a cada 10 s).
+6. Quando o pagamento é confirmado, o bloco some e o andamento segue ("Pagamento confirmado! Seu pedido entrou na fila da cozinha.").
+7. **Prazo vencido**: o QR sai da tela, aparece "Não pague este código" e o link para fazer novo pedido.
+8. Se o servidor não conseguir gerar o Pix: "nada foi cobrado" e botão **Tentar de novo**.
+
+Código: `app/src/components/PagamentoPix.tsx`, `app/src/domain/qr.ts` (biblioteca `qrcode-generator`, MIT, 5 kB, só na página do pedido), `app/src/data/pixApi.ts`. Em desenvolvimento (API simulada) o código é de mentira e diz "SIMULADO-NAO-PAGAR".
+
 ## Testes
 
 - `app/src/server/pix/*.test.ts` (adaptador com HTTP simulado e assinatura real HMAC; as duas functions; a ligação com o Supabase).
@@ -81,7 +96,6 @@ Pontos do adaptador marcados com `SANDBOX:` em `mercadoPago.ts` devem ser confer
 
 ## Ainda falta
 
-- **Tela do Pix** na página de acompanhamento (QR, copiar código, prazo, "já paguei").
 - Escolha do gateway e conta com CNPJ (3.1, 3.2) e **teste no sandbox real** (a parte que os testes simulados não provam).
 - Aplicar a migration `20260918220000` no banco de dev (1.14) e cadastrar as variáveis no Netlify (0.6).
 - Tela de "pagamentos para revisar" no admin (hoje é consulta no banco).

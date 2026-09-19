@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import type { PedidoAcompanhado } from '../data/acompanhamentoApi.ts'
+import type { ApiPix } from '../data/pixApi.ts'
 import { descreverAndamento, ehTerminal, passoAtual, PASSOS } from '../domain/andamento.ts'
 import { formatarPreco } from '../domain/dinheiro.ts'
+import PagamentoPix from '../components/PagamentoPix.tsx'
 import { useLoja } from '../state/useLoja.ts'
 
 type Estado =
@@ -16,8 +18,11 @@ const INTERVALO_MS = 10_000
 /** Acompanhamento do pedido pelo token (sem login). Consulta de tempos em tempos enquanto a aba está visível. */
 export default function Acompanhar() {
   const { token = '' } = useParams()
-  const { acompanhamento, apiSimulada } = useLoja()
+  const { acompanhamento, apiSimulada, pix } = useLoja()
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
+  // "Já paguei" pede uma consulta imediata em vez de esperar os 10 s.
+  const consultarAgora = useRef<() => Promise<void>>(async () => {})
+  const conferir = useCallback(() => consultarAgora.current(), [])
 
   useEffect(() => {
     let ativo = true
@@ -44,6 +49,7 @@ export default function Acompanhar() {
     const aoVoltarParaAba = () => {
       if (naoEstaOculta()) void consultar()
     }
+    consultarAgora.current = consultar
     void consultar()
     timer = setInterval(() => {
       if (naoEstaOculta()) void consultar()
@@ -95,12 +101,24 @@ export default function Acompanhar() {
         </>
       )}
 
-      {estado.tipo === 'ok' && <Andamento pedido={estado.pedido} />}
+      {estado.tipo === 'ok' && (
+        <Andamento pedido={estado.pedido} token={token} pix={pix} aoConferir={conferir} />
+      )}
     </main>
   )
 }
 
-function Andamento({ pedido }: { pedido: PedidoAcompanhado }) {
+function Andamento({
+  pedido,
+  token,
+  pix,
+  aoConferir,
+}: {
+  pedido: PedidoAcompanhado
+  token: string
+  pix: ApiPix
+  aoConferir: () => Promise<void>
+}) {
   const passos = PASSOS[pedido.tipo]
   const atual = passoAtual(pedido.tipo, pedido.status)
   const mensagem = descreverAndamento(pedido.tipo, pedido.status, pedido.pagamentoStatus)
@@ -126,6 +144,16 @@ function Andamento({ pedido }: { pedido: PedidoAcompanhado }) {
             </li>
           ))}
         </ol>
+      )}
+
+      {pedido.status === 'aguardando_pagamento' && pedido.pagamentoStatus === 'pendente' && (
+        <PagamentoPix
+          token={token}
+          copiaColaInicial={pedido.pixCopiaCola}
+          expiraEmInicial={pedido.pagamentoExpiraEm}
+          api={pix}
+          aoConferir={aoConferir}
+        />
       )}
 
       <p className="dica">

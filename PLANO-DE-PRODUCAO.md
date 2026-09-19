@@ -163,7 +163,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
   - ✔ Lado do banco pronto e testado: `registrar_cobranca_pix` (idempotente, uma cobrança por pedido) e `acompanhar_pedido` devolvendo o Pix e o prazo. Ver `docs/pagamento.md`.
   - ✔ Function `gerar-pix` (`app/src/server/pix/`): valor sempre do banco, devolve o mesmo Pix se pedir de novo, limite por IP, erro do gateway sem vazar detalhe; adaptador do Mercado Pago (candidato) atrás de uma interface de gateway. Testada com gateway simulado e o banco real.
-  - Falta: a tela do Pix (QR/copiar) e validar no **sandbox real** (depende de 3.1/3.2).
+  - ✔ **Tela do Pix** na página do pedido: QR desenhado no navegador (conferido com um leitor de QR de verdade), copia e cola, prazo, "Já paguei", prazo vencido e falha com "tentar de novo". Ver `docs/pagamento.md`.
+  - Falta: validar no **sandbox real** (depende de 3.1/3.2).
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
   - ✔ Lado do banco pronto e testado: `confirmar_pagamento_pix` idempotente, com trava de valor exato e tratamento de pagamento após cancelamento/expiração (vai para estorno, não para a cozinha). Ver `docs/pagamento.md`.
   - ✔ Function `webhook-pix`: confere a assinatura (HMAC), **consulta o gateway** em vez de confiar no aviso, confirma no banco; repetição = 200; falha = 502 para o gateway tentar de novo. Função agendada `expirar-pedidos` (a cada 5 min).
