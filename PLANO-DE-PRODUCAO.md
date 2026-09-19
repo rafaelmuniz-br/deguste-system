@@ -245,8 +245,12 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 5.2 Backup: exportação periódica do banco fora do Supabase + **restauração testada de verdade** em projeto vazio `👤 Rafael`
 - [ ] 5.3 Monitoramento: alerta (e-mail/WhatsApp para Rafael) quando uma function falha ou o agente de impressão fica offline `👤 Rafael`
 - [ ] 5.4 Mitigação do pause do Supabase free tier (projeto pausa após ~1 semana sem atividade — confirmar regra vigente; loja fecha seg/ter, mas feriado/férias podem passar disso) → rotina de "keep-alive" `👤 Rafael`
+  - ✔ Rotina diária no GitHub (`.github/workflows/manter-banco-ativo.yml`) que consulta o banco todo dia e **avisa por e-mail se ele não responder**; a consulta foi conferida contra o `deguste-dev` (HTTP 200). Passo a passo em `docs/manter-banco-ativo.md`.
+  - Falta: o Rafael cadastrar as 2 variáveis no GitHub (`SUPABASE_URL` e `SUPABASE_ANON_KEY`, do projeto de **produção** quando existir).
 - [ ] 5.5 Plano de contingência impresso na cozinha: sistema fora → WhatsApp manual (número atual) + como avisar clientes `👤 Lucas + Bruno`
+  - ✔ Rascunho em `docs/contingencia.md` (aviso aos clientes, pedidos manuais no papel, Pix manual, entregas, volta ao normal). Falta preencher a chave Pix e os contatos, validar com o Bruno e imprimir.
 - [ ] 5.6 Runbook de incidentes (`docs/runbook.md`): "não imprime", "pedido não chegou", "Pix pago mas pedido não confirmou", quem acionar `👤 Rafael + Lucas`
+  - ✔ `docs/runbook.md`: 11 incidentes (não imprime, pedido não chegou, Pix pago sem confirmar, estorno, cozinha sem tempo real, site fora, loja aberta/fechada errado, cardápio errado, Supabase pausado, erro misterioso, LGPD) com "agora" e "investigar depois". Falta preencher a tabela de contatos.
 - [ ] 5.7 Backup de hardware: impressora reserva ou plano B de impressão (imprimir pelo navegador no PC) `👤 Lucas`
 - [ ] 5.8 Treinamento de Bruno e Lucas (30–45 min, no local) `👤 Rafael`
 - [ ] 5.9 Ativar 2FA nas contas de serviço que guardam dados de clientes (Supabase, GitHub) — antes só de dev, sem pressa; obrigatório antes do go-live `👤 Lucas`
