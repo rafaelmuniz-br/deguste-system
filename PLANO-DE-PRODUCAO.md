@@ -58,6 +58,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
   - Ao criar o site, cadastrar em Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secreta: só no Netlify) e, se a regra de frete for por distância, `ORS_API_KEY`. Detalhes em `docs/arquitetura-pedido.md`.
+  - **Tentativa do Lucas (19/09/2026):** criou conta no Netlify e tentou importar o repositório, mas `deguste-system` não aparece na lista — é da conta do Rafael no GitHub, só ele consegue autorizar o app do Netlify a acessar esse repositório específico (permissão do GitHub, não trava do Netlify). **Ação do Rafael:** ou (a) autorizar o Netlify GitHub App para o repositório em github.com/settings/installations, ou (b) criar o site ele mesmo e depois convidar o Lucas como membro do time no Netlify.
+  - `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (públicas) também precisam ir nas Environment variables, senão o site publicado não conecta no banco — mesmos valores do `app/.env.local` do Lucas.
+  - Como o `deguste-prod` ainda não existe (0.7), o site de produção do Netlify vai apontar pro `deguste-dev` por enquanto — trocar quando o `deguste-prod` for criado, perto do go-live.
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Lucas + Rafael`
   - Decisão: criados na **conta do Lucas**, porque o plano gratuito limita a 2 projetos por conta e a do Rafael já usa os 2.
   - `deguste-dev` ✅ criado (organização "Deguste Burguer", região São Paulo, plano Free). Todas as migrations de `supabase/migrations/` aplicadas, RLS ativo nas 13 tabelas, seed de exemplo carregado. Falta ainda: convidar o Rafael como Administrador na organização e criar o `deguste-prod` (perto do go-live, Fase 5).
@@ -104,7 +107,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Tela `/admin/loja`: modo (seguir horários / aberta / fechada agora), horários por dia com vários intervalos, tempo de preparo, pedido mínimo, taxa base + valor por km, raio, endereço e coordenadas. Grava tudo numa **única função atômica** do banco (`salvar_configuracao_loja`): erro em qualquer parte não muda nada. Precisa da migration `20260918190000` no banco (1.14). A cozinha já usa o tempo de preparo configurado.
 - [x] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
   - **Feito no `deguste-dev`** (18/09/2026, Lucas). Repetir em `deguste-prod` quando esse projeto for criado (perto do go-live, Fase 5).
-- [ ] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
+- [x] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
+  - Feito (19/09/2026): as 8 migrations pendentes aplicadas via conector Supabase (não pelo SQL Editor manual, mas mesmo efeito). `deguste-dev` agora está com o schema igual ao repositório. `supabase/tests` (140 testes) e `get_advisors` conferidos depois — sem achado novo além dos avisos já esperados (funções `SECURITY DEFINER` com checagem própria de permissão).
 
 **Saída:** Bruno cadastra "Smash Jackfino" com foto pelo admin.
 
@@ -180,6 +184,8 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Banco: até 3 pedidos aguardando pagamento por telefone em 15 min. Função: 6 confirmações e 30 cálculos por minuto por IP e corpo de no máximo 20 KB. Testado.
   - Limite: o do IP vale por instância da função (best-effort); o do telefone vale para todos, pois fica no banco.
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
+  - Estrutura implementada pelo Rafael (`app/src/pages/legal/`, `docs/paginas-legais.md`). Lucas resolveu 7 das 11 pendências (19/09/2026): razão social, canal/encarregado LGPD, prazos de reembolso e reclamação, regras de cancelamento e cliente ausente aprovadas, e forma de pagamento (Pix + pagamento na entrega em dinheiro/cartão — **atenção Rafael**: isso precisa de uma opção nova no checkout, hoje ele só cobre Pix).
+  - Ainda falta pra "publicar" de verdade (tirar do modo rascunho): gateway Pix (3.1), serviço de mapas/rotas (3.5), prazo de retenção de dados (Lucas + contador) e revisão jurídica final de todo o texto.
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`

@@ -1,8 +1,6 @@
 # Diário de produção e relatório de pausa
 
-Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois entender o que mudou, o que foi verificado e o que falta. Entradas novas entram **no topo**, como uma seção `## AAAA-MM-DD — ...`; sessões mais antigas (abaixo) documentam tudo que já existia até ali.
-
-> **Nota:** pode haver mais de uma entrada de 19/09 vindo de PRs diferentes ainda não mesclados (trabalho em paralelo, Lucas e Rafael) — normal, sem conflito de fundo; só ordem de leitura.
+Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois entender o que mudou, o que foi verificado e o que falta. Entradas novas entram **no topo**, como uma seção `## AAAA-MM-DD — ...`; a sessão mais antiga (abaixo) documenta tudo que já existia até ali.
 
 ---
 
@@ -23,6 +21,29 @@ Isso também resolveu, na prática, a tarefa **2.14** (o que fazer com "Brownie 
 **Documentação atualizada:** `PLANO-DE-PRODUCAO.md` (2.2 e 2.14 marcadas, nota na 2.1 sobre o Brownie de Chocolate), este diário.
 
 **Próxima tarefa recomendada:** `git pull` antes de decidir (Rafael continua rápido em paralelo). Com 2.2 feita, o cardápio real já está "ao vivo" no dev — próximo passo natural seria conferir no celular (deploy preview, quando existir — depende de 0.6) ou seguir com tarefas menores só do Lucas (2.10 domínio, 2.13 fotos, 4.6 impressora).
+
+---
+
+## 2026-09-19 — Sessão do Lucas (autônoma, tarde)
+
+**Tarefas executadas:**
+
+1. **1.14 — Aplicar migrations pendentes no `deguste-dev`.** Exatamente o item nº 1 da lista "Bloqueado por decisão ou ação de gente" abaixo. As 8 migrations pendentes (`comentario_componentes_repeticoes`, `pedido_atomico`, `lgpd_direitos_do_titular`, `fila_de_impressao`, `salvar_configuracao_loja`, `fotos_produtos`, `relatorio_vendas`, `pagamento_pix`) foram aplicadas em ordem no banco `deguste-dev`, via conector Supabase (mesmo efeito do SQL Editor manual).
+   - Verificação: `supabase/tests` depois (140 testes, todos passando) e `get_advisors` (segurança) conferido — só os avisos já esperados de funções `SECURITY DEFINER` (cada uma confere permissão internamente) e a tabela `agentes_impressao` com RLS sem política nenhuma (intencional).
+   - `docs/migrations-aplicadas.md` e `PLANO-DE-PRODUCAO.md` (1.14) atualizados.
+
+2. **3.12 — Páginas legais: 7 das 11 pendências resolvidas.** Lucas decidiu: razão social (Bruno Oliveira Pessoa), canal LGPD (WhatsApp) e encarregado (Lucas Costa Pinto Neves), prazo de reembolso (2 dias úteis), prazo de reclamação (mesmo dia da entrega), aprovação das regras de cancelamento e da regra de cliente ausente do rascunho, e forma de pagamento: Pix + **pagamento na entrega** (dinheiro/cartão direto com o entregador, sem gateway novo).
+   - **Atenção para quem pegar o checkout:** falta adicionar a opção "pagar na entrega" na tela — hoje o fluxo assume só Pix.
+   - Restam 4 pendências, nenhuma bloqueante: gateway Pix (3.1), serviço de mapas (3.5), prazo de retenção de dados (precisa do contador) e revisão jurídica final.
+   - PR: `docs/paginas-legais-decisoes` (#35).
+
+**Verificações realizadas:** `npm test`, `npm run typecheck`, `npm run lint`, `npx prettier --check` em `app/`; `npm test` em `supabase/`; conferência visual no navegador local.
+
+**Problemas encontrados e resolvidos:** dois textos com palavra duplicada depois de inserir os valores decididos, corrigidos; import `Pendente` sem uso removido de `Faq.tsx`.
+
+**Cuidado ao ler o restante deste diário:** a sessão de 18/09 abaixo é de **outra pessoa/sessão** (Rafael, "modo automático") — os números de PR e o estado "45 de 97" são daquele momento; várias linhas da tabela "O que falta" já foram resolvidas nesta entrada (item 1) ou por mim depois (ver `PLANO-DE-PRODUCAO.md` para o estado atual, sempre a fonte da verdade).
+
+**Próxima tarefa recomendada:** `git pull` de novo antes de decidir (o Rafael trabalha muito rápido em paralelo) e conferir `node painel/server.js` (http://localhost:4173). Candidata forte: **2.2** (carregar o cardápio real no banco — agora desbloqueada: 2.1, 2.11, 2.12 e 0.7-dev todas prontas).
 
 ---
 

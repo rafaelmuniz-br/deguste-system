@@ -8,8 +8,7 @@ export default function Cancelamento() {
     <PaginaLegal titulo="Cancelamento e reembolso">
       <p>
         Nossos lanches são preparados na hora, depois que o pedido é pago. Por isso as regras de
-        cancelamento dependem de <strong>em que ponto o pedido está</strong>.{' '}
-        <Revisar>regras propostas: confirmar com Bruno e Lucas</Revisar>
+        cancelamento dependem de <strong>em que ponto o pedido está</strong>.
       </p>
 
       <table>
@@ -52,8 +51,8 @@ export default function Cancelamento() {
         </li>
         <li>
           <strong>Item errado, faltando ou com problema de qualidade:</strong> refazemos ou
-          devolvemos o valor do item. Avise em até <Pendente valor={NEGOCIO.prazoReclamacao} />{' '}
-          depois de receber, com uma foto se possível.
+          devolvemos o valor do item. Avise <Pendente valor={NEGOCIO.prazoReclamacao} />, com uma
+          foto se possível.
         </li>
         <li>
           <strong>Atraso muito acima do informado:</strong> fale com a gente pelo WhatsApp;
