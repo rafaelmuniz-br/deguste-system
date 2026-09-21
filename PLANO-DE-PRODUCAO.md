@@ -198,6 +198,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ **De ponta a ponta** (`supabase/tests/fluxo-pix.test.ts`, 8 testes): functions reais + banco real + gateway simulado, incluindo webhook duplicado (até simultâneo), assinatura falsa, valor divergente e pagamento após expiração.
   - Falta: repetir o cenário no **sandbox real** quando 3.2 existir.
 - [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
+- [ ] 3.16 **Pagamento na entrega (dinheiro/cartão com o entregador)**: Lucas decidiu aceitar (páginas legais já citam). Falta no sistema: opção no checkout; pedido vai para a cozinha **sem** pagamento confirmado (hoje só pedido pago aparece na cozinha e imprime); troco; relatórios ("venda = pago") e conferência do valor com o entregador; anti-abuso (pedido falso sem pagamento prévio: limite por telefone, talvez só para clientes recorrentes ou até certo valor). Decidir as regras com Bruno e Lucas antes de construir `👤 Rafael + Bruno + Lucas`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
 
