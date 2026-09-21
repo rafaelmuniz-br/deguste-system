@@ -4,6 +4,14 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-21 — Lucas autorizado a assumir tarefas do Rafael
+
+Decisão do Rafael: o Lucas pode fazer também as tarefas marcadas `👤 Rafael`. Registrado como **D9** no plano, em `CONTRIBUTING.md` e no `CLAUDE.md` (o Claude Code do Lucas lê). Continua tudo por PR revisado pelo Rafael; ficam de fora permissões do GitHub, Netlify, segredos e decisões de negócio. **Nenhuma permissão do GitHub foi alterada** (o Lucas já podia abrir PRs; a mescla continua com o Rafael).
+
+**Tarefas de código que o Lucas pode pegar já** (sem depender de decisão): 0.12 (functions em localhost), 3.15 (pedido de ponta a ponta), 6.3 (histórico por cliente), 6.5/6.6 (cupons e cashback, maiores), 3.4 (geolocalização do cliente). Sugestão: começar pela 0.12 e pela 3.15, que destravam os testes reais.
+
+---
+
 ## 2026-09-21 — Atualização geral do acompanhamento e do planejamento
 
 Revisão dos documentos de acompanhamento depois das entregas de 18 a 21/09 (PRs #20 a #42, incluindo os 5 PRs do Lucas, o redesign visual e a decisão do Netlify).

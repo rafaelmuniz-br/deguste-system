@@ -12,6 +12,16 @@ Guia pensado para quem está começando. Se travar em qualquer passo, pergunte a
 4. Ao terminar uma tarefa, marque `[x]` no `PLANO-DE-PRODUCAO.md` **no mesmo PR** e escreva `Fecha: 1.8` (o número da tarefa) na descrição do PR. O CI confere e **falha** se você disser que fecha uma tarefa que o plano ainda não marca. Não fechou nenhuma? Escreva `Fecha: nenhuma`. O painel atualiza sozinho.
 5. Todo dia útil, faça `git pull` antes de começar: o plano muda conforme o projeto avança.
 
+## Posso pegar uma tarefa do Rafael?
+
+Sim, desde 21/09/2026 (autorização do Rafael). Condições:
+
+1. **Como assumir:** troque, na própria tarefa do plano, o responsável para `👤 Lucas` (ex.: `👤 Rafael` → `👤 Lucas`, ou `👤 Rafael + Lucas` → `👤 Lucas`) e acrescente a nota "assumida do Rafael em AAAA-MM-DD". Assim o painel e o "Minhas tarefas" mostram certo.
+2. **Continua tudo por Pull Request**, com CI verde e o Rafael revisando e mesclando: a autorização é para **fazer** a tarefa, não para mesclar nem para pular a revisão.
+3. **Não vale** (ficam só com o Rafael): mexer em permissões, ruleset ou configurações do GitHub; autorizar o Netlify no repositório (0.6/5.16); qualquer **segredo** (chave `service_role`, chaves do gateway, tokens) em arquivo, chat ou commit; e as **decisões de negócio** (escolher gateway em 3.1, regras de pagamento em 3.16), que só ele fecha. O Lucas pode preparar comparações e rascunhos dessas decisões, sem tomá-las.
+4. **Em caso de dúvida**, o Lucas pergunta ao Rafael antes; tarefa grande de programação é melhor começar por um PR pequeno.
+5. As demais regras do projeto continuam (nunca commitar em `main`, testes, plano atualizado no mesmo PR com `Fecha:`).
+
 ## O ciclo de uma tarefa
 
 1. Escolha uma tarefa em [PLANO-DE-PRODUCAO.md](PLANO-DE-PRODUCAO.md) (ex.: `2.1`).

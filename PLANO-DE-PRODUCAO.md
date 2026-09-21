@@ -6,6 +6,14 @@ Baseado em [Sistema-Deguste-Burguer-Planejamento.md](Sistema-Deguste-Burguer-Pla
 
 **Como ler as tarefas:** cada uma termina com quem faz (`👤 Lucas`, `👤 Rafael + Lucas`…; o primeiro nome é o responsável principal) e, quando há, do que depende (`⏳ depende: 1.7` = só começa depois de 1.7 pronta). Para ver só as suas, rode `node painel/server.js`, abra <http://localhost:4173> e escolha seu nome em **Minhas tarefas**.
 
+**Lucas pode assumir tarefas do Rafael** (autorização do Rafael em 21/09/2026). Vale para qualquer tarefa marcada `👤 Rafael`, com estas condições:
+
+1. **Como assumir:** troque, na própria tarefa do plano, o responsável para `👤 Lucas` (ex.: `👤 Rafael` → `👤 Lucas`, ou `👤 Rafael + Lucas` → `👤 Lucas`) e acrescente a nota "assumida do Rafael em AAAA-MM-DD". Assim o painel e o "Minhas tarefas" mostram certo.
+2. **Continua tudo por Pull Request**, com CI verde e o Rafael revisando e mesclando: a autorização é para **fazer** a tarefa, não para mesclar nem para pular a revisão.
+3. **Não vale** (ficam só com o Rafael): mexer em permissões, ruleset ou configurações do GitHub; autorizar o Netlify no repositório (0.6/5.16); qualquer **segredo** (chave `service_role`, chaves do gateway, tokens) em arquivo, chat ou commit; e as **decisões de negócio** (escolher gateway em 3.1, regras de pagamento em 3.16), que só ele fecha. O Lucas pode preparar comparações e rascunhos dessas decisões, sem tomá-las.
+4. **Em caso de dúvida**, o Lucas pergunta ao Rafael antes; tarefa grande de programação é melhor começar por um PR pequeno.
+5. As demais regras do projeto continuam (nunca commitar em `main`, testes, plano atualizado no mesmo PR com `Fecha:`).
+
 ## 1. Objetivo e marco final
 
 Substituir a Cardápio Web por uma plataforma própria (custo fixo R$ 0) **sem perder nenhuma capacidade operacional**: cardápio, pedidos, Pix, cozinha em tempo real, impressão automática e rota de entrega.
@@ -24,6 +32,7 @@ Decisões tomadas neste plano (o planejamento deixava em aberto ou implícito). 
 | D4 | **Ambientes**: `main` = produção (Netlify, **só no fim**, ver D8), cada PR = deploy preview (idem), projeto Supabase separado para `dev/staging` | Lucas nunca testa contra dados reais |
 | D5 | **Fase 5 exige Cardápio Web rodando em paralelo** por 1–2 semanas | Rede de segurança já prevista no planejamento |
 | D6 | **iFood/99Food ficam fora do caminho crítico**: operar pelos gestores de pedido nativos das plataformas até a Fase 7 | Já previsto; não bloqueia o MVP |
+| D9 | **Lucas pode assumir tarefas marcadas `👤 Rafael`** (21/09/2026, autorização do Rafael), sempre por PR revisado pelo Rafael e com as exclusões da regra abaixo (permissões do GitHub, Netlify, segredos e decisões de negócio) | Distribui a carga: o gargalo deixou de ser código e o Lucas já contribui bem com o Claude Code dele |
 | D7 | **Sem contas de cliente no MVP**: pedido identificado por nome + telefone. Conta/cashback entram na Fase 6 | Reduz o MVP; cashback e cupom não são necessários para vender |
 | D8 | **Netlify fica para o FINAL do projeto** (21/09/2026, decisão do Rafael): até a preparação do go-live (5.16), desenvolvimento e testes rodam **em localhost** (site + functions + Supabase de dev). Sem deploy preview por PR; a revisão é local + CI | Evita custo/complexidade e configuração de infraestrutura enquanto o produto ainda está mudando; tudo o que é do Netlify vira uma tarefa única perto do go-live |
 
