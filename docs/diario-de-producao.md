@@ -8,9 +8,9 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 Pedido do Rafael: transformação **estética** do app na linguagem de apps de delivery (referência de padrões, sem copiar marca), mantendo a paleta preto e branco da Deguste e tudo que já existe (funções, regras, telas, fluxo).
 
-Feito só com **CSS por variáveis de cor** e ajustes pequenos de marcação: capa preta com a marca e avatar, busca e categorias em chips, cartão de produto com foto grande e "+", barra de sacola flutuante, folhas com alça, fonte Inter embutida, modo escuro, favicon da marca (era o do Vite). Sem mudança de regra de negócio; os 626 testes seguem passando, incluindo contraste WCAG nos dois temas e axe. Lighthouse mobile: 96 / 100 / 100 / 100. Documentado em `docs/design.md`.
+Feito só com **CSS por variáveis de cor** e ajustes pequenos de marcação: capa preta com a marca e avatar, busca e categorias em chips, cartão de produto com foto grande e "+", barra de sacola flutuante, folhas com alça, fonte Inter embutida, favicon da marca (era o do Vite). Sem mudança de regra de negócio; os 626 testes seguem passando, incluindo contraste WCAG nos dois temas e axe. Lighthouse mobile: 96 / 100 / 100 / 100. Documentado em `docs/design.md`.
 
-Conferido no navegador: celular claro e escuro, desktop, folha do produto, sacola, checkout, acompanhamento com Pix, FAQ e login do admin.
+Decisão posterior do Rafael (21/09): **tema claro fixo**; o bloco do modo escuro foi removido e um teste impede que volte. Conferido no navegador: celular, desktop, folha do produto, sacola, checkout, acompanhamento com Pix, FAQ e login do admin.
 
 Limite consciente: sem fotos reais (2.13) os cartões usam um bloco escuro da marca; o efeito completo depende delas.
 

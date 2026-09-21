@@ -15,10 +15,9 @@ function lerTokens(bloco: string): Record<string, string> {
   return tokens
 }
 
-const escuro =
-  css.match(/@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{([^}]*)\}/)?.[1] ?? ''
 const claro = css.match(/:root\s*\{([^}]*)\}/)?.[1] ?? ''
-const TEMAS = { claro: lerTokens(claro), escuro: { ...lerTokens(claro), ...lerTokens(escuro) } }
+// O site usa SÓ o tema claro (decisão do Rafael, 21/09/2026).
+const TEMAS = { claro: lerTokens(claro) }
 
 const luminancia = (hex: string) => {
   const canais = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -51,9 +50,19 @@ const PARES: [string, string, number, string][] = [
 ]
 
 describe('contraste de cor (WCAG 2.1 AA)', () => {
-  it('lê os tokens dos dois temas', () => {
+  it('lê os tokens do tema claro', () => {
     expect(Object.keys(TEMAS.claro).length).toBeGreaterThan(10)
-    expect(TEMAS.escuro.bg).not.toBe(TEMAS.claro.bg)
+  })
+
+  it('tema claro é fixo: nenhum CSS troca de cor pelo modo escuro do aparelho', () => {
+    const outros = ['cardapio.css', 'legal.css', 'admin.css', 'cozinha.css', 'index.css']
+    for (const arquivo of outros) {
+      const texto = readFileSync(resolve(process.cwd(), 'src', arquivo), 'utf8')
+      expect(texto, arquivo).not.toMatch(/prefers-color-scheme:\s*dark/)
+    }
+    expect(readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8')).toMatch(
+      /color-scheme:\s*light;/,
+    )
   })
 
   for (const [tema, tokens] of Object.entries(TEMAS)) {
