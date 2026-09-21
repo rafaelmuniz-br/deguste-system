@@ -1,6 +1,6 @@
 # Plano de Produção — Sistema Deguste Burguer
 
-Baseado em [Sistema-Deguste-Burguer-Planejamento.md](Sistema-Deguste-Burguer-Planejamento.md) · versão 0.1 · 2026-09-18
+Baseado em [Sistema-Deguste-Burguer-Planejamento.md](Sistema-Deguste-Burguer-Planejamento.md) · versão 0.5 · atualizado em 2026-09-21
 
 > Este arquivo é o **documento vivo de acompanhamento**. Marque `[x]` conforme as tarefas forem concluídas (via commit/PR) e o painel em `localhost` atualiza o progresso sozinho.
 
@@ -31,18 +31,18 @@ Decisões tomadas neste plano (o planejamento deixava em aberto ou implícito). 
 
 Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário depende da disponibilidade — ver seção 9.
 
-| Fase | Entrega | Esforço | Critério de saída (verificável) |
-| --- | --- | --- | --- |
-| 0 | Setup: repo, ambientes, CI, contas | 2 d | Lucas rodou o projeto local e mesclou um PR (deploy preview no Netlify fica para o fim: D8) |
-| 1 | Fundação: banco + admin de produtos | 5 d | Bruno/Lucas cadastram um produto pelo admin e ele aparece no banco |
-| 2 | Cardápio público | 5 d | Cardápio real completo navegável no celular, abre/fecha por horário |
-| 3 | Pedido + frete + Pix | 10 d | Pedido de teste pago no sandbox aparece como `pago` no banco |
-| 4 | Cozinha em tempo real + impressão | 7 d | Pedido novo toca som, aparece na tela e **sai impresso** na impressora real |
-| 5 | Substituição real (piloto → corte) | 2 semanas de operação | 10 dias de operação sem falha crítica; Cardápio Web cancelada |
-| 6 | Extras: rota, WhatsApp, cashback, cupons, relatórios | 10 d | Cada extra em produção, individualmente |
-| 7 | (Opcional) iFood / 99Food | a definir | Decisão de negócio após Fase 5 estável |
+| Fase | Entrega | Esforço | Critério de saída (verificável) | Situação em 21/09/2026 |
+| --- | --- | --- | --- | --- |
+| 0 | Setup: repo, ambientes, CI, contas | 2 d | Lucas rodou o projeto local e mesclou um PR (deploy preview no Netlify fica para o fim: D8) | 9 de 12 tarefas. Faltam 0.6 (Netlify, **adiada para o fim**), 0.7 (`deguste-prod`) e 0.12 (functions em localhost) |
+| 1 | Fundação: banco + admin de produtos | 5 d | Bruno/Lucas cadastram um produto pelo admin e ele aparece no banco | 13 de 14. Falta **1.7** (criar os usuários admin): as telas existem e foram testadas com banco simulado |
+| 2 | Cardápio público | 5 d | Cardápio real completo navegável no celular, abre/fecha por horário | 14 de 17. Faltam fotos reais (2.13), teste manual de acessibilidade no celular (2.16) e a carga em produção (2.15). Cardápio real já está no dev; **redesign visual feito (2.17)** |
+| 3 | Pedido + frete + Pix | 10 d | Pedido de teste pago no sandbox aparece como `pago` no banco | 5 de 16. Pix, tela do Pix, banco e testes prontos; **falta o sandbox real** (3.1/3.2 decisão do gateway) e frete/mapas (3.4–3.6); nova 3.16 (pagamento na entrega) |
+| 4 | Cozinha em tempo real + impressão | 7 d | Pedido novo toca som, aparece na tela e **sai impresso** na impressora real | 7 de 13. Cozinha e fila de impressão prontas; falta impressora real (4.6, 4.7, 4.11–4.13) e o layout do recibo (4.8, Bruno) |
+| 5 | Substituição real (piloto → corte) | 2 semanas de operação | 10 dias de operação sem falha crítica; Cardápio Web cancelada | 0 de 16. Runbook, contingência e rotina do banco já rascunhados; **5.16 = publicar no Netlify (só no fim)** |
+| 6 | Extras: rota, WhatsApp, cashback, cupons, relatórios | 10 d | Cada extra em produção, individualmente | 2 de 8 (6.1 rota do entregador e 6.2 relatórios feitos) |
+| 7 | (Opcional) iFood / 99Food | a definir | Decisão de negócio após Fase 5 estável | 0 de 5 (opcional) |
 
-**Total até o começo da Fase 5: ~29 dias de trabalho.**
+**Total até o começo da Fase 5: ~29 dias de trabalho.** Em 21/09/2026: **50 de 101 tarefas concluídas** (~50%), em 4 dias corridos de trabalho (18 a 21/09), com Lucas contribuindo em paralelo. O que resta é, em sua maior parte, **validação com serviços reais** (Supabase com admins, gateway Pix sandbox, impressora) e **decisões de negócio**, não código novo.
 
 ---
 
@@ -392,8 +392,12 @@ Encontrados ao converter o planejamento em plano de produção:
 | P8 | ~~Domínio próprio (~R$ 40/ano) ou subdomínio Netlify no início~~ — resolvido: subdomínio Netlify por ora | Lucas | 2.10 |
 | P9 | Como tratar o saldo de cashback atual dos clientes na virada | Bruno + Lucas | 5.15, 6.6 |
 | P10 | Emissão de nota fiscal: conversar com o contador | Lucas | Fase 7 / fora de escopo |
-| P11 | Razão social, canal (e-mail/WhatsApp) e responsável (encarregado) para pedidos da LGPD, e prazo de retenção dos pedidos | Lucas | 3.12, 3.13 |
-| P12 | Regras de cancelamento e reembolso (prazos, cliente ausente), outras formas de pagamento e revisão jurídica dos textos | Bruno + Lucas | 3.12 |
+| P11 | ~~Razão social, canal e encarregado da LGPD~~ — resolvidos (19/09, Lucas). **Falta o prazo de retenção dos pedidos** (com o contador) | Lucas | 3.12, 3.13 |
+| P12 | ~~Regras de cancelamento e reembolso, cliente ausente e formas de pagamento~~ — decididas (19/09, Lucas; avisar o Bruno). **Falta a revisão jurídica** dos textos | Bruno + Lucas | 3.12 |
+| P13 | **Pagamento na entrega** (dinheiro/cartão com o entregador): regras (troco, limite de valor, anti-pedido falso, quem confere o dinheiro) | Bruno + Lucas + Rafael | 3.16 |
+| P14 | **Brownie de Chocolate** fora do cardápio (decisão provisória do Lucas): confirmar ou reverter | Bruno | 2.14 (já feita; revisar) |
+| P15 | **Pagamento Pix tardio** (depois do pedido expirar): hoje é estornado, não aceito. Confirmar a política e quem estorna | Bruno | 3.9, 5.6 |
+| P16 | Aprovar o **redesign visual** (2.17) e o uso da marca só em texto até haver logotipo | Bruno | 2.17 |
 
 ## 9. Cronograma de referência
 
@@ -411,9 +415,21 @@ Considerando **~15 h/semana** do Rafael (~2 dias efetivos por semana). Ajustar s
 
 **~14 semanas até o corte** nessa cadência. Estimativa de partida; recalibrar ao fim da Fase 1 com a velocidade real (incluindo a contribuição do Lucas).
 
-## 10. Próximas ações imediatas
+**Andamento real (21/09/2026):** o desenvolvimento andou **muito mais rápido que o cronograma** (Fases 1 a 4 com o código praticamente pronto em 4 dias, graças ao modo automático com Claude Code). O gargalo agora **não é programação**: é (a) validar com serviços reais, (b) decisões e ações de pessoas e (c) o teste na cozinha. Por isso as semanas restantes devem ser planejadas por **marcos de validação**, não por volume de código:
 
-1. Rafael envia o link do repositório (P1).
-2. Lucas descobre modelo da impressora (P2) e começa o levantamento do cardápio (P3).
-3. Rafael executa a Fase 0.
-4. Revisão deste plano por Bruno, Lucas e Rafael — decisões D1–D7 e pendências P1–P10.
+| Marco | O que precisa acontecer | Depende de |
+| --- | --- | --- |
+| M1 — Admin com banco real | Criar admins (1.7); testar `/admin` e `/cozinha` no `deguste-dev` | Lucas |
+| M2 — Pedido de ponta a ponta em localhost | Functions locais (0.12) + pedido de teste (3.15) | Rafael + Claude |
+| M3 — Pix no sandbox | Escolher gateway e abrir conta (3.1, 3.2); validar 3.8 e 3.9 | Rafael + Lucas |
+| M4 — Impressão real | Modelo da impressora (4.6), recibo aprovado (4.8), agente no PC da cozinha (4.7, 4.11, 4.13) | Lucas + Bruno |
+| M5 — Textos legais e frete | Retenção de dados e revisão jurídica (3.12, 3.13); mapas e regra de frete (3.4–3.6) | Lucas + Rafael |
+| M6 — Go-live | Produção (0.7, 2.15), Netlify (5.16), piloto e paralelo (5.10–5.14) | Todos |
+
+## 10. Próximas ações imediatas (atualizado em 21/09/2026)
+
+1. **Lucas:** criar os usuários admin (1.7, `docs/criar-admins.md`) e testar `/admin` e `/cozinha` no `deguste-dev` (M1); descobrir o modelo da impressora (4.6, P2); reunir as fotos (2.13); teste de acessibilidade no celular (2.16); levar ao contador o prazo de retenção de dados (P11).
+2. **Rafael (com Claude):** rodar as functions em localhost (0.12) e o pedido de teste de ponta a ponta (3.15, M2); decidir o gateway e abrir a conta sandbox (3.1 e 3.2, M3); decidir com o Bruno as regras do pagamento na entrega (3.16, P13).
+3. **Bruno:** confirmar o Brownie de Chocolate (P14), a política de Pix tardio (P15), aprovar o redesign (P16) e o layout do recibo (4.8); avisado das decisões legais que o Lucas tomou (P12).
+4. **Jurídico e contador:** revisão dos textos legais e prazo de retenção (3.12).
+5. **Só no fim:** Netlify e domínio (0.6, 5.16, 2.10), `deguste-prod` (0.7) e a virada (Fase 5). **Decisão D8:** até lá tudo roda em localhost.
