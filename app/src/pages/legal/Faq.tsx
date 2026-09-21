@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import Pendente from '../../components/Pendente.tsx'
 import { NEGOCIO } from '../../config/negocio.ts'
 import PaginaLegal from './PaginaLegal.tsx'
 
@@ -27,8 +26,9 @@ export default function Faq() {
         <details>
           <summary>Quais formas de pagamento vocês aceitam?</summary>
           <p>
-            Pagamos por <strong>Pix</strong>, gerado no próprio site. Outras formas:{' '}
-            <Pendente valor={null} />.
+            Você pode pagar por <strong>Pix</strong>, gerado no próprio site, ou{' '}
+            <strong>na entrega</strong>, em dinheiro ou cartão (débito/crédito) direto com o
+            entregador.
           </p>
         </details>
 
