@@ -1,0 +1,40 @@
+# Mantém o banco (Supabase) "acordado". No plano gratuito o projeto pausa depois de cerca de 1 semana sem
+# nenhuma atividade; a loja fecha segunda e terça, e em feriado/férias pode passar de uma semana sem pedido.
+# Este agendamento faz UMA consulta de leitura pública por dia. Ver docs/manter-banco-ativo.md.
+#
+# Precisa de 2 "variáveis" no repositório (Settings → Secrets and variables → Actions → Variables):
+#   SUPABASE_URL       endereço do projeto (não é segredo)
+#   SUPABASE_ANON_KEY  chave PÚBLICA anon (a mesma do site; não é segredo)
+# Sem elas, o job avisa e termina sem falhar.
+name: manter-banco-ativo
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # todo dia às 09:17 UTC (06:17 na Bahia)
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  acordar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Consultar o cardápio (leitura pública)
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::warning::Variáveis SUPABASE_URL e SUPABASE_ANON_KEY não configuradas; nada a fazer."
+            exit 0
+          fi
+          status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/configuracoes_loja?select=id&limit=1")
+          echo "Supabase respondeu HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::error::O banco não respondeu 200 (pode estar pausado ou fora do ar). Veja docs/runbook.md, item 9."
+            exit 1
+          fi

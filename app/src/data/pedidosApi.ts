@@ -1,4 +1,6 @@
 import { normalizarBairro } from '../domain/frete.ts'
+import { novoId } from '../domain/id.ts'
+import { registrarPedidoSimulado } from './acompanhamentoApi.ts'
 import {
   calcularPedido,
   lerEntrada,
@@ -17,7 +19,8 @@ export type RespostaCalculo =
   { ok: true; pedido: PedidoCalculado } | { ok: false; erros: ErroPedido[] }
 
 export type RespostaConfirmacao =
-  { ok: true; pedido: PedidoCalculado; numero: number } | { ok: false; erros: ErroPedido[] }
+  | { ok: true; pedido: PedidoCalculado; numero: number; token?: string }
+  | { ok: false; erros: ErroPedido[] }
 
 export type ApiPedidos = {
   calcular(bruto: unknown): Promise<RespostaCalculo>
@@ -57,7 +60,15 @@ export function criarApiSimulada(
     calcular,
     async confirmar(bruto) {
       const r = await calcular(bruto)
-      return r.ok ? { ok: true, pedido: r.pedido, numero: proximoNumero++ } : r
+      if (!r.ok) return r
+      const numero = proximoNumero++
+      const token = novoId()
+      registrarPedidoSimulado(token, {
+        numero,
+        tipo: r.pedido.tipo,
+        totalCentavos: r.pedido.totalCentavos,
+      })
+      return { ok: true, pedido: r.pedido, numero, token }
     },
   }
 }

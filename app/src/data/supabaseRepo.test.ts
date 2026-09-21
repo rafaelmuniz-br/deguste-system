@@ -102,6 +102,19 @@ function dados(over: Partial<DadosDoBanco> = {}): DadosDoBanco {
 }
 
 describe('montarCardapio', () => {
+  it('foto do produto vira o endereço público do bucket; sem foto, sem endereço (usa o marcador)', () => {
+    const d = dados()
+    d.produtos[0].foto_path = 'p-smash/1700.webp'
+    const c = montarCardapio(d, (caminho) => `https://x.supabase.co/fotos/${caminho}`)
+    const smash = c.produtos.find((p) => p.id === 'p-smash')
+    expect(smash?.fotoUrl).toBe('https://x.supabase.co/fotos/p-smash/1700.webp')
+    expect(smash?.fotoMiniaturaUrl).toBe('https://x.supabase.co/fotos/p-smash/1700-mini.webp')
+    expect(c.produtos.filter((p) => p.id !== 'p-smash').every((p) => p.fotoUrl === undefined)).toBe(
+      true,
+    )
+    // sem resolvedor de URL o cardápio não quebra
+    expect(montarCardapio(d).produtos.every((p) => p.fotoUrl === undefined)).toBe(true)
+  })
   it('converte nomes, tipos e trata nulos', () => {
     const c = montarCardapio(dados())
     const smash = c.produtos.find((p) => p.id === 'p-smash')

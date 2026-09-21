@@ -57,6 +57,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.4 Projeto Vite + React + React Router + TypeScript `👤 Rafael`
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
+  - Ao criar o site, cadastrar em Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secreta: só no Netlify) e, se a regra de frete for por distância, `ORS_API_KEY`. Detalhes em `docs/arquitetura-pedido.md`.
 - [ ] 0.7 Dois projetos Supabase: `deguste-dev` e `deguste-prod` `👤 Lucas + Rafael`
   - Decisão: criados na **conta do Lucas**, porque o plano gratuito limita a 2 projetos por conta e a do Rafael já usa os 2.
   - `deguste-dev` ✅ criado (organização "Deguste Burguer", região São Paulo, plano Free). Todas as migrations de `supabase/migrations/` aplicadas, RLS ativo nas 13 tabelas, seed de exemplo carregado. Falta ainda: convidar o Rafael como Administrador na organização e criar o `deguste-prod` (perto do go-live, Fase 5).
@@ -91,12 +92,19 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 1.7 Login admin (Supabase Auth, e-mail + senha; 2 usuários: Bruno e Lucas) `👤 Rafael` `⏳ depende: 0.7`
   - ✔ Pronto e testado: página de login, porteiro do `/admin` (não logado / logado sem permissão / admin), sessão persistente, mensagens sem revelar quem tem conta, `noindex` (`app/src/pages/Admin.tsx`, `state/AuthProvider.tsx`). Conferido contra o Supabase real com credencial falsa.
   - Falta: criar os usuários e liberar em `admins`, e testar o login de verdade. Passo a passo em `docs/criar-admins.md`.
-- [ ] 1.8 CRUD de categorias (ordem, ativo/inativo) `👤 Lucas` `⏳ depende: 1.7`
-- [ ] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado) `👤 Rafael` `⏳ depende: 1.7`
-- [ ] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional) `👤 Rafael` `⏳ depende: 1.7`
-- [ ] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier) `👤 Rafael` `⏳ depende: 1.7`
-- [ ] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
-- [ ] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
+- [x] 1.8 CRUD de categorias (ordem, ativo/inativo) `👤 Lucas` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/categorias`: criar, editar, ativar/desativar, reordenar com setas ▲▼ e excluir (só categoria vazia, com confirmação). Feita por Rafael/Claude com testes; falta só o teste com o banco real quando os admins existirem (1.7). Ver `docs/admin-cadastro.md`.
+- [x] 1.9 CRUD de produtos (nome, descrição, preço, foto, categoria, disponível/esgotado) `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/produtos`: criar/editar (preço digitado em reais → centavos, preço "de", combo, ativo), **marcar esgotado com um toque**, reordenar dentro da categoria, filtro por categoria. A **foto** é a 1.11.
+- [x] 1.10 CRUD de grupos de opção e opções do "monte o seu" (mín/máx de escolhas, preço adicional) `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ Botão **Opções** em cada produto (`/admin/produtos/:id/opcoes`): grupos com mínimo/máximo ("Obrigatório: escolha 1", "Opcional, até 3"), opções com valor adicional, **vínculo com produto real nas opções de combo** (D3), esgotado rápido por opção, reordenar e excluir com confirmação (pedidos antigos não mudam: nome e preço são copiados para o pedido).
+- [x] 1.11 Upload de fotos (Supabase Storage) com redimensionamento no cliente (economiza o free tier) `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ No formulário de edição do produto: escolher/trocar/remover foto. A foto é **reduzida no navegador** (lado maior 1000 px, WebP ~80%: um PNG de 5,4 MB virou 147 KB, conferido num navegador de verdade) e vai para o bucket público `fotos-produtos` (limite 1 MB, só WebP/JPEG; só admin grava, testado). Troca apaga a foto antiga; falha ao gravar no produto apaga o arquivo enviado (sem lixo). O cardápio público passa a mostrar a foto (com `alt` = nome do produto). Precisa da migration `20260918200000` no banco (1.14).
+- [x] 1.12 Configurações da loja: horário por dia da semana, aberta/fechada manual, taxa de entrega, raio `👤 Rafael` `⏳ depende: 1.7`
+  - ✔ Tela `/admin/loja`: modo (seguir horários / aberta / fechada agora), horários por dia com vários intervalos, tempo de preparo, pedido mínimo, taxa base + valor por km, raio, endereço e coordenadas. Grava tudo numa **única função atômica** do banco (`salvar_configuracao_loja`): erro em qualquer parte não muda nada. Precisa da migration `20260918190000` no banco (1.14). A cozinha já usa o tempo de preparo configurado.
+- [x] 1.13 **Desligar o cadastro público de usuários** no Supabase (Authentication → Allow new users to sign up), em dev e depois em prod. Achado: no `deguste-dev` está ligado, então qualquer pessoa consegue criar conta com a chave pública. Passo a passo em `docs/criar-admins.md` `👤 Lucas`
+  - **Feito no `deguste-dev`** (18/09/2026, Lucas). Repetir em `deguste-prod` quando esse projeto for criado (perto do go-live, Fase 5).
+- [ ] 1.14 **Aplicar no `deguste-dev` as migrations pendentes** listadas em `docs/migrations-aplicadas.md` (SQL Editor, em ordem, uma vez cada) e marcar lá `👤 Lucas`
 
 **Saída:** Bruno cadastra "Smash Jackfino" com foto pelo admin.
 
@@ -110,20 +118,26 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - Feito em `docs/levantamento-cardapio.md`: todas as categorias (Ofertas com Desconto, Smashs, Burguers, Entradas e Sobremesas, Bebidas), grupos de opção do "monte o seu" e a estrutura completa dos 6 combos — os 3 que faltavam conferir por dentro (Brownie+Bebida Grátis, 4 Smashs, Boladão) já foram abertos e documentados. Conferido direto no site + relatório oficial de produtos.
   - **Fotos ficaram de fora por decisão do Lucas** (18/09/2026): não bloqueiam a 2.2 nem o resto da Fase 2 (o banco aceita `foto_path` nulo — chega com o upload, tarefa 1.11). Acompanhar em 2.13.
   - Ainda em aberto, sem bloquear nada (perguntas registradas em `docs/levantamento-cardapio.md`, seção "Perguntas em aberto"): grupo "Molho" aceita 1 ou até 2 opções (o site mostra contador inconsistente); "Brownie de Chocolate" volta como item avulso ou fica só dentro dos combos; pedido mínimo, regra de frete/raio, tempo de preparo, impressora térmica, saldo de cashback e titular do CNPJ (pendências P2/P4/P5/P9 da seção 8).
-- [ ] 2.2 Carga do cardápio real no banco de produção (script de seed, revisável em PR) `👤 Rafael` `⏳ depende: 2.1, 2.11, 2.12, 0.7`
+- [ ] 2.2 Carga do cardápio real no banco de **desenvolvimento** (script de seed, revisável em PR) — permite testar o app com dados verdadeiros antes do go-live `👤 Rafael` `⏳ depende: 2.1, 2.11, 2.12, 2.14`
 - [x] 2.3 Página do cardápio: categorias, navegação por âncora, busca `👤 Rafael`
 - [x] 2.4 Página/modal de produto com variações e adicionais ("monte o seu") respeitando mín/máx `👤 Rafael`
 - [x] 2.5 Sacola (carrinho) persistida no navegador, com edição de itens `👤 Rafael`
 - [x] 2.6 Loja abre/fecha automaticamente por horário (fuso `America/Bahia`); fora do horário, pedido bloqueado com aviso claro `👤 Rafael`
 - [x] 2.7 Produto esgotado aparece bloqueado, não some `👤 Rafael`
-- [ ] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento) `👤 Rafael + Lucas`
-- [ ] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
+- [x] 2.8 Mobile-first + acessibilidade: contraste, `alt` em todas as fotos, foco/teclado (exigido no planejamento) `👤 Rafael + Lucas`
+  - ✔ Auditoria automática permanente: `axe-core` em 15 telas (`app/src/test/acessibilidade.test.tsx`) e contraste WCAG dos dois temas (`contraste.test.ts`). Corrigido: bordas de campos (1,2:1 → 4:1), regiões de leitura do cardápio e `<header>`/`<footer>` duplicados nos diálogos. Ver `docs/acessibilidade.md`.
+  - Restam, em tarefas próprias: teste manual (2.16, Lucas) e `alt` das fotos (2.13).
+- [x] 2.9 Performance: imagens otimizadas/lazy, Lighthouse mobile ≥ 90 `👤 Rafael`
+  - ✔ Medido com Lighthouse mobile: **desempenho 94–97**, acessibilidade 100, boas práticas 100, SEO 100. Feito: carregamento sob demanda das rotas, bibliotecas em pacotes separados (cache), correção do deslocamento de layout (nota 78 → 97), miniatura de 320 px nas fotos dos cartões, descrição e `robots.txt`. Detalhes em `docs/desempenho.md`. Falta só medir de novo no Netlify e com fotos reais (2.13).
 - [ ] 2.10 Domínio (ou subdomínio Netlify) definido `👤 Lucas`
 - [x] 2.11 **Decidir e modelar escolhas repetidas em combos.** O "Combo 3 Smashs" pede escolher 3 entre 5 smashs: o cliente pode repetir o mesmo (2× Jackfino)? Se sim, opções precisam de **quantidade** (hoje o servidor recusa opção repetida). Mexe em `domain/pedido.ts`, `domain/carrinho.ts`, tela do produto e `itens_pedido_componentes` (migration); os relatórios por produto real precisam continuar somando certo `👤 Rafael + Bruno`
   - **Decidido:** sim, pode repetir (Lucas, 18/09/2026 — dispensou aprovação do Rafael nesse item específico). Sem migration: `itens_pedido_componentes.quantidade` já suportava isso. Implementado em `domain/pedido.ts` (agrega repetições por opção) e na tela do produto (contador +/- em grupos com máximo > 1, em vez de check/radio).
 - [x] 2.12 **Decidir preço "de/por".** Vários itens mostram preço riscado (ex.: Jackfino 22,99, de 27,99). Mostrar o desconto ou só o preço atual? Se mostrar: coluna de preço original (migration), exibição no cardápio, e o total continua usando **só** o preço atual `👤 Rafael + Bruno`
   - **Decidido:** mostrar o "de/por" (Lucas, 18/09/2026, opção recomendada — igual ao site atual). Migration `20260918140000_preco_original_produto.sql` (`produtos.preco_original_centavos`, nunca usado no total); exibido no card e no modal do produto com selo de desconto.
 - [ ] 2.13 Fotos reais dos produtos: reunir/tirar, salvar numa pasta compartilhada (Drive) e preencher os nomes de arquivo em `docs/levantamento-cardapio.md` `👤 Lucas + Bruno`
+- [ ] 2.16 **Teste manual de acessibilidade no celular:** só teclado, leitor de tela (TalkBack/VoiceOver), zoom 200% e fonte grande, sol forte. Checklist em `docs/acessibilidade.md` `👤 Lucas`
+- [ ] 2.14 **Decidir e modelar o Brownie de Chocolate.** Está "Inativo" como item avulso, mas aparece como sobremesa dentro dos combos. Hoje, no nosso sistema, uma opção que aponta para produto inativo é tratada como **esgotada** (não some, aparece bloqueada). Se for exclusivo de combo, precisamos separar "aparece no cardápio" de "pode ser vendido como parte de combo"; se for resquício, sai das opções antes da carga (2.2) `👤 Rafael + Bruno`
+- [ ] 2.15 Carga do cardápio real no banco de **produção** (mesmo script da 2.2, só depois de o `deguste-prod` existir) `👤 Rafael` `⏳ depende: 2.2, 0.7`
 
 **Saída:** Bruno e Lucas navegam o cardápio inteiro no celular e aprovam preços/fotos.
 
@@ -138,25 +152,43 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
+  - ✔ Provedor de distância implementado (`app/src/server/distanciaOrs.ts`, OpenRouteService: geocodifica e calcula rota; chave no cabeçalho; qualquer falha recusa o pedido em vez de chutar frete). Testado com respostas simuladas.
+  - Falta: validar com a `ORS_API_KEY` real e o endereço da loja com coordenadas, e a regra definitiva (P4).
   - ✔ Pronto e testado (`app/src/domain/frete.ts`): três modelos de cobrança (por km, faixas de km, por bairro), raio máximo, recusa em vez de chutar preço.
   - Falta: serviço de geocodificação/rotas real (OpenRouteService) e a regra definitiva da loja (P4).
 - [ ] 3.6 Validação de área de atendimento ("consulte localidades"): endereço fora do raio é recusado com mensagem `👤 Rafael`
-- [ ] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
-  - ✔ Pronto e testado (`app/src/domain/pedido.ts`, `pedidoBanco.ts`): leitura defensiva da entrada, preço/frete/total calculados no servidor, recusas (loja fechada, esgotado, opção inválida, mínimo, fora da área) e linhas prontas para o banco, validadas contra o schema real em `supabase/tests/contrato-pedido.test.ts`.
-  - Falta: a Netlify Function que lê o cardápio do Supabase (só itens ativos), chama essa lógica e grava (precisa do Supabase de dev, 0.7).
+- [x] 3.7 Function `criar-pedido`: **recalcula preço e frete no servidor** (nunca confiar no valor vindo do navegador), **recusa pedido com a loja fechada ou opção obrigatória faltando** (o bloqueio da tela é só conveniência), grava pedido + itens + componentes `👤 Rafael`
+  - ✔ Função pronta e testada (164 testes do app + 50 do banco): `app/src/server/pedidosHandler.ts` + `app/netlify/functions/pedidos.ts`. Empacotada com esbuild e chamada em Node (405 / 503 sem configuração / 400). Recalcula preço e frete, recusa loja fechada, esgotado e opção faltando, ignora preço vindo do navegador, grava pelo `criar_pedido` (atômico) e não vaza detalhe interno. Ver `docs/arquitetura-pedido.md`.
+  - A verificação de ponta a ponta contra o banco real é a tarefa 3.15.
 - [ ] 3.8 Function `gerar-pix`: cria cobrança no gateway, devolve QR code/copia-e-cola `👤 Rafael`
+  - ✔ Lado do banco pronto e testado: `registrar_cobranca_pix` (idempotente, uma cobrança por pedido) e `acompanhar_pedido` devolvendo o Pix e o prazo. Ver `docs/pagamento.md`.
+  - ✔ Function `gerar-pix` (`app/src/server/pix/`): valor sempre do banco, devolve o mesmo Pix se pedir de novo, limite por IP, erro do gateway sem vazar detalhe; adaptador do Mercado Pago (candidato) atrás de uma interface de gateway. Testada com gateway simulado e o banco real.
+  - ✔ **Tela do Pix** na página do pedido: QR desenhado no navegador (conferido com um leitor de QR de verdade), copia e cola, prazo, "Já paguei", prazo vencido e falha com "tentar de novo". Ver `docs/pagamento.md`.
+  - Falta: validar no **sandbox real** (depende de 3.1/3.2).
 - [ ] 3.9 Function `webhook-pix`: valida assinatura do gateway, marca pedido `pago` de forma **idempotente** (webhook repetido não duplica nada) `👤 Rafael`
-- [ ] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
-  - ✔ Pronto: tela de pedido registrado com a linha do tempo (entrega e retirada) e revisão do total antes de confirmar (`app/src/pages/Checkout.tsx`).
-  - Falta: status reais em tempo real (Supabase Realtime), Pix com QR code e expiração (3.8/3.9).
-- [ ] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
+  - ✔ Lado do banco pronto e testado: `confirmar_pagamento_pix` idempotente, com trava de valor exato e tratamento de pagamento após cancelamento/expiração (vai para estorno, não para a cozinha). Ver `docs/pagamento.md`.
+  - ✔ Function `webhook-pix`: confere a assinatura (HMAC), **consulta o gateway** em vez de confiar no aviso, confirma no banco; repetição = 200; falha = 502 para o gateway tentar de novo. Função agendada `expirar-pedidos` (a cada 5 min).
+  - Falta: validar a assinatura e o formato com o **sandbox real** do Mercado Pago (depende de 3.1/3.2).
+- [x] 3.10 Tela de acompanhamento do pedido para o cliente (aguardando pagamento → pago → em preparo…), com timeout de Pix expirado `👤 Rafael`
+  - ✔ Pronto e testado: página `/acompanhar/<token>` (`app/src/pages/Acompanhar.tsx`) sobre `acompanhar_pedido` do banco. Atualiza a cada 10 s (pausa em segundo plano, atualiza ao voltar, para quando termina), mantém o último status se a rede falhar, trata cancelado e Pix expirado, e anuncia mudanças a leitores de tela. O checkout entrega o link ao confirmar. Modo simulado para desenvolvimento (`docs/arquitetura-pedido.md`).
+  - A expiração real do Pix e a confirmação do pagamento chegam com 3.8 e 3.9; a tela já mostra os estados `expirado`, `falhou` e `pago`.
+- [x] 3.11 Rate limiting nas functions (anti-spam de pedidos falsos) `👤 Rafael`
+  - ✔ Banco: até 3 pedidos aguardando pagamento por telefone em 15 min. Função: 6 confirmações e 30 cálculos por minuto por IP e corpo de no máximo 20 KB. Testado.
+  - Limite: o do IP vale por instância da função (best-effort); o do telefone vale para todos, pois fica no banco.
 - [ ] 3.12 Páginas legais publicadas: Política de Privacidade, Termos de Uso, Política de Cancelamento, FAQ, **banner de cookies** *(texto: Lucas com apoio jurídico/modelos; implementação: Rafael)* `👤 Lucas + Rafael`
   - Estrutura implementada pelo Rafael (`app/src/pages/legal/`, `docs/paginas-legais.md`). Lucas resolveu 7 das 11 pendências (19/09/2026): razão social, canal/encarregado LGPD, prazos de reembolso e reclamação, regras de cancelamento e cliente ausente aprovadas, e forma de pagamento (Pix + pagamento na entrega em dinheiro/cartão — **atenção Rafael**: isso precisa de uma opção nova no checkout, hoje ele só cobre Pix).
   - Ainda falta pra "publicar" de verdade (tirar do modo rascunho): gateway Pix (3.1), serviço de mapas/rotas (3.5), prazo de retenção de dados (Lucas + contador) e revisão jurídica final de todo o texto.
   - ✔ Rascunho implementado e testado: Política de Privacidade, Termos de Uso, Cancelamento e reembolso, FAQ, rodapé com identificação do negócio e aviso de cookies (`app/src/pages/legal/`, `app/src/config/negocio.ts`). Todas as páginas mostram "Rascunho em revisão" até a trava `CONTEUDO_LEGAL_REVISADO` ser ligada.
   - Falta: decidir as pendências (P11 e P12 e a lista em `docs/paginas-legais.md`), revisão jurídica e virar a trava. O teste impede publicar com "[a definir]" restante.
 - [ ] 3.13 LGPD: caminho para o cliente pedir exclusão dos dados (pode ser e-mail/WhatsApp documentado, mas precisa existir) `👤 Rafael + Lucas`
-- [ ] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
+  - ✔ Parte técnica e procedimento prontos e testados: `exportar_dados_cliente` (acesso/portabilidade) e `anonimizar_cliente` (eliminação, mantendo pedidos sem dado pessoal; recusa se houver pedido em andamento). Roteiro para a equipe em `docs/lgpd-direitos.md`.
+  - Falta: definir e publicar o **canal** para o cliente pedir (P11) e a revisão jurídica; aplicar a migration no dev (1.14).
+- [x] 3.14 Testes automatizados do fluxo pedido→pagamento (incluindo webhook duplicado e pagamento após expiração) `👤 Rafael`
+  - ✔ Parcial: fluxo pedido → acompanhamento → cozinha de ponta a ponta com o handler real e o banco real (`supabase/tests/fluxo-completo.test.ts`), incluindo valores forjados, loja fechada, anti-spam e combo com escolha repetida somando vendas por produto real.
+  - ✔ Parte do **banco** do pagamento testada (`supabase/tests/pagamento-pix.test.ts`, 21 testes): aviso duplicado, valor divergente, pagamento após cancelamento e após expiração, expiração automática, permissões.
+  - ✔ **De ponta a ponta** (`supabase/tests/fluxo-pix.test.ts`, 8 testes): functions reais + banco real + gateway simulado, incluindo webhook duplicado (até simultâneo), assinatura falsa, valor divergente e pagamento após expiração.
+  - Falta: repetir o cenário no **sandbox real** quando 3.2 existir.
+- [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
 
@@ -168,21 +200,37 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 **Painel da cozinha / gestão de pedidos:**
 
-- [ ] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado) `👤 Rafael`
-- [ ] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
-- [ ] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
-- [ ] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
-- [ ] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
+- [x] 4.1 Painel de pedidos (Supabase Realtime): colunas por status (novo → em preparo → pronto → saiu → entregue/retirado) `👤 Rafael`
+  - ✔ Tela `/cozinha` (só admin): 3 colunas, cartão com itens, escolhas do combo, observações em destaque, cliente, endereço, tempo de espera e cor de atraso (70%/100% de 30 min); botão principal avança **uma etapa por vez**; mudança protegida contra conflito (se outra pessoa já mexeu, avisa e atualiza). Ver `docs/cozinha.md`.
+- [x] 4.2 Alerta sonoro + destaque visual para pedido novo; funciona em tablet `👤 Rafael`
+  - ✔ Três bipes ao chegar pedido novo, repetindo a cada 20 s enquanto houver pedido novo sem atendimento; botão "Ativar som" (o navegador só libera áudio após um toque) que lembra a escolha; layout de tablet. Falta só testar num tablet real (4.13).
+- [x] 4.3 Aceitar/recusar pedido, marcar esgotado rápido, cancelar com motivo `👤 Rafael`
+  - ✔ Aceitar, recusar e cancelar com motivo obrigatório (gravado no pedido) prontos e testados.
+  - ✔ **Marcar esgotado rápido**: atalho "Marcar esgotado" no topo da cozinha leva à lista de produtos (1.9), com o botão de um toque.
+- [x] 4.4 Reconexão automática do Realtime + indicador visível "conectado/desconectado" (cozinha precisa saber se está cega) `👤 Rafael`
+  - ✔ Indicador no topo (vira faixa vermelha quando cai), a biblioteca reconecta sozinha e a tela ainda consulta o banco a cada 15 s e ao voltar para a aba; se a consulta falha, mantém os pedidos e avisa que podem estar desatualizados.
+- [x] 4.5 Estimativa de tempo de preparo/entrega mostrada ao cliente `👤 Rafael`
+  - ✔ Tempo de preparo (configurável em 1.12) aparece no **cardápio**, na **confirmação** do pedido e na **página do pedido** ("cerca de N min depois do pagamento confirmado, mais o tempo da entrega"; some quando o pedido fica pronto).
+  - Evolução possível: somar o tempo de deslocamento pela distância (quando a 3.5 for validada com a chave real).
 
 **Agente de impressão (`printer-agent/`):**
 
 - [ ] 4.6 **Confirmar modelo/marca da impressora térmica atual** — bloqueia a escolha da biblioteca ESC/POS `👤 Lucas`
 - [ ] 4.7 Agente Node.js: autentica na API, escuta pedidos novos (Realtime ou polling), formata recibo ESC/POS (`node-thermal-printer`) `👤 Rafael` `⏳ depende: 4.6`
+  - ✔ Agente implementado e testado (`printer-agent/`, 43 testes): laço pega → imprime → confirma; transportes por rede (testado com servidor TCP de verdade, inclusive impressora que nunca fecha a conexão), impressora USB compartilhada do Windows e arquivo; acentos CP860 com modo ASCII de segurança; conta própria (sem `service_role`).
+  - Falta: **testar em impressora real** (modelo: P2) e ligar no `deguste-dev` (conta do agente + migration da fila, 1.14).
 - [ ] 4.8 Layout do recibo aprovado por Bruno (itens, adicionais, observações em destaque, endereço, forma de pagamento, canal) `👤 Bruno + Lucas`
-- [ ] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
-- [ ] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
+  - ✔ Proposta de layout implementada (`printer-agent/src/recibo.js`) e um exemplo em `docs/impressao.md`. Falta o **Bruno aprovar** (ou pedir ajustes).
+- [x] 4.9 **Fila e confirmação de impressão**: pedido só é "impresso" quando o agente confirma; falha → retentativa → alerta no painel ("pedido #123 NÃO imprimiu") `👤 Rafael`
+  - ✔ Lado do banco pronto e testado (21 testes): entrada automática ao pagar, reserva de 90 s, confirmação obrigatória, tentativas com espera crescente, esgota em 5 e vira `falhou`, alerta em `impressoes_com_problema`. Ver `docs/impressao.md`.
+  - ✔ Agente que consome a fila (4.7) e faixa de alerta na tela da cozinha ("N pedidos não saíram impressos", com botão Reimprimir) prontos. A validação com impressora real fica na 4.13.
+- [x] 4.10 Reimpressão manual de qualquer pedido pelo painel `👤 Rafael`
+  - ✔ Função `reimprimir_pedido` (só admin) pronta e testada; a reimpressão vem marcada no recibo.
+  - ✔ Botão "Reimprimir" em cada cartão do painel da cozinha.
 - [ ] 4.11 Agente instalado como serviço que **inicia junto com o Windows e reinicia sozinho** se travar `👤 Rafael`
+  - ✔ `printer-agent/iniciar-agente.bat` religa o agente se ele fechar ou travar; passo a passo para iniciar com o Windows no `printer-agent/README.md`. Falta testar no PC da cozinha.
 - [ ] 4.12 Guia de instalação/troubleshooting para a cozinha (1 página, com prints) — mitiga o "ponto único de manutenção" `👤 Rafael + Lucas`
+  - ✔ Rascunho do guia (instalação, teste, tabela de problemas) em `printer-agent/README.md`. Falta validar na cozinha, com prints.
 - [ ] 4.13 Teste em condições reais: queda de internet, impressora sem papel/desligada, PC reiniciado `👤 Lucas + Rafael`
 
 **Saída:** pedido de teste pago **sai impresso** na impressora real da cozinha.
@@ -199,8 +247,12 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [ ] 5.2 Backup: exportação periódica do banco fora do Supabase + **restauração testada de verdade** em projeto vazio `👤 Rafael`
 - [ ] 5.3 Monitoramento: alerta (e-mail/WhatsApp para Rafael) quando uma function falha ou o agente de impressão fica offline `👤 Rafael`
 - [ ] 5.4 Mitigação do pause do Supabase free tier (projeto pausa após ~1 semana sem atividade — confirmar regra vigente; loja fecha seg/ter, mas feriado/férias podem passar disso) → rotina de "keep-alive" `👤 Rafael`
+  - ✔ Rotina diária no GitHub (`.github/workflows/manter-banco-ativo.yml`) que consulta o banco todo dia e **avisa por e-mail se ele não responder**; a consulta foi conferida contra o `deguste-dev` (HTTP 200). Passo a passo em `docs/manter-banco-ativo.md`.
+  - Falta: o Rafael cadastrar as 2 variáveis no GitHub (`SUPABASE_URL` e `SUPABASE_ANON_KEY`, do projeto de **produção** quando existir).
 - [ ] 5.5 Plano de contingência impresso na cozinha: sistema fora → WhatsApp manual (número atual) + como avisar clientes `👤 Lucas + Bruno`
+  - ✔ Rascunho em `docs/contingencia.md` (aviso aos clientes, pedidos manuais no papel, Pix manual, entregas, volta ao normal). Falta preencher a chave Pix e os contatos, validar com o Bruno e imprimir.
 - [ ] 5.6 Runbook de incidentes (`docs/runbook.md`): "não imprime", "pedido não chegou", "Pix pago mas pedido não confirmou", quem acionar `👤 Rafael + Lucas`
+  - ✔ `docs/runbook.md`: 11 incidentes (não imprime, pedido não chegou, Pix pago sem confirmar, estorno, cozinha sem tempo real, site fora, loja aberta/fechada errado, cardápio errado, Supabase pausado, erro misterioso, LGPD) com "agora" e "investigar depois". Falta preencher a tabela de contatos.
 - [ ] 5.7 Backup de hardware: impressora reserva ou plano B de impressão (imprimir pelo navegador no PC) `👤 Lucas`
 - [ ] 5.8 Treinamento de Bruno e Lucas (30–45 min, no local) `👤 Rafael`
 - [ ] 5.9 Ativar 2FA nas contas de serviço que guardam dados de clientes (Supabase, GitHub) — antes só de dev, sem pressa; obrigatório antes do go-live `👤 Lucas`
@@ -227,8 +279,10 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 Ordem sugerida por valor operacional. Cada item entra por PR próprio.
 
-- [ ] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
-- [ ] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
+- [x] 6.1 **Link de rota para o entregador** (Google Maps/Waze) por pedido, botão "copiar/enviar por WhatsApp" `👤 Rafael`
+  - ✔ Nos pedidos de entrega da cozinha: **Rota no mapa** (Google Maps), **Waze** e **Enviar ao entregador (WhatsApp)**, com o texto pronto (pedido, cliente, telefone, endereço, referência e rota; sem valores nem itens).
+- [x] 6.2 **Relatórios** de vendas dia/semana/mês, por canal, por horário de pico, produtos mais vendidos — **contando combos e canais pelo `produto_id` real** (D3) `👤 Rafael`
+  - ✔ Tela `/admin/relatorios`: resumo (pedidos, faturamento, ticket médio, cancelados), por dia, horário de pico, canal/tipo e produtos mais vendidos, com períodos prontos e personalizado. Conta feita numa função do banco (`relatorio_vendas`, migration `20260918210000`), testada com pedidos reais (fuso da Bahia, combos, cancelados). Regras em `docs/relatorios.md`. **Exportação para planilha (CSV)** sem dado pessoal e com proteção contra injeção de fórmula.
 - [ ] 6.3 Histórico de pedidos por cliente (telefone) + clientes recorrentes `👤 Rafael`
 - [ ] 6.4 **Mensagens automáticas de status por WhatsApp** — depende da decisão da seção 8 (custo!) `👤 Rafael`
 - [ ] 6.5 Cupons de desconto (validade, uso único, valor mínimo, anti-abuso) `👤 Rafael`

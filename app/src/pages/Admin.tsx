@@ -1,34 +1,82 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { useEffect } from 'react'
+import { useMemo } from 'react'
+import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import PortaoAdmin from '../components/PortaoAdmin.tsx'
+import { criarCatalogoAdminSupabase, type ApiCatalogoAdmin } from '../data/catalogoAdminApi.ts'
+import { criarExportacaoSupabase, type ApiExportacao } from '../data/exportacaoApi.ts'
+import { criarRelatoriosSupabase, type ApiRelatorios } from '../data/relatoriosApi.ts'
+import { criarFotosAdminSupabase, type ApiFotosAdmin } from '../data/fotosAdminApi.ts'
+import { criarOpcoesAdminSupabase, type ApiOpcoesAdmin } from '../data/opcoesAdminApi.ts'
+import { criarLojaAdminSupabase, type ApiLojaAdmin } from '../data/lojaAdminApi.ts'
+import { supabase } from '../lib/supabase.ts'
 import AuthProvider from '../state/AuthProvider.tsx'
 import { useAuth } from '../state/useAuth.ts'
-import Login from './admin/Login.tsx'
+import Categorias from './admin/Categorias.tsx'
+import Loja from './admin/Loja.tsx'
+import OpcoesProduto from './admin/OpcoesProduto.tsx'
+import Relatorios from './admin/Relatorios.tsx'
+import Produtos from './admin/Produtos.tsx'
 import '../cardapio.css'
 import '../admin.css'
 
-/** O painel não deve aparecer em buscadores. */
-function useNaoIndexar() {
-  useEffect(() => {
-    const meta = document.createElement('meta')
-    meta.name = 'robots'
-    meta.content = 'noindex, nofollow'
-    document.head.appendChild(meta)
-    return () => meta.remove()
-  }, [])
+const EM_CONSTRUCAO = [{ nome: 'Fotos', tarefa: '1.11' }]
+
+function Inicio() {
+  return (
+    <>
+      <p>Escolha o que quer cuidar:</p>
+      <ul className="admin-secoes">
+        <li>
+          <Link to="/admin/categorias">Categorias</Link>
+        </li>
+        <li>
+          <Link to="/admin/produtos">Produtos</Link>{' '}
+          <span className="dica">(inclui as opções do “monte o seu” e marcar esgotado)</span>
+        </li>
+        <li>
+          <Link to="/admin/relatorios">Relatórios de vendas</Link>{' '}
+          <span className="dica">(dia, canal, horário de pico, mais vendidos)</span>
+        </li>
+        <li>
+          <Link to="/admin/loja">Configurações da loja</Link>{' '}
+          <span className="dica">(horários, abrir/fechar, entrega)</span>
+        </li>
+        <li>
+          <Link to="/cozinha">Painel da cozinha</Link>
+        </li>
+      </ul>
+      <h2>Em construção</h2>
+      <ul className="admin-secoes">
+        {EM_CONSTRUCAO.map((s) => (
+          <li key={s.tarefa}>
+            {s.nome} <span className="dica">tarefa {s.tarefa}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
 }
 
-const SECOES = [
-  { nome: 'Categorias', tarefa: '1.8' },
-  { nome: 'Produtos', tarefa: '1.9' },
-  { nome: 'Opções do "monte o seu"', tarefa: '1.10' },
-  { nome: 'Fotos', tarefa: '1.11' },
-  { nome: 'Configurações da loja', tarefa: '1.12' },
-]
-
-function Painel({ email }: { email: string }) {
+function Painel({
+  email,
+  api,
+  apiLoja,
+  apiOpcoes,
+  apiFotos,
+  apiRelatorios,
+  apiExportacao,
+}: {
+  email: string
+  api: ApiCatalogoAdmin | null
+  apiLoja: ApiLojaAdmin | null
+  apiOpcoes: ApiOpcoesAdmin | null
+  apiFotos: ApiFotosAdmin | null
+  apiRelatorios: ApiRelatorios | null
+  apiExportacao: ApiExportacao | null
+}) {
   const { sair } = useAuth()
   return (
-    <main className="admin">
+    <main className="admin admin-largo">
       <header className="admin-topo">
         <div>
           <h1>Painel admin</h1>
@@ -38,73 +86,95 @@ function Painel({ email }: { email: string }) {
           Sair
         </button>
       </header>
-      <h2>Em construção</h2>
-      <ul className="admin-secoes">
-        {SECOES.map((s) => (
-          <li key={s.tarefa}>
-            {s.nome} <span className="dica">tarefa {s.tarefa}</span>
-          </li>
-        ))}
-      </ul>
+      <nav aria-label="Seções do painel" className="admin-nav">
+        <NavLink to="/admin" end>
+          Início
+        </NavLink>
+        <NavLink to="/admin/categorias">Categorias</NavLink>
+        <NavLink to="/admin/produtos">Produtos</NavLink>
+        <NavLink to="/admin/relatorios">Relatórios</NavLink>
+        <NavLink to="/admin/loja">Loja</NavLink>
+        <NavLink to="/cozinha">Cozinha</NavLink>
+      </nav>
+      <Routes>
+        <Route index element={<Inicio />} />
+        {api && <Route path="categorias" element={<Categorias api={api} />} />}
+        {api && (
+          <Route path="produtos" element={<Produtos api={api} fotos={apiFotos ?? undefined} />} />
+        )}
+        {apiOpcoes && (
+          <Route path="produtos/:id/opcoes" element={<OpcoesProduto api={apiOpcoes} />} />
+        )}
+        {apiRelatorios && (
+          <Route
+            path="relatorios"
+            element={<Relatorios api={apiRelatorios} exportacao={apiExportacao ?? undefined} />}
+          />
+        )}
+        {apiLoja && <Route path="loja" element={<Loja api={apiLoja} />} />}
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
     </main>
   )
 }
 
-function Porteiro() {
-  const { estado, sair } = useAuth()
-  useNaoIndexar()
-
-  switch (estado.tipo) {
-    case 'carregando':
-      return (
-        <main className="admin-login">
-          <p role="status">Verificando acesso…</p>
-        </main>
-      )
-    case 'sem_banco':
-      return (
-        <main className="admin-login">
-          <h1>Painel admin</h1>
-          <p role="alert" className="erros">
-            O sistema não está conectado ao banco. Confira o arquivo <code>.env.local</code>.
-          </p>
-        </main>
-      )
-    case 'deslogado':
-      return <Login />
-    case 'sem_permissao':
-      return (
-        <main className="admin-login">
-          <h1>Sem acesso</h1>
-          <p role="alert" className="erros">
-            A conta {estado.email} não tem permissão para usar o painel. Peça a um administrador
-            para liberar o seu acesso.
-          </p>
-          <button type="button" className="btn-secundario" onClick={() => void sair()}>
-            Sair
-          </button>
-        </main>
-      )
-    case 'erro':
-      return (
-        <main className="admin-login">
-          <p role="alert" className="erros">
-            {estado.mensagem}
-          </p>
-          <button type="button" className="btn-secundario" onClick={() => window.location.reload()}>
-            Tentar de novo
-          </button>
-        </main>
-      )
-    case 'admin':
-      return <Painel email={estado.email} />
-  }
-}
-
-export default function Admin({ cliente }: { cliente?: SupabaseClient | null }) {
+export default function Admin({
+  cliente,
+  api,
+  apiLoja,
+  apiOpcoes,
+  apiFotos,
+  apiRelatorios,
+  apiExportacao,
+}: {
+  cliente?: SupabaseClient | null
+  /** Injetáveis para teste; em produção usam o Supabase. */
+  api?: ApiCatalogoAdmin
+  apiLoja?: ApiLojaAdmin
+  apiOpcoes?: ApiOpcoesAdmin
+  apiFotos?: ApiFotosAdmin
+  apiRelatorios?: ApiRelatorios
+  apiExportacao?: ApiExportacao
+}) {
+  const apiFinal = useMemo(
+    () => api ?? (supabase ? criarCatalogoAdminSupabase(supabase) : null),
+    [api],
+  )
+  const apiLojaFinal = useMemo(
+    () => apiLoja ?? (supabase ? criarLojaAdminSupabase(supabase) : null),
+    [apiLoja],
+  )
+  const apiOpcoesFinal = useMemo(
+    () => apiOpcoes ?? (supabase ? criarOpcoesAdminSupabase(supabase) : null),
+    [apiOpcoes],
+  )
+  const apiFotosFinal = useMemo(
+    () => apiFotos ?? (supabase ? criarFotosAdminSupabase(supabase) : null),
+    [apiFotos],
+  )
+  const apiRelatoriosFinal = useMemo(
+    () => apiRelatorios ?? (supabase ? criarRelatoriosSupabase(supabase) : null),
+    [apiRelatorios],
+  )
+  const apiExportacaoFinal = useMemo(
+    () => apiExportacao ?? (supabase ? criarExportacaoSupabase(supabase) : null),
+    [apiExportacao],
+  )
   return (
     <AuthProvider cliente={cliente}>
-      <Porteiro />
+      <PortaoAdmin titulo="Painel admin">
+        {({ email }) => (
+          <Painel
+            email={email}
+            api={apiFinal}
+            apiLoja={apiLojaFinal}
+            apiOpcoes={apiOpcoesFinal}
+            apiFotos={apiFotosFinal}
+            apiRelatorios={apiRelatoriosFinal}
+            apiExportacao={apiExportacaoFinal}
+          />
+        )}
+      </PortaoAdmin>
     </AuthProvider>
   )
 }

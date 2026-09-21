@@ -47,9 +47,16 @@ export default function ProdutoCard({
             )}
           </span>
         </span>
-        {/* Sem foto ainda (tarefa 2.1). Quando houver fotoUrl, usar <img alt="{nome}" loading="lazy">. */}
         {produto.fotoUrl ? (
-          <img className="produto-foto" src={produto.fotoUrl} alt={produto.nome} loading="lazy" />
+          <img
+            className="produto-foto"
+            src={produto.fotoMiniaturaUrl ?? produto.fotoUrl}
+            alt={produto.nome}
+            width={84}
+            height={84}
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <span className="produto-foto placeholder" aria-hidden="true">
             🍔

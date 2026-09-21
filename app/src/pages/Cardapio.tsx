@@ -42,16 +42,17 @@ export default function Cardapio() {
             {descreverEstado(estado)}
           </p>
           <p className="sub">Hamburgueria. Sem miséria! 🍔🤘</p>
+          <p className="sub">Preparo em cerca de {loja.tempoPreparoMin} min depois do pagamento.</p>
         </div>
       </header>
 
       {ehExemplo && (
-        <p className="aviso-exemplo">
+        <aside className="aviso-exemplo" aria-label="Aviso sobre os dados">
           Dados de exemplo — o cardápio real entra quando for cadastrado no sistema.
-        </p>
+        </aside>
       )}
 
-      <div className="barra-nav">
+      <section className="barra-nav" aria-label="Busca e categorias">
         <div className="pagina">
           <label className="busca">
             <span className="so-leitor">Buscar no cardápio</span>
@@ -70,7 +71,7 @@ export default function Cardapio() {
             ))}
           </nav>
         </div>
-      </div>
+      </section>
 
       <main className="pagina conteudo">
         {!estado.aberta && (

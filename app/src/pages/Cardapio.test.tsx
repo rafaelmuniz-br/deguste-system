@@ -32,6 +32,13 @@ describe('Cardápio público', () => {
     expect(screen.getByRole('button', { name: /Brownie/ })).toBeDisabled()
   })
 
+  it('informa o tempo de preparo (vindo da configuração da loja)', async () => {
+    await abrir()
+    expect(
+      await screen.findByText(/Preparo em cerca de 30 min depois do pagamento/),
+    ).toBeInTheDocument()
+  })
+
   it('busca sem diferenciar acento e esconde categorias vazias', async () => {
     const { user } = await abrir()
     await user.type(screen.getByRole('searchbox'), 'boladao')

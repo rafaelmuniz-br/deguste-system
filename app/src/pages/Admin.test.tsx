@@ -1,7 +1,10 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+import { catalogoAdminFalso, categoria, produto } from '../test/catalogoAdminFalso.ts'
+import { grupo, opcao, opcoesAdminFalso } from '../test/opcoesAdminFalso.ts'
 import Admin from './Admin.tsx'
 
 // Supabase FALSO que emite os mesmos eventos do real: INITIAL_SESSION ao assinar, SIGNED_IN/SIGNED_OUT.
@@ -76,13 +79,21 @@ async function entrar(user: ReturnType<typeof userEvent.setup>, email: string, s
 
 describe('Painel admin: login', () => {
   it('sem credenciais do banco: avisa em vez de quebrar', async () => {
-    render(<Admin cliente={null} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={null} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText(/não está conectado ao banco/)).toBeInTheDocument()
   })
 
   it('sem sessão: mostra o formulário de login', async () => {
     const { cliente } = criarClienteFalso()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByRole('heading', { name: 'Painel admin' })).toBeInTheDocument()
     expect(screen.getByLabelText('E-mail')).toBeInTheDocument()
     expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'password')
@@ -91,7 +102,11 @@ describe('Painel admin: login', () => {
   it('admin com e-mail e senha corretos entra no painel e pode sair', async () => {
     const { cliente, signOut } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'lucas@deguste.com', 'senha-certa-1')
 
     expect(await screen.findByText('Logado como lucas@deguste.com')).toBeInTheDocument()
@@ -105,7 +120,11 @@ describe('Painel admin: login', () => {
   it('senha errada e e-mail inexistente recebem a MESMA mensagem (não revela quem tem conta)', async () => {
     const { cliente } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
 
     await entrar(user, 'lucas@deguste.com', 'errada')
     const primeira = (await screen.findByRole('alert')).textContent
@@ -122,7 +141,11 @@ describe('Painel admin: login', () => {
   it('limpa a senha depois de errar e devolve o foco à mensagem de erro', async () => {
     const { cliente } = criarClienteFalso({ contas })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'lucas@deguste.com', 'errada')
     const alerta = await screen.findByRole('alert')
     expect(screen.getByLabelText('Senha')).toHaveValue('')
@@ -132,7 +155,11 @@ describe('Painel admin: login', () => {
   it('traduz o limite de tentativas do Supabase', async () => {
     const { cliente } = criarClienteFalso({ codigoErroLogin: 'over_request_rate_limit' })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'x@y.com', 'senha')
     expect(await screen.findByText(/Muitas tentativas/)).toBeInTheDocument()
   })
@@ -142,7 +169,11 @@ describe('Painel admin: quem pode entrar', () => {
   it('usuário logado que NÃO é admin vê "Sem acesso" e nenhum conteúdo do painel', async () => {
     const { cliente } = criarClienteFalso({ contas, admins: ['u-lucas'] })
     const user = userEvent.setup()
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await entrar(user, 'visitante@exemplo.com', 'outra-senha-2')
 
     expect(await screen.findByRole('heading', { name: 'Sem acesso' })).toBeInTheDocument()
@@ -158,7 +189,11 @@ describe('Painel admin: quem pode entrar', () => {
       sessao: { id: 'u-lucas', email: 'lucas@deguste.com' },
       admins: ['u-lucas'],
     })
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText('Logado como lucas@deguste.com')).toBeInTheDocument()
     expect(screen.queryByLabelText('Senha')).not.toBeInTheDocument()
   })
@@ -169,7 +204,11 @@ describe('Painel admin: quem pode entrar', () => {
       admins: ['u-lucas'],
       falhaAoConsultarAdmins: true,
     })
-    render(<Admin cliente={cliente} />)
+    render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     expect(await screen.findByText(/Não conseguimos confirmar seu acesso/)).toBeInTheDocument()
     expect(screen.queryByText(/Em construção/)).not.toBeInTheDocument()
   })
@@ -178,7 +217,11 @@ describe('Painel admin: quem pode entrar', () => {
 describe('Painel admin: buscadores', () => {
   it('pede para não ser indexado e remove a marca ao sair da página', async () => {
     const { cliente } = criarClienteFalso()
-    const { unmount } = render(<Admin cliente={cliente} />)
+    const { unmount } = render(
+      <MemoryRouter>
+        <Admin cliente={cliente} />
+      </MemoryRouter>,
+    )
     await screen.findByLabelText('E-mail')
     expect(document.querySelector('meta[name="robots"]')).toHaveAttribute(
       'content',
@@ -186,5 +229,108 @@ describe('Painel admin: buscadores', () => {
     )
     unmount()
     expect(document.querySelector('meta[name="robots"]')).toBeNull()
+  })
+})
+
+describe('Painel admin: navegação entre as seções', () => {
+  const sessaoAdmin = { sessao: { id: 'u-lucas', email: 'lucas@deguste.com' }, admins: ['u-lucas'] }
+
+  function abrirEm(rota: string, opcoes: Opcoes = sessaoAdmin) {
+    const { cliente } = criarClienteFalso(opcoes)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    render(
+      <MemoryRouter initialEntries={[rota]}>
+        <Routes>
+          <Route path="/admin/*" element={<Admin cliente={cliente} api={api} />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    return api
+  }
+
+  it('o início leva para categorias e produtos, e o menu marca a seção atual', async () => {
+    const user = userEvent.setup()
+    abrirEm('/admin')
+    await screen.findByText('Logado como lucas@deguste.com')
+
+    const menu = screen.getByRole('navigation', { name: 'Seções do painel' })
+    await user.click(within(menu).getByRole('link', { name: 'Produtos' }))
+    expect(await screen.findByRole('heading', { name: 'Produtos' })).toBeInTheDocument()
+    expect(await screen.findByText('Jackfino')).toBeInTheDocument()
+    expect(menu.querySelector('[aria-current="page"]')).toHaveTextContent('Produtos')
+
+    await user.click(within(menu).getByRole('link', { name: 'Categorias' }))
+    expect(await screen.findByRole('heading', { name: 'Categorias' })).toBeInTheDocument()
+  })
+
+  it('endereço direto de uma seção abre a seção (depois do login)', async () => {
+    abrirEm('/admin/categorias')
+    expect(await screen.findByRole('heading', { name: 'Categorias' })).toBeInTheDocument()
+    expect(await screen.findByText('Hambúrgueres')).toBeInTheDocument()
+  })
+
+  it('a lista de produtos leva às opções do produto (monte o seu)', async () => {
+    const { cliente } = criarClienteFalso(sessaoAdmin)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    const { api: apiOpcoes } = opcoesAdminFalso([grupo({ opcoes: [opcao({ nome: 'Ao ponto' })] })])
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/admin/produtos']}>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={<Admin cliente={cliente} api={api} apiOpcoes={apiOpcoes} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await user.click(await screen.findByRole('link', { name: 'Opções de Jackfino' }))
+    expect(await screen.findByText('Ao ponto')).toBeInTheDocument()
+    expect(apiOpcoes.carregar).toHaveBeenCalledWith('p1')
+  })
+
+  it('o menu leva aos relatórios de vendas', async () => {
+    const { cliente } = criarClienteFalso(sessaoAdmin)
+    const { api } = catalogoAdminFalso([categoria()], [produto()])
+    const vendas = vi.fn(async () => ({
+      inicio: '2026-09-12',
+      fim: '2026-09-18',
+      resumo: { pedidos: 0, receitaCentavos: 0, ticketMedioCentavos: 0, cancelados: 0 },
+      porDia: [],
+      porCanal: [],
+      porTipo: [],
+      porHora: [],
+      produtos: [],
+    }))
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={<Admin cliente={cliente} api={api} apiRelatorios={{ vendas }} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await screen.findByText('Logado como lucas@deguste.com')
+    const menu = screen.getByRole('navigation', { name: 'Seções do painel' })
+    await user.click(within(menu).getByRole('link', { name: 'Relatórios' }))
+    expect(await screen.findByRole('heading', { name: 'Relatórios de vendas' })).toBeInTheDocument()
+    expect(vendas).toHaveBeenCalledTimes(1)
+  })
+
+  it('endereço que não existe volta ao início', async () => {
+    abrirEm('/admin/qualquer-coisa')
+    expect(await screen.findByText(/Escolha o que quer cuidar/)).toBeInTheDocument()
+  })
+
+  it('quem não é admin NÃO carrega categorias nem produtos', async () => {
+    const api = abrirEm('/admin/produtos', {
+      sessao: { id: 'u-visitante', email: 'visitante@exemplo.com' },
+      admins: [],
+    })
+    expect(await screen.findByRole('heading', { name: 'Sem acesso' })).toBeInTheDocument()
+    expect(api.listarProdutos).not.toHaveBeenCalled()
   })
 })

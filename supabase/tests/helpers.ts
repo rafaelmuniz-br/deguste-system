@@ -17,16 +17,34 @@ export async function criarBanco(): Promise<PGlite> {
   await db.exec(`
     create role anon nologin;
     create role authenticated nologin;
+    create role service_role nologin bypassrls;
     create schema auth;
     create table auth.users (id uuid primary key);
     create function auth.uid() returns uuid language sql stable as $$
       select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
     $$;
+    grant usage on schema public to service_role;
     grant usage on schema public, auth to anon, authenticated;
     grant execute on function auth.uid() to anon, authenticated;
     -- O Supabase concede tudo por padrão nas tabelas novas; quem protege é o RLS + revokes.
     alter default privileges in schema public grant all on tables to anon, authenticated;
+    -- O Supabase também concede EXECUTE em funções novas; funções sensíveis revogam isso na própria migration.
+    alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
     insert into auth.users (id) values ('${ADMIN_ID}'), ('${CLIENTE_LOGADO_ID}');
+    -- Storage mínimo, com o mesmo desenho do Supabase (RLS ligado em storage.objects): permite testar as políticas das fotos.
+    create schema storage;
+    create table storage.buckets (
+      id text primary key, name text not null, public boolean not null default false,
+      file_size_limit bigint, allowed_mime_types text[]
+    );
+    create table storage.objects (
+      id uuid primary key default gen_random_uuid(),
+      bucket_id text references storage.buckets (id), name text, owner uuid
+    );
+    alter table storage.objects enable row level security;
+    grant usage on schema storage to anon, authenticated;
+    grant select on storage.buckets to anon, authenticated;
+    grant select, insert, update, delete on storage.objects to anon, authenticated;
   `)
 
   const pasta = join(raiz, 'migrations')
@@ -38,7 +56,7 @@ export async function criarBanco(): Promise<PGlite> {
   return db
 }
 
-export type Papel = { role: 'anon' } | { role: 'authenticated'; userId: string }
+export type Papel = { role: 'anon' } | { role: 'service_role' } | { role: 'authenticated'; userId: string }
 
 /** Executa `fn` como se fosse uma requisição da API com o papel dado (RLS aplicado). */
 export async function como<T>(db: PGlite, papel: Papel, fn: () => Promise<T>): Promise<T> {
@@ -54,5 +72,6 @@ export async function como<T>(db: PGlite, papel: Papel, fn: () => Promise<T>): P
 }
 
 export const anon: Papel = { role: 'anon' }
+export const servico: Papel = { role: 'service_role' }
 export const admin: Papel = { role: 'authenticated', userId: ADMIN_ID }
 export const clienteLogado: Papel = { role: 'authenticated', userId: CLIENTE_LOGADO_ID }

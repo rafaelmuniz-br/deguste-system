@@ -1,10 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { BUCKET_FOTOS, caminhoMiniatura } from '../domain/fotos.ts'
 import type { Cardapio, ConfigLoja, GrupoOpcao, Produto } from '../domain/tipos.ts'
 
 // Lê o cardápio do Supabase com a chave PÚBLICA (anon). Quem decide o que o público enxerga é o
 // RLS do banco (supabase/migrations/*_rls.sql): só categorias/produtos/opções ativos.
 
 export type LinhaOpcao = {
+  /** Só vem preenchido quando lemos com a service role (o RLS já esconde os inativos do público). */
+  ativo?: boolean
   id: string
   nome: string
   preco_adicional_centavos: number
@@ -23,6 +26,7 @@ export type LinhaGrupo = {
 }
 
 export type LinhaProduto = {
+  ativo?: boolean
   id: string
   categoria_id: string
   nome: string
@@ -37,6 +41,7 @@ export type LinhaProduto = {
 }
 
 export type LinhaCategoria = {
+  ativo?: boolean
   id: string
   nome: string
   descricao: string | null
@@ -69,18 +74,26 @@ const porOrdem = <T extends { ordem: number; nome: string }>(a: T, b: T) =>
   a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR')
 
 /** Converte as linhas do banco (snake_case) no `Cardapio` usado pelo app. Função pura, testada. */
-export function montarCardapio(d: DadosDoBanco): Cardapio {
-  const categorias = [...d.categorias].sort(porOrdem).map((c) => ({
-    id: c.id,
-    nome: c.nome,
-    descricao: c.descricao ?? undefined,
-    ordem: c.ordem,
-  }))
+export function montarCardapio(
+  d: DadosDoBanco,
+  /** Caminho no Storage → endereço público. Sem isto, o cardápio usa o marcador no lugar da foto. */
+  urlFoto: (caminho: string) => string = () => '',
+): Cardapio {
+  // A service role (função de pedidos) ignora o RLS, então filtramos os inativos aqui também.
+  const categorias = [...d.categorias]
+    .filter((c) => c.ativo !== false)
+    .sort(porOrdem)
+    .map((c) => ({
+      id: c.id,
+      nome: c.nome,
+      descricao: c.descricao ?? undefined,
+      ordem: c.ordem,
+    }))
   const idsCategorias = new Set(categorias.map((c) => c.id))
 
   const produtos: Produto[] = [...d.produtos]
     // Produto de categoria inativa (que o público não enxerga) não deve aparecer sem seção.
-    .filter((p) => idsCategorias.has(p.categoria_id))
+    .filter((p) => p.ativo !== false && idsCategorias.has(p.categoria_id))
     .sort(porOrdem)
     .map((p) => ({
       id: p.id,
@@ -89,8 +102,8 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
       descricao: p.descricao ?? undefined,
       precoCentavos: p.preco_centavos,
       precoOriginalCentavos: p.preco_original_centavos ?? undefined,
-      // As fotos passam a existir com o upload (tarefa 1.11); por ora o cardápio usa o marcador.
-      fotoUrl: undefined,
+      fotoUrl: (p.foto_path && urlFoto(p.foto_path)) || undefined,
+      fotoMiniaturaUrl: (p.foto_path && urlFoto(caminhoMiniatura(p.foto_path))) || undefined,
       ehCombo: p.eh_combo,
       disponivel: p.disponivel,
       grupos: [...(p.grupos_opcao ?? [])].sort(porOrdem).map((g): GrupoOpcao => ({
@@ -98,13 +111,16 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
         nome: g.nome,
         minEscolhas: g.min_escolhas,
         maxEscolhas: g.max_escolhas,
-        opcoes: [...(g.opcoes ?? [])].sort(porOrdem).map((o) => ({
-          id: o.id,
-          nome: o.nome,
-          precoAdicionalCentavos: o.preco_adicional_centavos,
-          produtoId: o.produto_id ?? undefined,
-          disponivel: o.disponivel,
-        })),
+        opcoes: [...(g.opcoes ?? [])]
+          .filter((o) => o.ativo !== false)
+          .sort(porOrdem)
+          .map((o) => ({
+            id: o.id,
+            nome: o.nome,
+            precoAdicionalCentavos: o.preco_adicional_centavos,
+            produtoId: o.produto_id ?? undefined,
+            disponivel: o.disponivel,
+          })),
       })),
     }))
 
@@ -137,13 +153,13 @@ export function montarCardapio(d: DadosDoBanco): Cardapio {
 }
 
 const COLUNAS_PRODUTO =
-  'id, categoria_id, nome, descricao, preco_centavos, preco_original_centavos, foto_path, eh_combo, disponivel, ordem, ' +
+  'id, ativo, categoria_id, nome, descricao, preco_centavos, preco_original_centavos, foto_path, eh_combo, disponivel, ordem, ' +
   'grupos_opcao(id, nome, min_escolhas, max_escolhas, ordem, ' +
-  'opcoes(id, nome, preco_adicional_centavos, produto_id, disponivel, ordem))'
+  'opcoes(id, ativo, nome, preco_adicional_centavos, produto_id, disponivel, ordem))'
 
 export async function carregarDoSupabase(client: SupabaseClient): Promise<Cardapio> {
   const [categorias, produtos, loja, horarios] = await Promise.all([
-    client.from('categorias').select('id, nome, descricao, ordem').order('ordem'),
+    client.from('categorias').select('id, nome, descricao, ordem, ativo').order('ordem'),
     client.from('produtos').select(COLUNAS_PRODUTO).order('ordem'),
     client
       .from('configuracoes_loja')
@@ -158,10 +174,13 @@ export async function carregarDoSupabase(client: SupabaseClient): Promise<Cardap
   const falha = categorias.error ?? produtos.error ?? loja.error ?? horarios.error
   if (falha) throw new Error(`Falha ao ler o cardápio: ${falha.message}`)
 
-  return montarCardapio({
-    categorias: categorias.data as LinhaCategoria[],
-    produtos: produtos.data as unknown as LinhaProduto[],
-    loja: loja.data as LinhaLoja,
-    horarios: horarios.data as LinhaHorario[],
-  })
+  return montarCardapio(
+    {
+      categorias: categorias.data as LinhaCategoria[],
+      produtos: produtos.data as unknown as LinhaProduto[],
+      loja: loja.data as LinhaLoja,
+      horarios: horarios.data as LinhaHorario[],
+    },
+    (caminho) => client.storage.from(BUCKET_FOTOS).getPublicUrl(caminho).data.publicUrl,
+  )
 }
