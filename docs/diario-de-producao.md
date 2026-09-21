@@ -4,6 +4,16 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-19 — Sessão do Lucas (autônoma, mais duas pendências resolvidas)
+
+**Confirmado:** o Realtime já está habilitado para `pedidos` e `impressoes` no `deguste-dev` (item nº 6 da lista "Bloqueado" abaixo) — checado direto em `pg_publication_tables`, resultado das próprias migrations aplicadas na tarefa 1.14. Não precisa de nenhuma ação manual no painel.
+
+**Tarefa 2.10 — Domínio decidido.** Optei pelo subdomínio gratuito da Netlify por enquanto (consistente com a premissa de "custo fixo R$ 0" do projeto); domínio próprio (~R$ 40/ano) fica como opção futura, sem pressa. Documentado no plano (2.10 e pendência P8).
+
+**Documentação atualizada:** `PLANO-DE-PRODUCAO.md`.
+
+---
+
 ## 2026-09-19 — Sessão do Lucas (autônoma, continuação)
 
 **Tarefa executada: 2.2 — Carga do cardápio real no banco `deguste-dev`.**
