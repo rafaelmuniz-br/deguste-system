@@ -7,13 +7,13 @@ Fecha:
      Marque também [x] nela no PLANO-DE-PRODUCAO.md, NESTE mesmo PR: o CI confere e falha se faltar. -->
 
 ## Como testar
-<!-- Passo a passo para quem for revisar (use o deploy preview do Netlify) -->
+<!-- Passo a passo para quem for revisar (por enquanto tudo roda em localhost: não há deploy preview) -->
 
 ## Screenshot (se mexeu na tela)
 
 ## Checklist
 - [ ] CI verde
-- [ ] Testei no deploy preview, **no celular**
+- [ ] Testei **em localhost**, inclusive no celular (mesma rede Wi-Fi)
 - [ ] Nenhum segredo no diff
 - [ ] Nada de preço/pagamento calculado só no navegador
 - [ ] Mexeu em dados? Tem migration + RLS revisada

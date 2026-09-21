@@ -21,10 +21,11 @@ Decisões tomadas neste plano (o planejamento deixava em aberto ou implícito). 
 | D1 | **Um repositório só (monorepo)**: `app/` (React+Vite + Netlify Functions), `printer-agent/`, `supabase/` (migrations SQL), `docs/` | Lucas puxa um repo só; deploy do front e das functions juntos |
 | D2 | **Schema versionado em migrations SQL** (Supabase CLI), nunca alterado só pelo painel do Supabase | Reprodutível, revisável em PR, restaurável |
 | D3 | **Modelo de dados já nasce "channel-agnostic"**: todo item de pedido aponta para um `produto_id` real, mesmo dentro de combo, e todo pedido tem `canal` (`proprio`, `ifood`, `99food`) | Resolve desde o dia 1 o problema de relatório que a Cardápio Web não resolve (combos e mesmo hambúrguer em plataformas diferentes) |
-| D4 | **Ambientes**: `main` = produção (Netlify), cada PR = deploy preview, projeto Supabase separado para `dev/staging` | Lucas nunca testa contra dados reais |
+| D4 | **Ambientes**: `main` = produção (Netlify, **só no fim**, ver D8), cada PR = deploy preview (idem), projeto Supabase separado para `dev/staging` | Lucas nunca testa contra dados reais |
 | D5 | **Fase 5 exige Cardápio Web rodando em paralelo** por 1–2 semanas | Rede de segurança já prevista no planejamento |
 | D6 | **iFood/99Food ficam fora do caminho crítico**: operar pelos gestores de pedido nativos das plataformas até a Fase 7 | Já previsto; não bloqueia o MVP |
 | D7 | **Sem contas de cliente no MVP**: pedido identificado por nome + telefone. Conta/cashback entram na Fase 6 | Reduz o MVP; cashback e cupom não são necessários para vender |
+| D8 | **Netlify fica para o FINAL do projeto** (21/09/2026, decisão do Rafael): até a preparação do go-live (5.16), desenvolvimento e testes rodam **em localhost** (site + functions + Supabase de dev). Sem deploy preview por PR; a revisão é local + CI | Evita custo/complexidade e configuração de infraestrutura enquanto o produto ainda está mudando; tudo o que é do Netlify vira uma tarefa única perto do go-live |
 
 ## 3. Visão geral das fases
 
@@ -32,7 +33,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 | Fase | Entrega | Esforço | Critério de saída (verificável) |
 | --- | --- | --- | --- |
-| 0 | Setup: repo, ambientes, CI, contas | 2 d | PR de exemplo gera deploy preview; Lucas rodou o projeto local |
+| 0 | Setup: repo, ambientes, CI, contas | 2 d | Lucas rodou o projeto local e mesclou um PR (deploy preview no Netlify fica para o fim: D8) |
 | 1 | Fundação: banco + admin de produtos | 5 d | Bruno/Lucas cadastram um produto pelo admin e ele aparece no banco |
 | 2 | Cardápio público | 5 d | Cardápio real completo navegável no celular, abre/fecha por horário |
 | 3 | Pedido + frete + Pix | 10 d | Pedido de teste pago no sandbox aparece como `pago` no banco |
@@ -47,7 +48,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 
 ## Fase 0 — Setup e fundação de processo
 
-**Objetivo:** qualquer pessoa clona o repo, roda em 10 minutos e abre um PR que gera preview.
+**Objetivo:** qualquer pessoa clona o repo, roda em 10 minutos **em localhost** e abre um PR revisado pelo CI. (Publicação no Netlify e deploy preview ficam para o fim: D8.)
 
 - [x] 0.1 Criar repositório Git e enviar o link ao time `👤 Rafael`
 - [x] 0.2 Proteger `main`: PR obrigatório, 1 aprovação (Rafael), sem push direto `👤 Rafael`
@@ -57,6 +58,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.4 Projeto Vite + React + React Router + TypeScript `👤 Rafael`
 - [x] 0.5 Lint + formatação + teste rodando em CI (GitHub Actions) a cada PR `👤 Rafael`
 - [ ] 0.6 Site Netlify conectado ao repo: `main` → produção, PRs → deploy preview `👤 Rafael`
+  - ⏸ **ADIADA por decisão do Rafael (21/09/2026) — só perto do go-live (D8).** Até lá tudo roda em localhost. Executar junto com a **5.16**. Enquanto isso, não há preview por PR: quem revisa roda a branch localmente e confere o CI.
   - Ao criar o site, cadastrar em Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secreta: só no Netlify) e, se a regra de frete for por distância, `ORS_API_KEY`. Detalhes em `docs/arquitetura-pedido.md`.
   - **Tentativa do Lucas (19/09/2026):** criou conta no Netlify e tentou importar o repositório, mas `deguste-system` não aparece na lista — é da conta do Rafael no GitHub, só ele consegue autorizar o app do Netlify a acessar esse repositório específico (permissão do GitHub, não trava do Netlify). **Ação do Rafael:** ou (a) autorizar o Netlify GitHub App para o repositório em github.com/settings/installations, ou (b) criar o site ele mesmo e depois convidar o Lucas como membro do time no Netlify.
   - `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (públicas) também precisam ir nas Environment variables, senão o site publicado não conecta no banco — mesmos valores do `app/.env.local` do Lucas.
@@ -73,7 +75,9 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 - [x] 0.10 Template de PR (o que mudou, como testar, screenshot) e guia `CONTRIBUTING.md` para iniciante `👤 Rafael`
 - [x] 0.11 Lucas clona, roda local e abre um primeiro PR trivial (ex.: corrigir um texto) — valida o fluxo inteiro `👤 Lucas`
 
-**Saída:** PR do Lucas mergeado, deploy preview funcionando.
+- [ ] 0.12 **Rodar as functions localmente** (`pedidos`, `gerar-pix`, `webhook-pix`, `expirar-pedidos`) junto com o site em localhost, lendo um `.env` local do servidor (nunca no Git), para testar pedido e Pix de ponta a ponta sem Netlify (D8). Hoje o desenvolvimento usa a API simulada; sem esta tarefa, 3.15 e o teste de Pix no sandbox não têm onde rodar. Opções: `netlify dev` (CLI, sem publicar nada) ou um middleware no Vite que monte os mesmos handlers. Webhook do gateway em localhost precisa de um túnel temporário (ex.: cloudflared/ngrok) ou de consulta manual pelo botão "Já paguei" `👤 Rafael`
+
+**Saída:** PR do Lucas mergeado, projeto rodando em localhost (site e functions).
 
 ---
 
@@ -157,7 +161,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 **Objetivo:** cliente faz um pedido completo e paga. Nada de dinheiro real ainda (sandbox).
 
 - [ ] 3.1 Decisão: gateway Pix — **Mercado Pago vs Pagar.me** (comparar taxa real, prazo de recebimento, qualidade do sandbox) `👤 Rafael + Lucas`
-- [ ] 3.2 Conta do gateway criada em nome do CNPJ do Deguste, credenciais de sandbox nas variáveis do Netlify `👤 Lucas + Rafael` `⏳ depende: 3.1`
+- [ ] 3.2 Conta do gateway criada em nome do CNPJ do Deguste, credenciais de sandbox num `.env` **local** do servidor de functions (fora do Git; vão para as variáveis do Netlify só na 5.16) `👤 Lucas + Rafael` `⏳ depende: 3.1`
 - [x] 3.3 Checkout: nome, telefone, entrega vs retirada, endereço, observações `👤 Rafael`
 - [ ] 3.4 Geolocalização opcional do cliente (Geolocation API, com consentimento) para preencher endereço/calcular frete `👤 Rafael`
 - [ ] 3.5 **Cálculo de frete**: geocoding + distância (OpenRouteService ou similar) aplicando a regra de cobrança (R$/km ou faixas de bairro) *(regra de preço: Lucas define)* `👤 Rafael + Lucas`
@@ -197,7 +201,7 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
   - ✔ Parte do **banco** do pagamento testada (`supabase/tests/pagamento-pix.test.ts`, 21 testes): aviso duplicado, valor divergente, pagamento após cancelamento e após expiração, expiração automática, permissões.
   - ✔ **De ponta a ponta** (`supabase/tests/fluxo-pix.test.ts`, 8 testes): functions reais + banco real + gateway simulado, incluindo webhook duplicado (até simultâneo), assinatura falsa, valor divergente e pagamento após expiração.
   - Falta: repetir o cenário no **sandbox real** quando 3.2 existir.
-- [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no Netlify (0.6), fazer um pedido de teste pelo site e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.6`
+- [ ] 3.15 **Verificar a criação de pedido de ponta a ponta no `deguste-dev`:** migration `pedido_atomico` aplicada (1.14), functions rodando localmente com `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_URL` no `.env` local (0.12; Netlify só na 5.16), fazer um pedido de teste pelo site em localhost e conferir o registro no banco e o acompanhamento `👤 Rafael + Lucas` `⏳ depende: 1.14, 0.12`
 - [ ] 3.16 **Pagamento na entrega (dinheiro/cartão com o entregador)**: Lucas decidiu aceitar (páginas legais já citam). Falta no sistema: opção no checkout; pedido vai para a cozinha **sem** pagamento confirmado (hoje só pedido pago aparece na cozinha e imprime); troco; relatórios ("venda = pago") e conferência do valor com o entregador; anti-abuso (pedido falso sem pagamento prévio: limite por telefone, talvez só para clientes recorrentes ou até certo valor). Decidir as regras com Bruno e Lucas antes de construir `👤 Rafael + Bruno + Lucas`
 
 **Saída:** pedido de teste pago no sandbox vira `pago` no banco, com frete correto.
@@ -270,10 +274,11 @@ Esforço em **dias de trabalho efetivo** (Rafael com Claude Code). Calendário d
 **Piloto:**
 
 - [ ] 5.10 **Definir data de corte** e comunicar ao time `👤 Bruno + Lucas + Rafael`
-- [ ] 5.11 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal `👤 Lucas`
+- [ ] 5.11 Soft launch: link novo divulgado só para clientes fiéis/no Instagram Stories por 2–3 dias, Cardápio Web ainda principal `👤 Lucas` `⏳ depende: 5.16`
 - [ ] 5.12 Virada: link do Instagram/bio passa a apontar para o sistema novo; Cardápio Web fica **ativa em paralelo** (D5) `👤 Lucas + Rafael`
 - [ ] 5.13 Operar 1–2 semanas de quarta a domingo; registrar cada falha em issue com severidade `👤 Lucas + Bruno`
 - [ ] 5.14 Reunião de go/no-go: critérios abaixo atendidos → cancelar Cardápio Web `👤 Bruno + Lucas + Rafael`
+- [ ] 5.16 **Publicar no Netlify (executar a 0.6) — passo final antes do soft launch** (D8, 21/09/2026): autorizar o app do Netlify no repositório (o repo é da conta do Rafael), criar o site (`main` → produção, PRs → preview), cadastrar as variáveis (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ORS_API_KEY`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `SITE_URL`, `PIX_EMAIL_PAGADOR`, e as públicas `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`), **apontar para o `deguste-prod`** (não o dev), cadastrar o webhook do gateway com o endereço real, definir o nome do subdomínio (2.10), repetir o pedido de teste e o Pix no sandbox e depois o pagamento real de R$ 1 (5.1), e medir o Lighthouse no deploy (2.9). Guia em `docs/arquitetura-pedido.md` e `docs/pagamento.md` `👤 Rafael + Lucas` `⏳ depende: 0.7, 3.2`
 - [ ] 5.15 Exportar dados de clientes/histórico da Cardápio Web *antes* de cancelar (dados são da Deguste) `👤 Lucas`
 
 **Critério de go/no-go (todos verdadeiros):**
@@ -323,10 +328,10 @@ flowchart LR
     Claude --> PR[Pull Request]
     PR --> CI{CI verde?}
     CI -- não --> Claude
-    CI -- sim --> Preview[Deploy preview Netlify]
+    CI -- sim --> Preview[Rafael roda a branch em localhost]
     Preview --> Review[Rafael revisa]
     Review -- ajustes --> Claude
-    Review -- aprovado --> Main[merge em main = produção]
+    Review -- aprovado --> Main[merge em main]
 ```
 
 Regras:
@@ -342,7 +347,7 @@ Regras:
 ## 5. Definição de "pronto" (vale para todo PR)
 
 - [ ] CI verde (lint, tipos, testes)
-- [ ] Testado no deploy preview, no **celular**
+- [ ] Testado **localmente**, inclusive no celular (mesma rede Wi-Fi, `http://<IP-do-computador>:5173`) — o deploy preview do Netlify só existirá depois da 5.16 (D8)
 - [ ] Sem segredo no diff
 - [ ] Nada de lógica de preço/pagamento só no cliente
 - [ ] Se mexeu em dados: migration + RLS revisada
@@ -358,7 +363,7 @@ Regras:
 | Internet da casa cai | Tudo para | 5.5 (WhatsApp manual), sugestão: chip 4G como backup |
 | Supabase pausa por inatividade | Site fora do ar | 5.4 |
 | Free tier estoura | Custo inesperado | Monitorar uso mensalmente; fotos otimizadas (1.11, 2.9) |
-| Lucas introduz bug em produção | Falha em pico | PR obrigatório (0.2), preview, ambientes separados (D4) |
+| Lucas introduz bug em produção | Falha em pico | PR obrigatório (0.2), CI, ambientes separados (D4); o deploy preview só existe depois da 5.16 (D8), então até lá a revisão é rodar a branch localmente |
 | Relatório errado de vendas | Decisão de negócio errada | D3 desde o modelo de dados; teste com pedidos de combo (6.2) |
 | Regras fiscais | Multa se o volume crescer | Fora do escopo; confirmar com contador e registrar decisão |
 

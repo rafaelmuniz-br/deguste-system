@@ -22,7 +22,7 @@ Antes de dizer que algo está pronto: lint, typecheck, testes e build passando. 
 - **Dinheiro:** preço, frete, desconto e total são calculados **no servidor** a partir do banco; nunca confiar em valores enviados pelo navegador. Valores monetários em **centavos (inteiros)**, nunca float. Webhooks de pagamento devem ser idempotentes e validar assinatura.
 - **Banco:** schema só por migrations em `supabase/migrations/` (nomes `AAAAMMDDHHMMSS_descricao.sql`). **RLS ativado em toda tabela**; toda tabela nova precisa de política explícita. Nunca alterar schema direto no painel do Supabase.
 - **Modelo de dados:** todo item de pedido aponta para um `produto_id` real, mesmo dentro de combo, e todo pedido tem `canal` (`proprio`, `ifood`, `99food`). Isso garante relatórios corretos entre combos e canais.
-- **Ambientes:** desenvolvimento local usa sempre o Supabase de DEV, nunca produção.
+- **Ambientes:** desenvolvimento local usa sempre o Supabase de DEV, nunca produção. **Por decisão do Rafael (21/09/2026), o Netlify fica para o FINAL do projeto (tarefa 5.16):** até lá tudo roda em **localhost** (site, functions e testes), sem deploy preview; não tente configurar Netlify, domínio ou deploy fora dessa tarefa.
 - **Fuso:** horários de funcionamento e relatórios em `America/Bahia`.
 - **Acessibilidade:** `alt` em toda foto de produto, contraste adequado, formulários usáveis por teclado, mobile-first (a maioria dos clientes usa celular).
 - **LGPD:** coletar só o necessário (nome, telefone, endereço); nada de cookies de terceiros sem declarar na política de privacidade.

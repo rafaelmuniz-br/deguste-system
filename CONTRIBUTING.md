@@ -33,7 +33,7 @@ Guia pensado para quem está começando. Se travar em qualquer passo, pergunte a
    git push -u origin feat/descricao-curta
    ```
    No GitHub, clique em **Compare & pull request** e preencha o modelo.
-6. Espere o CI ficar verde e o **deploy preview** do Netlify aparecer. Abra o preview **no celular** e teste.
+6. Espere o CI ficar verde. **Por enquanto não existe deploy preview** (o Netlify fica para o final do projeto): teste **em localhost** com `npm run dev` e, para conferir no celular, abra `http://<IP-do-seu-computador>:5173` com o celular na mesma rede Wi-Fi.
 7. O Rafael revisa. Se pedir ajustes, faça novos commits na mesma branch.
 8. Depois do merge, marque a tarefa como `[x]` no plano.
 

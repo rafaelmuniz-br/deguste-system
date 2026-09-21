@@ -33,7 +33,9 @@ Código em `app/src/server/` (testado); o arquivo `app/netlify/functions/pedidos
 | 429 | Muitas requisições do mesmo IP, ou muitos pedidos pendentes do mesmo telefone |
 | 503 / 500 | Servidor sem configuração ou falha ao gravar. A resposta nunca traz detalhe interno |
 
-**Variáveis de ambiente** (Netlify → Site settings → Environment variables; **nunca** no Git):
+> **Onde isto roda:** por decisão do Rafael (21/09/2026), o Netlify fica para o final do projeto (tarefa 5.16). Até lá, as functions rodam **em localhost** (tarefa 0.12) e as variáveis abaixo ficam num `.env` local do servidor, fora do Git.
+
+**Variáveis de ambiente** (no `.env` local por enquanto; no Netlify → Site settings → Environment variables na 5.16; **nunca** no Git):
 
 | Variável | Para quê | Obrigatória |
 | --- | --- | --- |
