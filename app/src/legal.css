@@ -1,12 +1,15 @@
 /* Páginas legais, rodapé e aviso de cookies. Usa os tokens de cor de cardapio.css. */
 
 .legal {
+  max-width: 760px;
   padding-top: 16px;
   padding-bottom: 48px;
   line-height: 1.65;
 }
 .legal h1 {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   margin: 8px 0;
 }
 .legal h2 {
@@ -49,9 +52,9 @@ mark.pendente {
 .aviso-rascunho {
   margin: 12px 0;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--raio-pequeno);
   background: var(--acento-suave);
-  border: 1px solid var(--acento);
+  border: 1px solid var(--borda-campo);
 }
 
 /* Perguntas frequentes */
@@ -60,7 +63,8 @@ mark.pendente {
   padding: 0 14px;
   background: var(--superficie);
   border: 1px solid var(--borda);
-  border-radius: 12px;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
 }
 .faq summary {
   padding: 14px 0;
@@ -78,8 +82,9 @@ mark.pendente {
 /* Rodapé (com folga para a barra fixa da sacola) */
 .rodape-loja {
   margin-top: 24px;
-  padding: 20px 0 110px;
+  padding: 24px 0 110px;
   border-top: 1px solid var(--borda);
+  background: var(--superficie);
   color: var(--muted);
   font-size: 0.9rem;
 }

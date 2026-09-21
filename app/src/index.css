@@ -1,11 +1,14 @@
 :root {
   color-scheme: light dark;
+  /* Inter (embutida no site, sem pedir nada a serviço de terceiros): moderna e muito legível no celular. */
   font-family:
+    'Inter Variable',
     system-ui,
     -apple-system,
     'Segoe UI',
     sans-serif;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 * {

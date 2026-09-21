@@ -103,6 +103,9 @@ export default function ProdutoModal({
         </>
       }
     >
+      {produto.fotoUrl && (
+        <img className="modal-foto" src={produto.fotoUrl} alt={produto.nome} decoding="async" />
+      )}
       {produto.descricao && <p className="modal-desc">{produto.descricao}</p>}
       <p className="modal-preco">
         {precoOriginal !== undefined && (
