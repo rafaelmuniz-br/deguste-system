@@ -1,14 +1,43 @@
 # Diário de produção e relatório de pausa
 
-Registro do que foi feito na sessão de produção em modo automático (18/09/2026) e do que falta. O status oficial das tarefas continua sendo o `PLANO-DE-PRODUCAO.md` (**45 de 97 concluídas**); este arquivo explica o "como estamos" em linguagem simples para quem for retomar.
+Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois entender o que mudou, o que foi verificado e o que falta. Entradas novas entram **no topo**, como uma seção `## AAAA-MM-DD — ...`; a sessão mais antiga (abaixo) documenta tudo que já existia até ali.
 
-## Onde paramos
+---
+
+## 2026-09-19 — Sessão do Lucas (autônoma, tarde)
+
+**Tarefas executadas:**
+
+1. **1.14 — Aplicar migrations pendentes no `deguste-dev`.** Exatamente o item nº 1 da lista "Bloqueado por decisão ou ação de gente" abaixo. As 8 migrations pendentes (`comentario_componentes_repeticoes`, `pedido_atomico`, `lgpd_direitos_do_titular`, `fila_de_impressao`, `salvar_configuracao_loja`, `fotos_produtos`, `relatorio_vendas`, `pagamento_pix`) foram aplicadas em ordem no banco `deguste-dev`, via conector Supabase (mesmo efeito do SQL Editor manual).
+   - Verificação: `supabase/tests` depois (140 testes, todos passando) e `get_advisors` (segurança) conferido — só os avisos já esperados de funções `SECURITY DEFINER` (cada uma confere permissão internamente) e a tabela `agentes_impressao` com RLS sem política nenhuma (intencional).
+   - `docs/migrations-aplicadas.md` e `PLANO-DE-PRODUCAO.md` (1.14) atualizados.
+
+2. **3.12 — Páginas legais: 7 das 11 pendências resolvidas.** Lucas decidiu: razão social (Bruno Oliveira Pessoa), canal LGPD (WhatsApp) e encarregado (Lucas Costa Pinto Neves), prazo de reembolso (2 dias úteis), prazo de reclamação (mesmo dia da entrega), aprovação das regras de cancelamento e da regra de cliente ausente do rascunho, e forma de pagamento: Pix + **pagamento na entrega** (dinheiro/cartão direto com o entregador, sem gateway novo).
+   - **Atenção para quem pegar o checkout:** falta adicionar a opção "pagar na entrega" na tela — hoje o fluxo assume só Pix.
+   - Restam 4 pendências, nenhuma bloqueante: gateway Pix (3.1), serviço de mapas (3.5), prazo de retenção de dados (precisa do contador) e revisão jurídica final.
+   - PR: `docs/paginas-legais-decisoes` (#35).
+
+**Verificações realizadas:** `npm test`, `npm run typecheck`, `npm run lint`, `npx prettier --check` em `app/`; `npm test` em `supabase/`; conferência visual no navegador local.
+
+**Problemas encontrados e resolvidos:** dois textos com palavra duplicada depois de inserir os valores decididos, corrigidos; import `Pendente` sem uso removido de `Faq.tsx`.
+
+**Cuidado ao ler o restante deste diário:** a sessão de 18/09 abaixo é de **outra pessoa/sessão** (Rafael, "modo automático") — os números de PR e o estado "45 de 97" são daquele momento; várias linhas da tabela "O que falta" já foram resolvidas nesta entrada (item 1) ou por mim depois (ver `PLANO-DE-PRODUCAO.md` para o estado atual, sempre a fonte da verdade).
+
+**Próxima tarefa recomendada:** `git pull` de novo antes de decidir (o Rafael trabalha muito rápido em paralelo) e conferir `node painel/server.js` (http://localhost:4173). Candidata forte: **2.2** (carregar o cardápio real no banco — agora desbloqueada: 2.1, 2.11, 2.12 e 0.7-dev todas prontas).
+
+---
+
+## 2026-09-18 — Sessão do Rafael (modo automático)
+
+Registro do que foi feito na sessão de produção em modo automático (18/09/2026) e do que falta, tal como escrito naquele momento (histórico, não atualizado). O status oficial das tarefas é sempre o `PLANO-DE-PRODUCAO.md` atual.
+
+### Onde paramos
 
 - `main` está em dia, sem PR aberto e sem trabalho pela metade. Última entrega: exportação de pedidos em CSV (PR #33).
 - Testes no fim da sessão: **app 626**, **banco 140+** (PGlite: migrations, RLS, funções, fluxos de ponta a ponta), agente de impressão 43. CI verde (jobs `app`, `banco`, `plano`, `agente`).
 - Tudo foi testado com **fakes/bancos em memória**. **Nada do que foi feito nesta sessão foi ainda validado contra o Supabase real, o Netlify, o gateway de Pix ou a impressora real**: isso depende de ações humanas (abaixo).
 
-## O que foi entregue nesta sessão (PRs #20 a #33)
+### O que foi entregue nesta sessão (PRs #20 a #33)
 
 | PR | Entrega | Tarefas |
 | --- | --- | --- |
@@ -29,16 +58,16 @@ Registro do que foi feito na sessão de produção em modo automático (18/09/20
 
 Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `desempenho.md`, `pagamento.md`, `runbook.md`, `contingencia.md`, `manter-banco-ativo.md`.
 
-## Erros achados e corrigidos no caminho (para lembrar)
+### Erros achados e corrigidos no caminho (para lembrar)
 
 - Function `webhook-pix` sem variável de ambiente estourava exceção não tratada: agora responde 502 limpo (teste de regressão).
 - Rodapé "pulando" ao carregar o cardápio derrubava o Lighthouse para 78 (CLS 0,34): corrigido (nota 94–97).
 - Testes de acessibilidade ficaram frágeis com páginas carregadas sob demanda: agora pré-carregam.
 - O trecho do adaptador Mercado Pago que confere a assinatura usa o mesmo id que depois processa (evita assinar um id e agir sobre outro).
 
-## Relatório do que falta
+### Relatório do que falta
 
-### A. Bloqueado por decisão ou ação de gente (o que mais destrava)
+#### A. Bloqueado por decisão ou ação de gente (o que mais destrava)
 
 | # | O que | Quem | Por que importa |
 | --- | --- | --- | --- |
@@ -56,13 +85,13 @@ Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `dese
 | 12 | Preencher contatos e chave Pix no `runbook.md` e `contingencia.md`; imprimir | Lucas + Bruno | 5.5, 5.6 |
 | 13 | 2FA em Supabase e GitHub (5.9); convidar Rafael como admin do Supabase; incluir o job `agente` nos checks obrigatórios do ruleset | Lucas / Rafael | Segurança |
 
-### B. Depende do que precisa acontecer acima, mas o código já está pronto
+#### B. Depende do que precisa acontecer acima, mas o código já está pronto
 
 - **3.8 e 3.9 (Pix)**: banco, functions, adaptador, tela e testes prontos; falta o **sandbox real** (pontos `SANDBOX:` em `app/src/server/pix/mercadoPago.ts`).
 - **3.15** verificação de pedido de ponta a ponta no dev; **4.7** agente na impressora real.
 - **2.2 seed do cardápio real** (depende de 2.14 e das fotos/preço final) e **2.15** (produção).
 
-### C. Ainda não feito e dá para eu fazer quando retomar
+#### C. Ainda não feito e dá para eu fazer quando retomar
 
 - **6.3** histórico por cliente (telefone) e clientes recorrentes.
 - **6.5 cupons** e **6.6 conta de cliente + cashback** (tabelas reservadas já existem; são maiores).
@@ -71,14 +100,14 @@ Documentos novos: `docs/cozinha.md`, `admin-cadastro.md`, `relatorios.md`, `dese
 - **Fase 7** (iFood/99Food): começa por pesquisa de APIs (7.1).
 - Melhorias citadas nos documentos: tempo de deslocamento somado à previsão (depende de 3.5), tela de pagamentos a conferir com histórico.
 
-### D. Riscos a ter em mente
+#### D. Riscos a ter em mente
 
 1. Nada foi ainda rodado contra Supabase/Netlify/gateway reais: o primeiro dia de teste real vai revelar pequenos ajustes.
 2. Adaptador do Mercado Pago escrito pela documentação: conferir formatos e assinatura no sandbox antes de qualquer teste com dinheiro.
 3. Política de pagamento tardio (estornar, não aceitar) é decisão minha a confirmar com o Bruno (`docs/pagamento.md`).
 4. Migrations são aplicadas manualmente pelo Lucas, em ordem: erro de ordem é o risco mais provável.
 
-## Como retomar
+### Como retomar
 
 1. `git pull` em `main`; `docs/migrations-aplicadas.md` mostra o que falta aplicar.
 2. Lucas aplica as migrations 150000–220000 no dev e cria os admins (`docs/criar-admins.md`); depois abrir `/admin` e `/cozinha` no dev e fazer um pedido de teste.
