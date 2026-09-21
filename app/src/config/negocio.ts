@@ -17,21 +17,21 @@ export const NEGOCIO = {
   // ---- Itens que dependem de DECISÃO do negócio. `null` aparece destacado como "[a definir]"
   // ---- nas páginas e o site avisa que o texto é rascunho (ver CONTEUDO_LEGAL_REVISADO).
   /** Razão social exata, como está no cartão CNPJ. */
-  razaoSocial: null as string | null,
+  razaoSocial: 'Bruno Oliveira Pessoa' as string | null,
   /** Canal para o cliente exercer direitos da LGPD (e-mail ou WhatsApp). Tarefa 3.13. */
-  canalPrivacidade: null as string | null,
+  canalPrivacidade: 'WhatsApp' as string | null,
   /** Quem responde pela proteção de dados (encarregado). Pode ser o próprio dono. */
-  encarregado: null as string | null,
+  encarregado: 'Lucas Costa Pinto Neves' as string | null,
   /** Gateway que processa o Pix (Mercado Pago ou Pagar.me). Tarefa 3.1. */
   gatewayPix: null as string | null,
   /** Prazo para o reembolso cair, depois de aprovado. */
-  prazoReembolso: null as string | null,
+  prazoReembolso: '2 dias úteis' as string | null,
   /** Até quando o cliente pode avisar de problema no pedido (item errado, faltando...). */
-  prazoReclamacao: null as string | null,
+  prazoReclamacao: 'no mesmo dia da entrega' as string | null,
 }
 
 /** Data da última revisão do texto das páginas legais. */
-export const LEGAL_ATUALIZADO_EM = '18 de setembro de 2026'
+export const LEGAL_ATUALIZADO_EM = '19 de setembro de 2026'
 
 /**
  * TRAVA de segurança: enquanto for `false`, todas as páginas legais mostram o aviso
