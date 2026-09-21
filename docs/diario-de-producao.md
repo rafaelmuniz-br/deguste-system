@@ -4,6 +4,20 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-21 — Atualização geral do acompanhamento e do planejamento
+
+Revisão dos documentos de acompanhamento depois das entregas de 18 a 21/09 (PRs #20 a #42, incluindo os 5 PRs do Lucas, o redesign visual e a decisão do Netlify).
+
+**Situação:** **50 de 101 tarefas concluídas.** Por fase: 0 (9/12), 1 (13/14), 2 (14/17), 3 (5/16), 4 (7/13), 5 (0/16), 6 (2/8), 7 (0/5). Quase todo o código previsto para as Fases 1 a 4 existe e está testado (626 testes no app, 140 no banco, 43 no agente), mas **ainda com serviços simulados**.
+
+**O que mudou nos documentos:** `PLANO-DE-PRODUCAO.md` (versão 0.5): coluna de situação por fase, marcos de validação M1 a M6 no cronograma (o gargalo deixou de ser programação), pendências P11 e P12 atualizadas e novas P13 a P16, seção "próximas ações" reescrita. O painel local (`node painel/server.js`, http://localhost:4173) lê o plano e já reflete tudo isso sozinho.
+
+**Tarefas criadas nesta rodada:** 0.12 (functions em localhost), 2.17 (redesign, feita), 3.16 (pagamento na entrega) e 5.16 (publicar no Netlify).
+
+**Caminho crítico agora:** 1.7 (admins) → 0.12 (functions locais) → 3.15 (pedido de ponta a ponta) → 3.1/3.2 (gateway) → validar 3.8/3.9; em paralelo, impressora (4.6) e textos legais (3.12).
+
+---
+
 ## 2026-09-21 — Redesign visual da interface (2.17)
 
 Pedido do Rafael: transformação **estética** do app na linguagem de apps de delivery (referência de padrões, sem copiar marca), mantendo a paleta preto e branco da Deguste e tudo que já existe (funções, regras, telas, fluxo).
