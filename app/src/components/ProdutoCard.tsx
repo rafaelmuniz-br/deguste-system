@@ -47,21 +47,28 @@ export default function ProdutoCard({
             )}
           </span>
         </span>
-        {produto.fotoUrl ? (
-          <img
-            className="produto-foto"
-            src={produto.fotoMiniaturaUrl ?? produto.fotoUrl}
-            alt={produto.nome}
-            width={84}
-            height={84}
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <span className="produto-foto placeholder" aria-hidden="true">
-            🍔
-          </span>
-        )}
+        <span className="produto-midia">
+          {produto.fotoUrl ? (
+            <img
+              className="produto-foto"
+              src={produto.fotoMiniaturaUrl ?? produto.fotoUrl}
+              alt={produto.nome}
+              width={104}
+              height={104}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <span className="produto-foto placeholder" aria-hidden="true">
+              🍔
+            </span>
+          )}
+          {produto.disponivel && (
+            <span className="produto-mais" aria-hidden="true">
+              +
+            </span>
+          )}
+        </span>
       </button>
     </li>
   )

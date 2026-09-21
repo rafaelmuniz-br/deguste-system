@@ -36,13 +36,31 @@ export default function Cardapio() {
   return (
     <>
       <header className="cabecalho">
+        {/* Capa de marca (só decoração: o nome da loja está no título abaixo). */}
+        <div className="capa" aria-hidden="true">
+          <span className="capa-marca">
+            DEGUSTE
+            <small>BURGUER</small>
+          </span>
+        </div>
         <div className="pagina">
-          <h1>{loja.nome}</h1>
-          <p className={`status-loja ${estado.aberta ? 'aberta' : 'fechada'}`} role="status">
-            {descreverEstado(estado)}
-          </p>
-          <p className="sub">Hamburgueria. Sem miséria! 🍔🤘</p>
-          <p className="sub">Preparo em cerca de {loja.tempoPreparoMin} min depois do pagamento.</p>
+          <div className="cabecalho-card">
+            <div className="avatar" aria-hidden="true">
+              D
+            </div>
+            <div className="cabecalho-info">
+              <h1>{loja.nome}</h1>
+              <p className="sub">Hamburgueria. Sem miséria! 🍔🤘</p>
+            </div>
+          </div>
+          <div className="chips-info">
+            <p className={`status-loja ${estado.aberta ? 'aberta' : 'fechada'}`} role="status">
+              {descreverEstado(estado)}
+            </p>
+            <p className="sub">
+              Preparo em cerca de {loja.tempoPreparoMin} min depois do pagamento.
+            </p>
+          </div>
         </div>
       </header>
 

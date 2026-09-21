@@ -32,8 +32,8 @@ describe('ProdutoCard: foto', () => {
     const img = screen.getByRole('img', { name: 'Jackfino' })
     expect(img).toHaveAttribute('src', 'https://cdn/p1/1-mini.webp')
     expect(img).toHaveAttribute('loading', 'lazy')
-    expect(img).toHaveAttribute('width', '84')
-    expect(img).toHaveAttribute('height', '84')
+    expect(img).toHaveAttribute('width', '104')
+    expect(img).toHaveAttribute('height', '104')
   })
 
   it('sem miniatura, usa a foto normal', () => {
