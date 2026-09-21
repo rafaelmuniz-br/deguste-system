@@ -54,7 +54,9 @@ Quem decide se o pedido está pago é **o banco**, nunca o navegador nem o "avis
 
 Código: `app/src/server/pix/` (`gateway.ts` é o contrato; `mercadoPago.ts` é o adaptador; `pixHandlers.ts` são as duas funções; `dependenciasPix.ts` liga ao Supabase).
 
-### Variáveis de ambiente (Netlify → Site configuration → Environment variables)
+> **Por enquanto em localhost:** o Netlify fica para o final do projeto (plano D8, tarefa 5.16). As variáveis abaixo entram num `.env` local das functions (0.12). O aviso do gateway (webhook) precisa de um endereço público: em localhost use um túnel temporário (cloudflared/ngrok) ou confirme pelo botão **Já paguei**; o cadastro do webhook com o endereço definitivo é da 5.16.
+
+### Variáveis de ambiente (`.env` local por enquanto; Netlify → Site configuration → Environment variables na 5.16)
 
 | Variável | Para quê | Secreta? |
 | --- | --- | --- |

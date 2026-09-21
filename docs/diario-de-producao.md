@@ -4,6 +4,23 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-21 — Decisão do Rafael: Netlify só no final; por enquanto, localhost
+
+**Decisão:** publicar no Netlify fica para o **final do projeto**. Até lá, tudo (site, functions e testes) roda em **localhost**, com o Supabase de dev. Não há deploy preview por PR.
+
+**Onde ficou registrado:**
+- `PLANO-DE-PRODUCAO.md`: nova decisão **D8**; D4 ajustada; **0.6 adiada** (executada só na nova **5.16**, "Publicar no Netlify", passo final antes do soft launch); nova **0.12** (rodar as functions localmente, necessária para o pedido de teste de ponta a ponta e para o Pix no sandbox); **3.2** e **3.15** passam a usar `.env` local em vez de Netlify; 5.11 depende da 5.16; definição de "pronto" e riscos sem deploy preview.
+- `CLAUDE.md`, `CONTRIBUTING.md`, `README.md` e o template de PR: teste em localhost (celular na mesma rede Wi-Fi, `http://<IP>:5173`).
+- `docs/arquitetura-pedido.md` e `docs/pagamento.md`: variáveis de ambiente em `.env` local por enquanto; webhook do gateway em localhost precisa de túnel temporário ou do botão "Já paguei".
+
+**Consequências a lembrar:**
+1. O que hoje aparece como "Bloqueado: 0.6 Netlify" (relatório de 18/09 e nota do Lucas em 0.6) **deixa de ser pendência**: só volta na 5.16.
+2. Sem Netlify, o site **não pode ser divulgado a clientes**: isso é intencional até o go-live.
+3. A próxima tarefa técnica que destrava os testes reais é a **0.12** (functions em localhost); junto com os admins (1.7) e o sandbox do gateway (3.1/3.2).
+4. Ainda vale o subdomínio gratuito do Netlify (2.10) quando chegar a 5.16; o site de produção deve apontar para o `deguste-prod`, não para o dev.
+
+---
+
 ## 2026-09-19 — Sessão do Lucas (autônoma, mais duas pendências resolvidas)
 
 **Confirmado:** o Realtime já está habilitado para `pedidos` e `impressoes` no `deguste-dev` (item nº 6 da lista "Bloqueado" abaixo) — checado direto em `pg_publication_tables`, resultado das próprias migrations aplicadas na tarefa 1.14. Não precisa de nenhuma ação manual no painel.

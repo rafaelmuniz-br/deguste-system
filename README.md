@@ -41,7 +41,7 @@ Na aba **Minhas tarefas** escolha seu nome (Lucas, Rafael ou Bruno) para ver o q
 ## Estrutura
 
 ```
-app/             Site (React + Vite) e, depois, Netlify Functions
+app/             Site (React + Vite) e Netlify Functions (rodam em localhost por enquanto; o Netlify só entra no final, ver plano D8)
 supabase/        Migrations SQL do banco (única fonte da verdade do schema)
 printer-agent/   Agente de impressão da cozinha (Fase 4)
 docs/            Documentação e runbooks
