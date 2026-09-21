@@ -14,6 +14,26 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-19 — Sessão do Lucas (autônoma, continuação)
+
+**Tarefa executada: 2.2 — Carga do cardápio real no banco `deguste-dev`.**
+
+Criado `supabase/seed-cardapio-real.sql`: remove o cardápio de exemplo (`supabase/seed.sql`) e carrega o cardápio real completo a partir de `docs/levantamento-cardapio.md` — 5 categorias, 35 produtos (6 combos), 34 grupos de opção, 158 opções. Aplicado no `deguste-dev` via conector Supabase (testado primeiro, corrigido um erro de ordem de exclusão — `opcoes.produto_id` é `on delete restrict` — antes de aplicar).
+
+Isso também resolveu, na prática, a tarefa **2.14** (o que fazer com "Brownie de Chocolate", que está `Inativo` mas aparecia dentro de combos no site antigo): decisão provisória de tratá-lo como resquício e deixá-lo de fora inteiramente (nem avulso, nem opção de combo), registrada no plano para o Bruno confirmar ou reverter.
+
+**Verificação de ponta a ponta no navegador (com a loja aberta via `?loja=aberta`):**
+- Cardápio completo carregando do banco real (todas as categorias, preços "de/por" e selos de desconto corretos).
+- Abri o "Combo 3 Smashs 90g", cliquei 3x em "Aumentar quantidade de Jackfino": contador foi a 3, o botão "Aumentar" das outras opções do mesmo grupo ficou desabilitado (limite do grupo atingido) e o botão "Adicionar" ficou habilitado — confirma que a tarefa 2.11 (repetição de opção) funciona com dados reais, não só nos testes automatizados.
+
+**Problema encontrado (ambiente, não código):** depois de editar `supabase/seed-cardapio-real.sql`, o Vite HMR do servidor de dev ficou com um erro fantasma (`temDesconto is not defined`, variável que não existe mais no código-fonte atual). Resolvido reiniciando o servidor e abrindo uma aba nova do navegador — confirmado por `grep` que o código-fonte não tinha mais essa variável, então era só cache do HMR.
+
+**Documentação atualizada:** `PLANO-DE-PRODUCAO.md` (2.2 e 2.14 marcadas, nota na 2.1 sobre o Brownie de Chocolate), este diário.
+
+**Próxima tarefa recomendada:** `git pull` antes de decidir (Rafael continua rápido em paralelo). Com 2.2 feita, o cardápio real já está "ao vivo" no dev — próximo passo natural seria conferir no celular (deploy preview, quando existir — depende de 0.6) ou seguir com tarefas menores só do Lucas (2.10 domínio, 2.13 fotos, 4.6 impressora).
+
+---
+
 ## 2026-09-19 — Sessão do Lucas (autônoma, tarde)
 
 **Tarefas executadas:**
