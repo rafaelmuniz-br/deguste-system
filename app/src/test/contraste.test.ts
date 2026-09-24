@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-// Auditoria de contraste de cor (WCAG 2.1): confere os PARES de cores realmente usados nos dois temas
-// (claro e escuro), lendo os tokens direto do CSS. Texto: mínimo 4,5:1 (AA). Bordas e foco de
+// Auditoria de contraste de cor (WCAG 2.1): confere os PARES de cores realmente usados no tema fixo,
+// lendo os tokens direto do CSS. Texto: mínimo 4,5:1 (AA). Bordas e foco de
 // componentes de interface: mínimo 3:1 (critério 1.4.11).
 
 const css = readFileSync(resolve(process.cwd(), 'src/cardapio.css'), 'utf8')
@@ -15,9 +15,9 @@ function lerTokens(bloco: string): Record<string, string> {
   return tokens
 }
 
-const claro = css.match(/:root\s*\{([^}]*)\}/)?.[1] ?? ''
-// O site usa SÓ o tema claro (decisão do Rafael, 21/09/2026).
-const TEMAS = { claro: lerTokens(claro) }
+const fixo = css.match(/:root\s*\{([^}]*)\}/)?.[1] ?? ''
+// O site usa um tema único, fixo (decisão do Rafael em 21/09/2026, paleta revisada pelo Lucas em 24/09/2026 — tarefa 2.18).
+const TEMAS = { fixo: lerTokens(fixo) }
 
 const luminancia = (hex: string) => {
   const canais = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -50,18 +50,18 @@ const PARES: [string, string, number, string][] = [
 ]
 
 describe('contraste de cor (WCAG 2.1 AA)', () => {
-  it('lê os tokens do tema claro', () => {
-    expect(Object.keys(TEMAS.claro).length).toBeGreaterThan(10)
+  it('lê os tokens do tema fixo', () => {
+    expect(Object.keys(TEMAS.fixo).length).toBeGreaterThan(10)
   })
 
-  it('tema claro é fixo: nenhum CSS troca de cor pelo modo escuro do aparelho', () => {
+  it('o tema é fixo: nenhum CSS troca de cor pelo modo claro/escuro do aparelho', () => {
     const outros = ['cardapio.css', 'legal.css', 'admin.css', 'cozinha.css', 'index.css']
     for (const arquivo of outros) {
       const texto = readFileSync(resolve(process.cwd(), 'src', arquivo), 'utf8')
-      expect(texto, arquivo).not.toMatch(/prefers-color-scheme:\s*dark/)
+      expect(texto, arquivo).not.toMatch(/prefers-color-scheme:\s*(dark|light)/)
     }
     expect(readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8')).toMatch(
-      /color-scheme:\s*light;/,
+      /color-scheme:\s*dark;/,
     )
   })
 
