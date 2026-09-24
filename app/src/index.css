@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light; /* tema claro fixo: ignora o modo escuro do aparelho */
+  color-scheme: dark; /* tema escuro fixo (2.18): ignora o modo claro/escuro do aparelho */
   /* Inter (embutida no site, sem pedir nada a serviço de terceiros): moderna e muito legível no celular. */
   font-family:
     'Inter Variable',

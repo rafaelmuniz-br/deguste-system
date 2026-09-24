@@ -4,6 +4,25 @@ Registro do que foi feito em cada sessão de trabalho, pra quem chegar depois en
 
 ---
 
+## 2026-09-24 — Nova paleta de cores e barra da sacola fixa (2.18)
+
+Pedido do Lucas: portar para o Deguste Burguer a paleta de cores (fundo escuro `#1c1c1c`, laranja `#ff7a1a` como cor de ação) e o tratamento de "barra fixa embaixo" que ele criou por conta própria num projeto pessoal de estudo de React (`VSCodium/web-dev/react/projeto-pratico`, branch `feature/cores-e-navegacao-fixa`), pedindo para resolver qualquer incompatibilidade encontrada.
+
+**O que mudou (só CSS, nenhuma regra/tela/dado):**
+- `app/src/cardapio.css`: bloco `:root` com a nova paleta (validada com o mesmo script de contraste WCAG que o teste usa, antes de aplicar); `.capa` e `.produto-foto.placeholder` passaram a usar `--acento-suave` no degradê em vez de cinza fixo; `.barra-sacola` deixou de ser um degradê que desaparece (`pointer-events: none` + fade) e passou a ser **sólida, com borda superior e sombra** — mesma linguagem visual de barra fixa embaixo do projeto de estudo, aplicada ao elemento fixo que já existia no Deguste (a sacola; o cardápio não tem abas de navegação tipo "Início/Perfil" como o projeto de estudo, então não havia o que portar ali).
+- `app/src/index.css`: `color-scheme: dark` (era `light`).
+- `app/src/test/contraste.test.ts`: ajustado para falar de "tema fixo" em vez de "tema claro" e cobrar `color-scheme: dark`; os mesmos 16 pares de cor continuam sendo checados, agora contra a paleta nova (todos passam, com folga — ver `docs/design.md`).
+
+**Compatibilidade resolvida:** isso **revisa a decisão "tema claro fixo" que o Rafael tomou na 2.17** (documentada em `docs/design.md` e no teste de contraste). Mantive a mesma garantia de fundo (um único tema fixo, sem alternar pelo aparelho) e só troquei qual é esse tema. **Fica sinalizado para o Rafael revisar no PR** — se ele preferir manter preto e branco, é reverter só este PR.
+
+Também precisei rodar `npm install` no `app/` (o `git pull` trouxe `axe-core` e outras dependências do PR #42 que ainda não estavam instaladas localmente) — sem isso os testes de acessibilidade nem o servidor de desenvolvimento carregavam.
+
+**Verificado:** 611 testes (inclui contraste WCAG e axe), lint (`oxlint`) e `tsc -b` limpos, build de produção ok. Testado ao vivo no navegador: cardápio, modal de produto com grupos de escolha, sacola com item adicionado, barra fixa embaixo, e no viewport mobile (375×812) — tudo legível e com bom contraste.
+
+Branch `feat/2-18-novo-visual-laranja`, ainda **não** enviada nem aberto PR — combinado com o Lucas de confirmar antes de subir, já que mexe numa decisão de design do Rafael.
+
+---
+
 ## 2026-09-21 — Lucas autorizado a assumir tarefas do Rafael
 
 Decisão do Rafael: o Lucas pode fazer também as tarefas marcadas `👤 Rafael`. Registrado como **D9** no plano, em `CONTRIBUTING.md` e no `CLAUDE.md` (o Claude Code do Lucas lê). Continua tudo por PR revisado pelo Rafael; ficam de fora permissões do GitHub, Netlify, segredos e decisões de negócio. **Nenhuma permissão do GitHub foi alterada** (o Lucas já podia abrir PRs; a mescla continua com o Rafael).
